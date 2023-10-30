@@ -1,0 +1,13 @@
+name: Push to main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  linting:
+    uses: ./.github/workflows/action_linting.yml
+
+  test-build:
+    uses: ./.github/workflows/action_test_build.yml
