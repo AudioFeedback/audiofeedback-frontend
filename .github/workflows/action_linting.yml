@@ -19,8 +19,11 @@ jobs:
         with:
           version: 8
 
-      - run: pnpm install
+      - name: Install packages
+        run: pnpm install
 
-      - run: pnpm format
-        
-      - run: pnpm run lint
+      - name: Format PNPM
+        run: pnpm format
+
+      - name: Run linting
+        run: pnpm run lint

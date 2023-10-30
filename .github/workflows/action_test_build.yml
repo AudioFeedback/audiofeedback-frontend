@@ -19,8 +19,11 @@ jobs:
         with:
           version: 8
 
-      - run: pnpm install
+      - name: Install packages
+        run: pnpm install
 
-      - run: pnpm format
-        
-      - run: pnpm run build
+      - name: Format PNPM
+        run: pnpm format
+
+      - name: Run build
+        run: pnpm run build
