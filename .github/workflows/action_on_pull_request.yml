@@ -8,3 +8,10 @@ jobs:
 
   test-build:
     uses: ./.github/workflows/action_test_build.yml
+
+
+  sonarcloud:
+    uses: ./.github/workflows/action_run_sonarcloud.yml
+    secrets:
+      github: ${{ secrets.GITHUB_TOKEN }}
+      sonar: ${{ secrets.SONAR_TOKEN }}
