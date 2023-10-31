@@ -23,6 +23,19 @@ const pause = () => {
 
     audioElement.pause();
 };
+
+const seek = (seconds: number) => {
+    if (!audioPlayer.value) {
+        return;
+    }
+
+    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
+
+    audioElement.currentTime = seconds;
+    if (!audioElement.paused) {
+        audioElement.pause();
+    }
+};
 </script>
 
 <template>
@@ -30,6 +43,7 @@ const pause = () => {
         <div class="flex flex-row gap-4 mb-12">
             <button @click="play">PLAY</button>
             <button @click="pause">PAUSE</button>
+            <button @click="seek(0)">STOP</button>
         </div>
 
         <AVWaveform
