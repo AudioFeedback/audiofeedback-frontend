@@ -3,12 +3,16 @@ import { ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 
 const apiUrl = 'http://localhost:3000/tracks';
-let uploadedfileUrl = ref<any>(null);
+let uploadedfileUrl = ref<string>("");
 
 const name = ref<string>("");
 const genre = ref<string>("");
 const audiofile = ref<File | null>(null);
+const componentKey = ref(0);
 
+const forceRerender = () => {
+  componentKey.value += 1;
+};
 // interface InputFileEvent extends Event {
 //     target: HTMLInputElement;
 // }
@@ -42,9 +46,10 @@ const submitData = async () => {
     }
 
     console.log('API Response:', response);
-    uploadedfileUrl.value = await response.json();
-    console.log(uploadedfileUrl.value.full_url)
-
+    const data = await response.json();
+    
+    uploadedfileUrl.value = `http://${data.full_url}`;
+    forceRerender();
     // You can handle the response data as needed.
   } catch (error) {
     console.error('API Error:', error);
@@ -102,6 +107,7 @@ const seek = (seconds: number) => {
         </div>
 
         <AVWaveform
+            :key="componentKey"
             ref="audioPlayer"
             :audio-controls="false"
             :canv-height="200"
@@ -112,7 +118,7 @@ const seek = (seconds: number) => {
             :playtime-slider-color="'#d5540f'"
             :playtime-slider-width="5"
             cors-anonym
-            :src="uploadedfileUrl.full_url"
+            :src="`${uploadedfileUrl}`"
         ></AVWaveform>
     </div>
 </template>
