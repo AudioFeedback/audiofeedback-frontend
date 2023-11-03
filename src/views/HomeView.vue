@@ -2,6 +2,55 @@
 import { ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 
+const apiUrl = 'http://localhost:3000/tracks';
+let uploadedfileUrl = ref<any>(null);
+
+const name = ref<string>("");
+const genre = ref<string>("");
+const audiofile = ref<File | null>(null);
+
+// interface InputFileEvent extends Event {
+//     target: HTMLInputElement;
+// }
+
+const handleFileChange = (event: Event) => {
+    if(!event || !event.target) return;
+
+    const target = event.target as HTMLInputElement;
+
+  audiofile.value = target.files![0];
+};
+
+//maybe the issue is bc i put it in component and not in route
+
+const submitData = async () => {
+  try {
+    const body = new FormData();
+    body.set("title", name.value)
+    body.set("genre", genre.value)
+    body.set("file", audiofile.value!)
+
+    const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "accept": "*/*"
+            }, body: body
+        });
+
+    if(!response) {
+      return
+    }
+
+    console.log('API Response:', response);
+    uploadedfileUrl.value = await response.json();
+    console.log(uploadedfileUrl.value.full_url)
+
+    // You can handle the response data as needed.
+  } catch (error) {
+    console.error('API Error:', error);
+  }
+};
+
 const audioPlayer = ref<AVWaveform | null>(null);
 
 const play = () => {
@@ -10,7 +59,6 @@ const play = () => {
     }
 
     const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-
     audioElement.play();
 };
 
@@ -20,7 +68,6 @@ const pause = () => {
     }
 
     const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-
     audioElement.pause();
 };
 
@@ -39,7 +86,15 @@ const seek = (seconds: number) => {
 </script>
 
 <template>
-    <div>
+    <p>value: {{ uploadedfileUrl }}</p>
+    <div v-if="!uploadedfileUrl">
+        <p>audiostreaming:</p>
+        <input v-model='name' type='text' placeholder="name" />
+        <input v-model='genre' type="text" placeholder="genre" />
+        <input type="file" v-on:change="handleFileChange" />
+        <button @click="submitData">Submit</button>
+    </div>
+    <div v-if="uploadedfileUrl">
         <div class="flex flex-row gap-4 mb-12">
             <button @click="play">PLAY</button>
             <button @click="pause">PAUSE</button>
@@ -57,7 +112,7 @@ const seek = (seconds: number) => {
             :playtime-slider-color="'#d5540f'"
             :playtime-slider-width="5"
             cors-anonym
-            src="http://localhost:3000/tracks/audio/33a6b441-f2e0-4672-8010-95848491a56a.mp3"
+            :src="uploadedfileUrl.full_url"
         ></AVWaveform>
     </div>
 </template>
