@@ -1,16 +1,22 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@vueuse/core':
+    specifier: ^10.5.0
+    version: 10.5.0(vue@3.3.7)
   pinia:
     specifier: ^2.1.7
     version: 2.1.7(typescript@5.2.2)(vue@3.3.7)
   vue:
     specifier: ^3.3.4
     version: 3.3.7(typescript@5.2.2)
+  vue-audio-visual:
+    specifier: ^3.0.5
+    version: 3.0.5(typescript@5.2.2)
   vue-router:
     specifier: ^4.2.5
     version: 4.2.5(vue@3.3.7)
@@ -552,6 +558,14 @@ packages:
     resolution: {integrity: sha512-95Sfz4nvMAb0Nl9DTxN3j64adfwfbBPEYq14VN7zT5J5O2M9V6iZMIIQU1U+pJyl9agHYHNCqhCXgyEtIRRa5A==}
     dev: true
 
+  /@types/web-bluetooth@0.0.16:
+    resolution: {integrity: sha512-oh8q2Zc32S6gd/j50GowEjKLoOVOwHP/bWVjKJInBwQqdOYMdPrf1oVlelTlyfFK3CKxL1uahMDAr+vy8T7yMQ==}
+    dev: false
+
+  /@types/web-bluetooth@0.0.18:
+    resolution: {integrity: sha512-v/ZHEj9xh82usl8LMR3GarzFY1IrbXJw5L4QfQhokjRV91q+SelFqxQWSep1ucXEZ22+dSTwLFkXeur25sPIbw==}
+    dev: false
+
   /@typescript-eslint/eslint-plugin@6.9.0(@typescript-eslint/parser@6.9.0)(eslint@8.52.0)(typescript@5.2.2):
     resolution: {integrity: sha512-lgX7F0azQwRPB7t7WAyeHWVfW1YJ9NIgd9mvGhfQpRY56X6AVf8mwM8Wol+0z4liE7XX3QOt8MN1rUKCfSjRIA==}
     engines: {node: ^16.0.0 || >=18.0.0}
@@ -924,6 +938,56 @@ packages:
   /@vue/tsconfig@0.4.0:
     resolution: {integrity: sha512-CPuIReonid9+zOG/CGTT05FXrPYATEqoDGNrEaqS4hwcw5BUNM2FguC0mOwJD4Jr16UpRVl9N0pY3P+srIbqmg==}
     dev: true
+
+  /@vueuse/core@10.5.0(vue@3.3.7):
+    resolution: {integrity: sha512-z/tI2eSvxwLRjOhDm0h/SXAjNm8N5ld6/SC/JQs6o6kpJ6Ya50LnEL8g5hoYu005i28L0zqB5L5yAl8Jl26K3A==}
+    dependencies:
+      '@types/web-bluetooth': 0.0.18
+      '@vueuse/metadata': 10.5.0
+      '@vueuse/shared': 10.5.0(vue@3.3.7)
+      vue-demi: 0.14.6(vue@3.3.7)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
+
+  /@vueuse/core@9.13.0(vue@3.3.7):
+    resolution: {integrity: sha512-pujnclbeHWxxPRqXWmdkKV5OX4Wk4YeK7wusHqRwU0Q7EFusHoqNA/aPhB6KCh9hEqJkLAJo7bb0Lh9b+OIVzw==}
+    dependencies:
+      '@types/web-bluetooth': 0.0.16
+      '@vueuse/metadata': 9.13.0
+      '@vueuse/shared': 9.13.0(vue@3.3.7)
+      vue-demi: 0.14.6(vue@3.3.7)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
+
+  /@vueuse/metadata@10.5.0:
+    resolution: {integrity: sha512-fEbElR+MaIYyCkeM0SzWkdoMtOpIwO72x8WsZHRE7IggiOlILttqttM69AS13nrDxosnDBYdyy3C5mR1LCxHsw==}
+    dev: false
+
+  /@vueuse/metadata@9.13.0:
+    resolution: {integrity: sha512-gdU7TKNAUVlXXLbaF+ZCfte8BjRJQWPCa2J55+7/h+yDtzw3vOoGQDRXzI6pyKyo6bXFT5/QoPE4hAknExjRLQ==}
+    dev: false
+
+  /@vueuse/shared@10.5.0(vue@3.3.7):
+    resolution: {integrity: sha512-18iyxbbHYLst9MqU1X1QNdMHIjks6wC7XTVf0KNOv5es/Ms6gjVFCAAWTVP2JStuGqydg3DT+ExpFORUEi9yhg==}
+    dependencies:
+      vue-demi: 0.14.6(vue@3.3.7)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
+
+  /@vueuse/shared@9.13.0(vue@3.3.7):
+    resolution: {integrity: sha512-UrnhU+Cnufu4S6JLCPZnkWh0WwZGUp72ktOF2DFptMlOs3TOdVv8xJN53zhHGARmVOsz5KqOls09+J1NR6sBKw==}
+    dependencies:
+      vue-demi: 0.14.6(vue@3.3.7)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
 
   /abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
@@ -3263,6 +3327,16 @@ packages:
       - supports-color
       - terser
     dev: true
+
+  /vue-audio-visual@3.0.5(typescript@5.2.2):
+    resolution: {integrity: sha512-Xhtfoucnz0/CLdD5GlNnSdRkIAbXbpacRw/yoE5ubYj0p4Brc7EthfzDa2dCCibitFVrhvL+gtQeiY/nX4aV3Q==}
+    dependencies:
+      '@vueuse/core': 9.13.0(vue@3.3.7)
+      vue: 3.3.7(typescript@5.2.2)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - typescript
+    dev: false
 
   /vue-component-type-helpers@1.8.4:
     resolution: {integrity: sha512-6bnLkn8O0JJyiFSIF0EfCogzeqNXpnjJ0vW/SZzNHfe6sPx30lTtTXlE5TFs2qhJlAtDFybStVNpL73cPe3OMQ==}
