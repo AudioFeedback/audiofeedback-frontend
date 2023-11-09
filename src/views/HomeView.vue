@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
+import Navbar from "./../components/Navbar.vue";
 
 const apiUrl = 'http://localhost:3000/tracks';
 let uploadedfileUrl = ref<string>("");
@@ -90,6 +91,7 @@ const seek = (seconds: number) => {
 </script>
 
 <template>
+    <Navbar />
     <div>
         <div v-if="!uploadedfileUrl" class="flex flex-col">
             <h1 class="text-3xl font-bold dark:text-white mb-4">Upload a track</h1>
