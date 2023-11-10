@@ -5,7 +5,7 @@ const apiUrl = 'http://localhost:3000/auth/login';
 
 const username = ref<string>("");
 const password = ref<string>("");
-const remember = ref<boolean>(false);
+const remember = ref<boolean>(true);
 const incorrect = ref<boolean>(false);
 
 if(localStorage.getItem('access_token')) {
@@ -78,7 +78,7 @@ const submitData = async () => {
                         <div class="flex items-center justify-between">
                             <div class="flex items-start">
                                 <div class="flex items-center h-5">
-                                    <input v-modal='remember' id="remember" aria-describedby="remember" type="checkbox" checked class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800">
+                                    <input v-model='remember' id="remember" aria-describedby="remember" type="checkbox" checked class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800">
                                 </div>
                                 <div class="ml-3 text-sm">
                                     <label for="remember" class="text-sm font-light text-gray-500 dark:text-gray-400">Remember me</label>
