@@ -32,6 +32,7 @@ const submitData = async () => {
     body.set("title", name.value)
     body.set("genre", genre.value)
     body.set("file", audiofile.value!)
+    body.set("description", "Beschrijving van de track")
 
     const response = await fetch(apiUrl, {
             method: "POST",

@@ -32,7 +32,7 @@ const getuserinfo = async () => {
         console.log('data', data);
         trackinfo.value = data;
         trackversion.value = data.trackversions[0];
-        uploadedfileUrl.value = `http://${data.trackversions[1].fullUrl}`;
+        uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
         forceRerender();
     }
 
