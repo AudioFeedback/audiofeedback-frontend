@@ -16,9 +16,7 @@ import { ref, onMounted } from "vue";
             });
 
         const data = await response.json();
-        trackdata.value = data;
-        console.log(trackdata.value);
-    
+        trackdata.value = data;    
     }
 
 onMounted(() => gettrack());
@@ -49,7 +47,7 @@ onMounted(() => gettrack());
                 </th>
                 <th scope="col" class="px-6 py-3">
                     <div class="flex items-center">
-                        Artist
+                        Status
                     </div>
                 </th>
                 <th scope="col" class="px-6 py-3">
@@ -69,10 +67,10 @@ onMounted(() => gettrack());
                     {{track.genre}}
                 </td>
                 <td class="px-6 py-4">
-                    @{{track.author.username}} ({{track.author.firstname}} {{track.author.lastname}})
+                    <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Review in Progress</span>
                 </td>
                 <td class="px-6 py-4 text-right">
-                    <a href="/track" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">View</a>
+                    <router-link :to="`/track/${track.id}`" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">View</router-link>
                 </td>
             </tr>
         </tbody>

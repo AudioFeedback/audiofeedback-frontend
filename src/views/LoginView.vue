@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const apiUrl = 'http://localhost:3000/auth/login';
 
@@ -11,6 +11,18 @@ const incorrect = ref<boolean>(false);
 if(localStorage.getItem('access_token')) {
     window.location.href = "/";
 }
+
+const html = document.querySelector('html');
+
+
+const checkMode = () => {
+    const mode = localStorage.getItem('mode');
+    if (mode === 'dark') {
+        html.classList.add('dark');
+    } else {
+        html.classList.remove('dark');
+    }
+};
 
 
 const submitData = async () => {
@@ -52,6 +64,7 @@ const submitData = async () => {
   }
 };
 
+onMounted(() => checkMode());
 </script>
 
 <template>

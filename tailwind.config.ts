@@ -1,7 +1,7 @@
 import { Config } from "tailwindcss";
 
 const config: Config = {
-    content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
+    content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}", "./node_modules/flowbite/**/*.js"],
     darkMode: 'class',
     theme: {
         extend: {
@@ -14,7 +14,9 @@ const config: Config = {
             'sans': ['Inter', 'sans-serif'],
         },
     },
-    plugins: []
+    plugins: [
+        require('flowbite/plugin')
+    ]
 };
 
 export default config;

@@ -14,14 +14,20 @@ const router = createRouter({
             component: import("../views/MainView.vue")
         },
         {
-            path: '/track',
+            path: '/track/:id',
             name: 'track',
+            props: true,
             component: import('../views/TrackView.vue'),
         },
         {
             path: "/upload",
             name: "upload",
             component: import("../views/UploadView.vue")
+        },
+        {
+            path: "/profile",
+            name: "profile",
+            component: import("../views/ProfileView.vue")
         }
     ]
 });
