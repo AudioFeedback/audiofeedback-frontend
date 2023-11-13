@@ -110,4 +110,13 @@ onMounted(() => checkMode());
     </div>
 </template>
 
-<style scoped></style>
+<style>
+
+.width-custom{
+    width: calc(100% - 256px);
+    
+    @media only screen and (max-width: 640px) {
+        width: 100%;
+    }
+}
+</style>

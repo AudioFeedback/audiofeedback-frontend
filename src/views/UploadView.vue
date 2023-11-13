@@ -95,7 +95,7 @@ const seek = (seconds: number) => {
 
 <template class="flex flex-row justify-between">
     <Navbar />
-    <main class="p-4 sm:ml-64 h-auto pt-20">
+    <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
         <div v-if="!uploadedfileUrl" class="flex flex-col">
             <h1 class="text-3xl font-bold dark:text-white mb-4">Upload a track</h1>
             <input v-model='name' type='text' placeholder="name" class="mb-2 block w-full rounded-sm border-0 py-1.5 px-5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
@@ -155,4 +155,12 @@ const seek = (seconds: number) => {
 </template>
 
 <style>
+
+.width-custom{
+    width: calc(100% - 256px);
+    
+    @media only screen and (max-width: 640px) {
+        width: 100%;
+    }
+}
 </style>

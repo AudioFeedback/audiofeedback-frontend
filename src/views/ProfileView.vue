@@ -28,7 +28,7 @@ onMounted(() => getuserinfo());
 
 <template class="flex flex-row">
     <Navbar />
-    <main class="p-4 sm:ml-64 h-full pt-10 w-full antialiased bg-gray-50 dark:bg-gray-900">
+    <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
         <!-- <h2 class="text-4xl mb-4 font-bold dark:text-white">Manage account</h2> -->
         <section>
             <div class="max-w-2xl">
@@ -89,4 +89,12 @@ onMounted(() => getuserinfo());
 </template>
 
 <style>
+
+.width-custom{
+    width: calc(100% - 256px);
+    
+    @media only screen and (max-width: 640px) {
+        width: 100%;
+    }
+}
 </style>

@@ -76,7 +76,7 @@ const seek = (seconds: number) => {
 
 <template class="flex flex-row">
     <Navbar />
-    <main class="p-4 sm:ml-64 h-full pt-10 w-full antialiased bg-gray-50 dark:bg-gray-900">
+    <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
         <nav class=" mb-5 flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 sm:space-x-3">
                 <li class="inline-flex items-center">
@@ -223,4 +223,12 @@ const seek = (seconds: number) => {
 </template>
 
 <style>
+
+.width-custom{
+    width: calc(100% - 256px);
+    
+    @media only screen and (max-width: 640px) {
+        width: 100%;
+    }
+}
 </style>
