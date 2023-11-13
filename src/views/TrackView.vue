@@ -13,7 +13,7 @@ const uploadedfileUrl = ref<string>("");
 const trackinfo = ref<[any]>();
 const trackversion = ref<[any]>();
 const audioPlayer = ref<AVWaveform | null>(null);
-
+const canvasDiv = ref<HTMLElement | null>(null);
 
 const forceRerender = () => {
   componentKey.value += 1;
@@ -36,7 +36,11 @@ const getuserinfo = async () => {
         forceRerender();
     }
 
-onMounted(() => getuserinfo());
+onMounted(() => {
+    getuserinfo() 
+    window.addEventListener('resize', forceRerender);
+}
+);
 
 const play = () => {
     if (!audioPlayer.value) {
@@ -101,7 +105,7 @@ const seek = (seconds: number) => {
                 </li>
             </ol>
         </nav>
-        <div class="mb-5">
+        <div class="mb-5 relative">
             <h1 class="text-3xl font-bold dark:text-white mb-6">
                 {{trackinfo?.title}} <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{{trackinfo?.genre}}</span>
             </h1>
@@ -110,13 +114,13 @@ const seek = (seconds: number) => {
                 <button @click="pause" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">Pause</button>
                 <button @click="seek(0)" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">Stop</button>
             </div>
-            <div class="w-[800px]">
+            <div ref="canvasDiv" class="w-full">
                 <AVWaveform
                     :key="componentKey"
                     ref="audioPlayer"
                     :audio-controls="false"
                     :canv-height="200"
-                    :canv-width="1000"
+                    :canv-width="canvasDiv?.clientWidth"
                     :ftt-size= "2048"
                     :noplayed-line-color="'#4F46E5'"
                     :played-line-color="'#4f46e5'"
