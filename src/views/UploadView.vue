@@ -95,11 +95,11 @@ const seek = (seconds: number) => {
 
 <template class="flex flex-row justify-between">
     <Navbar />
-    <main class="p-4 md:ml-64 h-auto pt-20">
+    <main class="p-4 sm:ml-64 h-auto pt-20">
         <div v-if="!uploadedfileUrl" class="flex flex-col">
             <h1 class="text-3xl font-bold dark:text-white mb-4">Upload a track</h1>
-            <input v-model='name' type='text' placeholder="name" class="mb-2 block w-full rounded-md border-0 py-1.5 px-5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-            <input v-model='genre' type="text" placeholder="genre" class="mb-2 block w-full rounded-md border-0 py-1.5 px-5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
+            <input v-model='name' type='text' placeholder="name" class="mb-2 block w-full rounded-sm border-0 py-1.5 px-5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
+            <input v-model='genre' type="text" placeholder="genre" class="mb-2 block w-full rounded-sm border-0 py-1.5 px-5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
             <!-- <input type="file" v-on:change="handleFileChange" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"/> -->
 
             <div class="flex items-center justify-center w-full">
