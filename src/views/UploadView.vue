@@ -2,7 +2,6 @@
 import { ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 import Navbar from "./../components/Navbar.vue";
-import Table from "./../components/table.vue";
 
 const apiUrl = 'http://localhost:3000/tracks';
 let uploadedfileUrl = ref<string>("");

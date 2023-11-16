@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import Navbar from "./../components/Navbar.vue";
-import Table from "./../components/table.vue";
-import Breadcrumb from "./../components/breadcrums.vue"
 import { onMounted, ref } from "vue";
 
 

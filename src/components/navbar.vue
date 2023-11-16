@@ -43,9 +43,9 @@ import { ref, onMounted } from "vue";
 // Initial check for mode on page load
 checkMode();
 
-    let userinfo = ref<[any]>("");
+let userinfo = ref<[any]>("");
 
-    const getuserinfo = async () => {
+const getuserinfo = async () => {
         var apiUrl = 'http://localhost:3000/profile';
 
         const response = await fetch(apiUrl, {
@@ -58,9 +58,9 @@ checkMode();
 
         const data = await response.json();
         userinfo.value = data;
-    }
+}
 
-    onMounted(() => getuserinfo(), checkMode());
+onMounted(() => getuserinfo(), checkMode());
 </script>
 
 <template>
