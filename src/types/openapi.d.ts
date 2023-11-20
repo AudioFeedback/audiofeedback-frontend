@@ -119,6 +119,9 @@ declare namespace Components {
             tracks?: GetTrackDto[];
             feedback?: GetFeedbackDto[];
         }
+        export interface LoginDto {
+            access_token: string;
+        }
         export interface UpdateFeedbackDto {
             rating?: boolean;
             comment?: string;
@@ -153,8 +156,7 @@ declare namespace Paths {
             password?: string;
         }
         namespace Responses {
-            export interface $201 {
-            }
+            export type $201 = Components.Schemas.LoginDto;
         }
     }
     namespace FeedbackControllerCreate {

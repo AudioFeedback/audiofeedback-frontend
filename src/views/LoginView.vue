@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { login } from "@/services/app.service";
+import { darkmode } from "@/stores/darkmodeStore";
 import { onMounted, ref } from "vue";
 
 const username = ref<string>("");
@@ -11,15 +12,9 @@ if (localStorage.getItem("access_token")) {
     window.location.href = "/";
 }
 
-const html = document.querySelector("html");
-
 const checkMode = () => {
     const mode = localStorage.getItem("mode");
-    if (mode === "dark") {
-        html.classList.add("dark");
-    } else {
-        html.classList.remove("dark");
-    }
+    darkmode.value = mode === "dark";
 };
 
 const submitData = async () => {

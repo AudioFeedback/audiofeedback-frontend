@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { getProfile } from "@/services/app.service";
+import { darkmode } from "@/stores/darkmodeStore";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 
@@ -17,17 +18,12 @@ const toggleSidebar = () => {
     }
 };
 
-const html = document.querySelector("html");
-const darkmode = ref<boolean>(true);
-
 const toggleMode = () => {
     const currentMode = localStorage.getItem("mode");
     if (currentMode === "dark") {
-        html.classList.remove("dark");
         localStorage.setItem("mode", "light");
         darkmode.value = false;
     } else {
-        html.classList.add("dark");
         localStorage.setItem("mode", "dark");
         darkmode.value = true;
     }
@@ -35,11 +31,7 @@ const toggleMode = () => {
 
 const checkMode = () => {
     const mode = localStorage.getItem("mode");
-    if (mode === "dark") {
-        html.classList.add("dark");
-    } else {
-        html.classList.remove("dark");
-    }
+    darkmode.value = mode === "dark";
 };
 
 const getUserInfo = async () => {
