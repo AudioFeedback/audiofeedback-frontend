@@ -53,6 +53,9 @@ onMounted(() => gettrack());
                 <th scope="col" class="px-6 py-3">
                     <span class="sr-only">Edit</span>
                 </th>
+                <th scope="col" class="px-6 py-3">
+                    <span class="sr-only">Review</span>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -71,6 +74,9 @@ onMounted(() => gettrack());
                 </td>
                 <td class="px-6 py-4 text-right">
                     <router-link :to="`/track/${track.id}`" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">View</router-link>
+                </td>
+                <td class="px-6 py-4 text-right">
+                    <router-link :to="`/feedback/${track.id}`" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Start review</router-link>
                 </td>
             </tr>
         </tbody>

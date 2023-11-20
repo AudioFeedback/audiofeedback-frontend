@@ -28,6 +28,12 @@ const router = createRouter({
             path: "/profile",
             name: "profile",
             component: import("../views/ProfileView.vue")
+        },
+        {
+            path: '/feedback/:id',
+            name: 'feedback',
+            props: true,
+            component: import('../views/AddFeedback.vue'),
         }
     ]
 });

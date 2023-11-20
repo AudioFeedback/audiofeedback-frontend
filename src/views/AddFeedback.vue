@@ -3,9 +3,7 @@ import Navbar from "./../components/Navbar.vue";
 import { ref, onMounted } from "vue";
 import {useRoute} from "vue-router";
 import { AVWaveform } from "vue-audio-visual";
-
-
-       
+  
 const route = useRoute();
 var apiUrl = 'http://localhost:3000/tracks/' + route.params.id;
 const componentKey = ref(0);
@@ -14,45 +12,36 @@ const trackinfo = ref<[any]>();
 const trackversion = ref<[any]>();
 const audioPlayer = ref<AVWaveform | null>(null);
 const canvasDiv = ref<HTMLElement | null>(null);
-const duration = ref<any>();
 
 const forceRerender = () => {
   componentKey.value += 1;
 };
 
 const getuserinfo = async () => {
-    const response = await fetch(apiUrl, {
-            method: "GET",
-            headers: {
-                "accept": "*/*",
-                "authorization": `Bearer ${localStorage.getItem('access_token')}`
-            }
-        });
+        const response = await fetch(apiUrl, {
+                method: "GET",
+                headers: {
+                    "accept": "*/*",
+                    "authorization": `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
 
-    const data = await response.json();
-    console.log('data', data);
-    trackinfo.value = data;
-    trackversion.value = data.trackversions[0];
-    uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
-    forceRerender();
+        const data = await response.json();
+        console.log('data', data);
+        trackinfo.value = data;
+        trackversion.value = data.trackversions[0];
+        uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
+        forceRerender();
 }
 
-const TrackDuration = () => {
-    duration.value = audioPlayer.value.exposeDuration().value;}
-
-const getTimeInHoursAndMins = (timeInSeconds: any) => {
-    if (!timeInSeconds || timeInSeconds <= 0) {
-        return "-";
-    }
-
-    const mins = Math.floor(timeInSeconds / 60);
-    const seconds = timeInSeconds % 60;
-
-    return `${mins}:${seconds.toFixed(0)}`;
+const GetPointerLocation = () => {
+    console.log(audioPlayer.value.exposeRef().value)
+    console.log(audioPlayer.value.exposeDuration().value)
 }
+
 
 onMounted(() => {
-    getuserinfo() , TrackDuration()
+    getuserinfo()
     window.addEventListener('resize', forceRerender);
 }
 );
@@ -107,7 +96,7 @@ const seek = (seconds: number) => {
                     <svg class="w-3 h-3 mx-1 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
                     </svg>
-                    <span class="ml-1 text-sm font-medium text-gray-500 sm:ml-2 dark:text-gray-400">track</span>
+                    <span class="ml-1 text-sm font-medium text-gray-500 sm:ml-2 dark:text-gray-400">review track</span>
                 </div>
                 </li>
                 <li aria-current="page">
@@ -129,7 +118,7 @@ const seek = (seconds: number) => {
                 <button @click="pause" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">Pause</button>
                 <button @click="seek(0)" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">Stop</button>
             </div>
-            <div ref="canvasDiv" class="w-full" v-on:click="TrackDuration()" onload="TrackDuration()">
+            <div ref="canvasDiv" id="canvasDiv" class="w-full relative" v-on:click="GetPointerLocation()">
                 <AVWaveform
                     :key="componentKey"
                     ref="audioPlayer"
@@ -145,15 +134,6 @@ const seek = (seconds: number) => {
                     cors-anonym
                     :src="`${uploadedfileUrl}`"
                 ></AVWaveform>
-                <div class="relative -top-5">
-                    <div class="absolute" :style="{ left: `${feedback.timestamp*100}%` }" v-for="(feedback,i) in trackinfo?.trackversions[0].feedback" :key="i">
-                        <div class="relative inline-flex items-center justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600">
-                            <span class="font-medium text-gray-600 dark:text-gray-300">{{ feedback.user.firstname.slice(0, 1)}}{{ feedback.user.lastname.slice(0, 1)}}</span>
-                            <img class="bottom-0 left-7 absolute w-5 h-5" v-if='feedback.rating == true' src="./../assets/up.svg">
-                            <img class="bottom-0 left-7 absolute w-5 h-5" v-if='feedback.rating == false' src="./../assets/down.svg">
-                        </div>
-                    </div>
-                </div>
             </div> 
         </div>
 
@@ -187,7 +167,7 @@ const seek = (seconds: number) => {
                             @{{feedback.user.username}} ({{ feedback.user.firstname }} {{ feedback.user.lastname }})
                         </th>
                         <td class="px-6 py-4">
-                            {{ getTimeInHoursAndMins(duration*feedback.timestamp) }}
+                        {{ feedback.timestamp }}
                         </td>
                         <td class="px-6 py-4">
                             {{ feedback.comment }}
@@ -199,41 +179,6 @@ const seek = (seconds: number) => {
                 </tbody>
             </table>
         </div>
-        <!-- <h4 class="text-2xl mb-2 font-bold dark:text-white">Timeline</h4>
-        <div classxs="px-5">
-            <ol class="relative border-l border-gray-200 dark:border-gray-700">                  
-                <li class="mb-10 ml-6">            
-                    <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                        <img class="rounded-full shadow-lg" src="./../assets/avatar.svg" alt="Bonnie image"/>
-                    </span>
-                    <div class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:bg-gray-700 dark:border-gray-600">
-                        <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">just now</time>
-                        <div class="text-sm font-normal text-gray-500 dark:text-gray-300">Bonnie moved <a href="#" class="font-semibold text-blue-600 dark:text-blue-500 hover:underline">Jese Leos</a> to <span class="bg-gray-100 text-gray-800 text-xs font-normal mr-2 px-2.5 py-0.5 rounded dark:bg-gray-600 dark:text-gray-300">Funny Group</span></div>
-                    </div>
-                </li>
-                <li class="mb-10 ml-6">
-                    <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                        <img class="rounded-full shadow-lg" src="./../assets/avatar.svg" alt="Thomas Lean image"/>
-                    </span>
-                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600">
-                        <div class="items-center justify-between mb-3 sm:flex">
-                            <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">2 hours ago</time>
-                            <div class="text-sm font-normal text-gray-500 lex dark:text-gray-300">Thomas Lean commented on  <a href="#" class="font-semibold text-gray-900 dark:text-white hover:underline">Flowbite Pro</a></div>
-                        </div>
-                        <div class="p-3 text-xs italic font-normal text-gray-500 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300">Hi ya'll! I wanted to share a webinar zeroheight is having regarding how to best measure your design system! This is the second session of our new webinar series on #DesignSystems discussions where we'll be speaking about Measurement.</div>
-                    </div>
-                </li>
-                <li class="ml-6">
-                    <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                        <img class="rounded-full shadow-lg" src="./../assets/avatar.svg" alt="Jese Leos image"/>
-                    </span>
-                    <div class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:bg-gray-700 dark:border-gray-600">
-                        <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">1 day ago</time>
-                        <div class="text-sm font-normal text-gray-500 lex dark:text-gray-300">Jese Leos has changed <a href="#" class="font-semibold text-blue-600 dark:text-blue-500 hover:underline">Pricing page</a> task status to  <span class="font-semibold text-gray-900 dark:text-white">Finished</span></div>
-                    </div>
-                </li>
-            </ol>
-        </div> -->
     </main>
 </template>
 
