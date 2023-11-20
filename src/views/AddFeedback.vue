@@ -3,7 +3,6 @@ import Navbar from "@/components/navbar.vue";
 import { ref, onMounted } from "vue";
 import {useRoute} from "vue-router";
 import { AVWaveform } from "vue-audio-visual";
-import { formatDate } from "@vueuse/core";
   
 const route = useRoute();
 var apiUrl = 'http://localhost:3000/tracks/' + route.params.id;
