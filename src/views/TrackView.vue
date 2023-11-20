@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import Navbar from "@/components/NavBarComponent.vue";
+import { getTrack } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
-const apiUrl = "http://localhost:3000/tracks/" + route.params.id;
 const componentKey = ref(0);
 const uploadedfileUrl = ref<string>("");
 const trackinfo = ref<Components.Schemas.GetTrackDeepDto>();
@@ -16,8 +16,8 @@ const canvasDiv = ref<HTMLElement | null>(null);
 const activeTab = ref<number>(1);
 
 const setTab = (tab: number) => {
-    activeTab. value = tab;
-    forceRerender() ;
+    activeTab.value = tab;
+    forceRerender();
 };
 
 const forceRerender = () => {
@@ -25,15 +25,9 @@ const forceRerender = () => {
 };
 
 const getTrackInfo = async () => {
-    const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-            accept: "*/*",
-            authorization: `Bearer ${localStorage.getItem("access_token")}`
-        }
-    });
+    const response = await getTrack(route.params.id as unknown as number);
 
-    const data = await response.json();
+    const data = response.data;
     console.log("data", data);
     trackinfo.value = data;
     trackversion.value = data.trackversions[0];
@@ -163,16 +157,54 @@ const seek = (seconds: number) => {
         <div class="border-b border-gray-200 dark:border-gray-700 mb-5">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
                 <li class="me-2">
-                    <button @click="setTab(1)" :class="{ 'text-blue-600 border-blue-600 dark:border-blue-500': activeTab === 1, 'hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300': activeTab !== 1 }" class="inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg">
-                        <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 11.5V1s3 1 3 4m-7-3H1m9 4H1m4 4H1m13 2.4c0 1.325-1.343 2.4-3 2.4s-3-1.075-3-2.4S9.343 10 11 10s3 1.075 3 2.4Z"/>
-                        </svg>Track
+                    <button
+                        :class="{
+                            'text-blue-600 border-blue-600 dark:border-blue-500': activeTab === 1,
+                            'hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300': activeTab !== 1
+                        }"
+                        class="inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg"
+                        @click="setTab(1)"
+                    >
+                        <svg
+                            aria-hidden="true"
+                            class="w-4 h-4 me-2"
+                            fill="none"
+                            viewBox="0 0 18 16"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M14 11.5V1s3 1 3 4m-7-3H1m9 4H1m4 4H1m13 2.4c0 1.325-1.343 2.4-3 2.4s-3-1.075-3-2.4S9.343 10 11 10s3 1.075 3 2.4Z"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
+                        </svg>
+                        Track
                     </button>
                 </li>
                 <li class="me-2">
-                    <button @click="setTab(2)" :class="{ 'text-blue-600 border-blue-600 dark:border-blue-500': activeTab === 2, 'hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300': activeTab !== 2 }" class="inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg">
-                        <svg class="w-4 h-4 me-2 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M10 6v4l3.276 3.276M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                    <button
+                        :class="{
+                            'text-blue-600 border-blue-600 dark:border-blue-500': activeTab === 2,
+                            'hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300': activeTab !== 2
+                        }"
+                        class="inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg"
+                        @click="setTab(2)"
+                    >
+                        <svg
+                            aria-hidden="true"
+                            class="w-4 h-4 me-2"
+                            fill="none"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M10 6v4l3.276 3.276M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                stroke="currentColor"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
                         </svg>
                         Version History
                     </button>
@@ -235,7 +267,8 @@ const seek = (seconds: number) => {
                                 class="relative inline-flex items-center justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600"
                             >
                                 <span class="font-medium text-gray-600 dark:text-gray-300"
-                                    >{{ feedback.user.firstname.slice(0, 1) }}{{ feedback.user.lastname.slice(0, 1) }}</span
+                                    >{{ feedback.user.firstname.slice(0, 1)
+                                    }}{{ feedback.user.lastname.slice(0, 1) }}</span
                                 >
                                 <img
                                     v-if="feedback.rating"
@@ -281,13 +314,18 @@ const seek = (seconds: number) => {
                                 scope="row"
                                 @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
                             >
-                                @{{ feedback.user.username }} ({{ feedback.user.firstname }} {{ feedback.user.lastname }})
+                                @{{ feedback.user.username }} ({{ feedback.user.firstname }}
+                                {{ feedback.user.lastname }})
                             </th>
                             <td
                                 class="px-6 py-4 cursor-pointer"
                                 @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
                             >
-                                {{ getTimeInMinutesAndSeconds(trackinfo!.trackversions[0].duration * feedback.timestamp) }}
+                                {{
+                                    getTimeInMinutesAndSeconds(
+                                        trackinfo!.trackversions[0].duration * feedback.timestamp
+                                    )
+                                }}
                             </td>
                             <td class="px-6 py-4">
                                 {{ feedback.comment }}
@@ -300,36 +338,77 @@ const seek = (seconds: number) => {
         </div>
         <div v-if="activeTab === 2">
             <h4 class="text-2xl mb-2 font-bold dark:text-white">Timeline</h4>
-            <div classxs="px-5">
-                <ol class="relative border-l border-gray-200 dark:border-gray-700">                  
-                    <li class="mb-10 ml-6">            
-                        <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                            <img class="rounded-full shadow-lg" src="./../assets/avatar.svg" alt="Bonnie image"/>
+            <div class="px-5">
+                <ol class="relative border-l border-gray-200 dark:border-gray-700">
+                    <li class="mb-10 ml-6">
+                        <span
+                            class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900"
+                        >
+                            <img alt="Bonnie image" class="rounded-full shadow-lg" src="./../assets/avatar.svg" />
                         </span>
-                        <div class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:bg-gray-700 dark:border-gray-600">
+                        <div
+                            class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:bg-gray-700 dark:border-gray-600"
+                        >
                             <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">just now</time>
-                            <div class="text-sm font-normal text-gray-500 dark:text-gray-300">Bonnie moved <a href="#" class="font-semibold text-blue-600 dark:text-blue-500 hover:underline">Jese Leos</a> to <span class="bg-gray-100 text-gray-800 text-xs font-normal mr-2 px-2.5 py-0.5 rounded dark:bg-gray-600 dark:text-gray-300">Funny Group</span></div>
+                            <div class="text-sm font-normal text-gray-500 dark:text-gray-300">
+                                Bonnie moved
+                                <a class="font-semibold text-blue-600 dark:text-blue-500 hover:underline" href="#"
+                                    >Jese Leos</a
+                                >
+                                to
+                                <span
+                                    class="bg-gray-100 text-gray-800 text-xs font-normal mr-2 px-2.5 py-0.5 rounded dark:bg-gray-600 dark:text-gray-300"
+                                    >Funny Group</span
+                                >
+                            </div>
                         </div>
                     </li>
                     <li class="mb-10 ml-6">
-                        <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                            <img class="rounded-full shadow-lg" src="./../assets/avatar.svg" alt="Thomas Lean image"/>
+                        <span
+                            class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900"
+                        >
+                            <img alt="Thomas Lean image" class="rounded-full shadow-lg" src="./../assets/avatar.svg" />
                         </span>
-                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600">
+                        <div
+                            class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600"
+                        >
                             <div class="items-center justify-between mb-3 sm:flex">
-                                <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">2 hours ago</time>
-                                <div class="text-sm font-normal text-gray-500 lex dark:text-gray-300">Thomas Lean commented on  <a href="#" class="font-semibold text-gray-900 dark:text-white hover:underline">Flowbite Pro</a></div>
+                                <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0"
+                                    >2 hours ago
+                                </time>
+                                <div class="text-sm font-normal text-gray-500 lex dark:text-gray-300">
+                                    Thomas Lean commented on
+                                    <a class="font-semibold text-gray-900 dark:text-white hover:underline" href="#"
+                                        >Flowbite Pro</a
+                                    >
+                                </div>
                             </div>
-                            <div class="p-3 text-xs italic font-normal text-gray-500 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300">Hi ya'll! I wanted to share a webinar zeroheight is having regarding how to best measure your design system! This is the second session of our new webinar series on #DesignSystems discussions where we'll be speaking about Measurement.</div>
+                            <div
+                                class="p-3 text-xs italic font-normal text-gray-500 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300"
+                            >
+                                Hi ya'll! I wanted to share a webinar zeroheight is having regarding how to best measure
+                                your design system! This is the second session of our new webinar series on
+                                #DesignSystems discussions where we'll be speaking about Measurement.
+                            </div>
                         </div>
                     </li>
                     <li class="ml-6">
-                        <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                            <img class="rounded-full shadow-lg" src="./../assets/avatar.svg" alt="Jese Leos image"/>
+                        <span
+                            class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900"
+                        >
+                            <img alt="Jese Leos image" class="rounded-full shadow-lg" src="./../assets/avatar.svg" />
                         </span>
-                        <div class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:bg-gray-700 dark:border-gray-600">
+                        <div
+                            class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:bg-gray-700 dark:border-gray-600"
+                        >
                             <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">1 day ago</time>
-                            <div class="text-sm font-normal text-gray-500 lex dark:text-gray-300">Jese Leos has changed <a href="#" class="font-semibold text-blue-600 dark:text-blue-500 hover:underline">Pricing page</a> task status to  <span class="font-semibold text-gray-900 dark:text-white">Finished</span></div>
+                            <div class="text-sm font-normal text-gray-500 lex dark:text-gray-300">
+                                Jese Leos has changed
+                                <a class="font-semibold text-blue-600 dark:text-blue-500 hover:underline" href="#"
+                                    >Pricing page</a
+                                >
+                                task status to <span class="font-semibold text-gray-900 dark:text-white">Finished</span>
+                            </div>
                         </div>
                     </li>
                 </ol>

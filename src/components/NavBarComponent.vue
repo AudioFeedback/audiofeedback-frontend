@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { getProfile } from "@/services/app.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 
@@ -17,7 +18,7 @@ const toggleSidebar = () => {
 };
 
 const html = document.querySelector("html");
-const darkmode = ref<boolean>();
+const darkmode = ref<boolean>(true);
 
 const toggleMode = () => {
     const currentMode = localStorage.getItem("mode");
@@ -41,22 +42,14 @@ const checkMode = () => {
     }
 };
 
-const getuserinfo = async () => {
-    var apiUrl = "http://localhost:3000/profile";
+const getUserInfo = async () => {
+    const response = await getProfile();
 
-    const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-            accept: "*/*",
-            authorization: `Bearer ${localStorage.getItem("access_token")}`
-        }
-    });
-
-    userinfo.value = await response.json();
+    userinfo.value = response.data;
 };
 
 onMounted(() => {
-    getuserinfo();
+    getUserInfo();
     checkMode();
 });
 </script>
@@ -145,7 +138,7 @@ onMounted(() => {
                 <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
                     <li @click="toggleMode()">
                         <a
-                            v-if="darkmode == true"
+                            v-if="darkmode"
                             class="cursor-pointer flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
                         >
                             <svg
@@ -162,7 +155,7 @@ onMounted(() => {
                             <span class="ml-3">Switch to lightmode</span>
                         </a>
                         <a
-                            v-if="darkmode == false"
+                            v-if="!darkmode"
                             class="cursor-pointer flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
                         >
                             <svg

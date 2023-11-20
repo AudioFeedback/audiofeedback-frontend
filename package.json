@@ -12,12 +12,15 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "client:generate": "npx openapicmd typegen http://localhost:3000/api-json > src/types/openapi.d.ts"
   },
   "dependencies": {
     "@vueuse/core": "^10.5.0",
+    "axios": "^1.6.2",
     "flowbite": "^2.1.1",
     "jose": "^5.1.1",
+    "openapi-client-axios": "^7.4.0",
     "openapicmd": "^2.0.1",
     "pinia": "^2.1.7",
     "vue": "^3.3.4",
