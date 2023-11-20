@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { getRoles } from "@/utils/authorisationhelper";
 import { ref, onMounted } from "vue";
 
     let trackdata = ref<[any]>("");
@@ -18,6 +19,8 @@ import { ref, onMounted } from "vue";
         const data = await response.json();
         trackdata.value = data;    
     }
+
+    const roles =  getRoles();
 
 onMounted(() => gettrack());
 </script>
@@ -50,10 +53,10 @@ onMounted(() => gettrack());
                         Status
                     </div>
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th scope="col" class="px-6 py-3" v-if="roles?.includes('MUZIEKPRODUCER')">
                     <span class="sr-only">Edit</span>
                 </th>
-                <th scope="col" class="px-6 py-3">
+                <th scope="col" class="px-6 py-3" v-if="roles?.includes('FEEDBACKGEVER')">
                     <span class="sr-only">Review</span>
                 </th>
             </tr>
@@ -72,10 +75,10 @@ onMounted(() => gettrack());
                 <td class="px-6 py-4">
                     <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Review in Progress</span>
                 </td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-6 py-4 text-right" v-if="roles?.includes('MUZIEKPRODUCER')">
                     <router-link :to="`/track/${track.id}`" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">View</router-link>
                 </td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-6 py-4 text-right" v-if="roles?.includes('FEEDBACKGEVER')">
                     <router-link :to="`/feedback/${track.id}`" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Start review</router-link>
                 </td>
             </tr>

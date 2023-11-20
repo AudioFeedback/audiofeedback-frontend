@@ -1,23 +1,32 @@
 <script lang="ts" setup>
-import Navbar from "./../components/Navbar.vue";
+import Navbar from "@/components/navbar.vue";
 import { ref, onMounted } from "vue";
 import {useRoute} from "vue-router";
 import { AVWaveform } from "vue-audio-visual";
+import { formatDate } from "@vueuse/core";
   
 const route = useRoute();
 var apiUrl = 'http://localhost:3000/tracks/' + route.params.id;
+var uploadFeedbackUrl = 'http://localhost:3000/feedback';
 const componentKey = ref(0);
 const uploadedfileUrl = ref<string>("");
 const trackinfo = ref<[any]>();
 const trackversion = ref<[any]>();
 const audioPlayer = ref<AVWaveform | null>(null);
 const canvasDiv = ref<HTMLElement | null>(null);
+const selectedpercentageleft = ref<any>(0);
+const selectedTimeStamp = ref<any>(0);
+const closepopup = ref<boolean>(false);
+const rating = ref<boolean>(true);
+const comments = ref<string>("");
+const userinfo = ref<string>("");
+
 
 const forceRerender = () => {
   componentKey.value += 1;
 };
 
-const getuserinfo = async () => {
+const gettrack = async () => {
         const response = await fetch(apiUrl, {
                 method: "GET",
                 headers: {
@@ -34,14 +43,56 @@ const getuserinfo = async () => {
         forceRerender();
 }
 
-const GetPointerLocation = () => {
-    console.log(audioPlayer.value.exposeRef().value)
-    console.log(audioPlayer.value.exposeDuration().value)
+const submitFeedback = async () => {
+    try {
+        const body = new FormData();
+        body.set("rating", rating.value)
+        body.set("comment", comments.value)
+        body.set("trackId", trackinfo.value?.id)
+        body.set("timestamp", selectedTimeStamp.value)
+
+        const response = await fetch(uploadFeedbackUrl, {
+                method: "POST",
+                headers: {
+                    "accept": "*/*",
+                    "authorization": `Bearer ${localStorage.getItem('access_token')}`
+                }, body: body
+            });
+
+        if(!response) {
+            return
+        }
+
+        const data = await response.json();
+        console.log('data', data);
+        CloseFeedback();
+        forceRerender();
+
+    } catch (error) {
+        console.error('API Error:', error);
+    }
 }
 
+const GetPointerLocation = () => {
+    if(closepopup.value === true) {
+        closepopup.value = false;
+        return;
+    }
+    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
+    selectedpercentageleft.value = (audioElement.currentTime / audioElement.duration) * 100;
+    selectedTimeStamp.value = (audioElement.currentTime/audioElement.duration).toFixed(2);
+
+}
+
+const CloseFeedback = () => {
+    selectedpercentageleft.value = null;
+    closepopup.value = true;
+    console.log('selectedpercentageleft', selectedpercentageleft.value);
+
+}
 
 onMounted(() => {
-    getuserinfo()
+    gettrack(), getuserinfo();
     window.addEventListener('resize', forceRerender);
 }
 );
@@ -76,6 +127,21 @@ const seek = (seconds: number) => {
         audioElement.pause();
     }
 };
+
+const getuserinfo = async () => {
+        var apiUrl = 'http://localhost:3000/profile';
+
+        const response = await fetch(apiUrl, {
+                method: "GET",
+                headers: {
+                    "accept": "*/*",
+                    "authorization": `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
+
+        const data = await response.json();
+        userinfo.value = data;
+}
 </script>
 
 <template class="flex flex-row">
@@ -118,7 +184,7 @@ const seek = (seconds: number) => {
                 <button @click="pause" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">Pause</button>
                 <button @click="seek(0)" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">Stop</button>
             </div>
-            <div ref="canvasDiv" id="canvasDiv" class="w-full relative" v-on:click="GetPointerLocation()">
+            <div ref="canvasDiv" id="canvasDiv" class="w-full relative" @click="GetPointerLocation()">
                 <AVWaveform
                     :key="componentKey"
                     ref="audioPlayer"
@@ -134,6 +200,46 @@ const seek = (seconds: number) => {
                     cors-anonym
                     :src="`${uploadedfileUrl}`"
                 ></AVWaveform>
+                <div class="relative -top-5">
+                    <div class="absolute" :style="{ left: `${selectedpercentageleft-1.5}%` }" v-if="selectedpercentageleft">
+                        <div class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600">
+                            <span class="font-medium text-gray-300 dark:text-gray-300">{{ userinfo.firstname.slice(0, 1)}}{{ userinfo.lastname.slice(0, 1)}}</span>
+                        </div>
+                    </div>
+                    <div class="absolute bg-white rounded-lg dark:bg-gray-700 p-4 z-[99] drop-shadow-2xl min-w-[20em]" :style="{ left: `${selectedpercentageleft+4}%` } " v-if="selectedpercentageleft">
+                        <form name="feedbackform" v-on:submit.prevent="submitFeedback()">
+                            <div class="flex flex-row align-items justify-between">
+                                <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">Rating</h3>
+                                <span class="cursor-pointer " @click.prevent="CloseFeedback()">
+                                    <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                    </svg>
+                                </span>
+                            </div>
+                            <ul class="grid w-full gap-6 md:grid-cols-2">
+                                <li>
+                                    <input v-model="rating" type="radio" id="rating-postive" name="rating" value="true" class="hidden peer" checked required>
+                                    <label for="rating-postive" class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"> 
+                                        <img src="./../assets/up.svg"/>                          
+                                    </label>
+                                </li>
+                                <li>
+                                    <input v-model="rating" type="radio" id="hosting-big" name="rating" value="false" class="hidden peer" required>
+                                    <label for="hosting-big" class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700">
+                                    <img src="./../assets//down.svg"/>
+                                    </label>
+                                </li>
+                            </ul>
+                            <h3 class="mb-2 mt-5 text-lg font-medium text-gray-900 dark:text-white">Comments</h3>
+                            <div>
+                                <div class="mb-6">
+                                    <textarea v-model="comments" id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write your thoughts here..." required></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="text-white w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add Feedback</button>
+                        </form>
+                    </div>
+                </div>
             </div> 
         </div>
 
@@ -167,7 +273,7 @@ const seek = (seconds: number) => {
                             @{{feedback.user.username}} ({{ feedback.user.firstname }} {{ feedback.user.lastname }})
                         </th>
                         <td class="px-6 py-4">
-                        {{ feedback.timestamp }}
+                            {{ feedback.timestamp }}
                         </td>
                         <td class="px-6 py-4">
                             {{ feedback.comment }}

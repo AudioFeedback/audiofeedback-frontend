@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import Navbar from "./../components/Navbar.vue";
+import Navbar from "./../components/navbar.vue";
 import { ref, onMounted } from "vue";
 import {useRoute} from "vue-router";
 import { AVWaveform } from "vue-audio-visual";
 
-
-       
 const route = useRoute();
 var apiUrl = 'http://localhost:3000/tracks/' + route.params.id;
 const componentKey = ref(0);
@@ -14,7 +12,6 @@ const trackinfo = ref<[any]>();
 const trackversion = ref<[any]>();
 const audioPlayer = ref<AVWaveform | null>(null);
 const canvasDiv = ref<HTMLElement | null>(null);
-const duration = ref<any>();
 
 const forceRerender = () => {
   componentKey.value += 1;
@@ -37,22 +34,20 @@ const getuserinfo = async () => {
     forceRerender();
 }
 
-const TrackDuration = () => {
-    duration.value = audioPlayer.value.exposeDuration().value;}
 
-const getTimeInHoursAndMins = (timeInSeconds: any) => {
+const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
     if (!timeInSeconds || timeInSeconds <= 0) {
         return "-";
     }
 
     const mins = Math.floor(timeInSeconds / 60);
-    const seconds = timeInSeconds % 60;
+    const seconds = Math.floor(timeInSeconds % 60);
 
-    return `${mins}:${seconds.toFixed(0)}`;
-}
+    return `${mins}:${seconds < 10 ? '0' : ''}${seconds}`;
+};
 
 onMounted(() => {
-    getuserinfo() , TrackDuration()
+    getuserinfo()
     window.addEventListener('resize', forceRerender);
 }
 );
@@ -129,7 +124,7 @@ const seek = (seconds: number) => {
                 <button @click="pause" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">Pause</button>
                 <button @click="seek(0)" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">Stop</button>
             </div>
-            <div ref="canvasDiv" class="w-full" v-on:click="TrackDuration()" onload="TrackDuration()">
+            <div ref="canvasDiv" class="w-full">
                 <AVWaveform
                     :key="componentKey"
                     ref="audioPlayer"
@@ -146,7 +141,7 @@ const seek = (seconds: number) => {
                     :src="`${uploadedfileUrl}`"
                 ></AVWaveform>
                 <div class="relative -top-5">
-                    <div class="absolute" :style="{ left: `${feedback.timestamp*100}%` }" v-for="(feedback,i) in trackinfo?.trackversions[0].feedback" :key="i">
+                    <div class="absolute" :style="{ left: `${(feedback.timestamp*100)-1.5}%` }" v-for="(feedback,i) in trackinfo?.trackversions[0].feedback" :key="i">
                         <div class="relative inline-flex items-center justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600">
                             <span class="font-medium text-gray-600 dark:text-gray-300">{{ feedback.user.firstname.slice(0, 1)}}{{ feedback.user.lastname.slice(0, 1)}}</span>
                             <img class="bottom-0 left-7 absolute w-5 h-5" v-if='feedback.rating == true' src="./../assets/up.svg">
@@ -183,11 +178,11 @@ const seek = (seconds: number) => {
                 </thead>
                 <tbody>
                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700" v-for="(feedback,i) in trackinfo?.trackversions[0].feedback" :key="i">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        <th @click='seek(trackinfo?.trackversions[0].duration*feedback.timestamp)' scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white cursor-pointer">
                             @{{feedback.user.username}} ({{ feedback.user.firstname }} {{ feedback.user.lastname }})
                         </th>
                         <td class="px-6 py-4">
-                            {{ getTimeInHoursAndMins(duration*feedback.timestamp) }}
+                            {{ getTimeInMinutesAndSeconds(trackinfo?.trackversions[0].duration*feedback.timestamp)}}
                         </td>
                         <td class="px-6 py-4">
                             {{ feedback.comment }}

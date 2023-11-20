@@ -1,63 +1,59 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
 
-    const logout = () => {
-        localStorage.removeItem('access_token');
-        window.location.href = "/login";
-    };
-
-    const toggleSidebar = () => {
-        const sidebar = document.getElementById('separator-sidebar');
-        if(sidebar) {
-            sidebar.classList.toggle('-translate-x-full');
-        }
-    };
-
-    const html = document.querySelector('html');
-    const darkmode = ref<boolean>("");
-
-
-    const toggleMode = () => {
-        const currentMode = localStorage.getItem('mode');
-        if (currentMode === 'dark') {
-            html.classList.remove('dark');
-            localStorage.setItem('mode', 'light');
-            darkmode.value = false;
-            
-        } else {
-            html.classList.add('dark');
-            localStorage.setItem('mode', 'dark');
-            darkmode.value = true;
-        }
-    };
-
-    const checkMode = () => {
-        const mode = localStorage.getItem('mode');
-        if (mode === 'dark') {
-            html.classList.add('dark');
-        } else {
-            html.classList.remove('dark');
-        }
-    };
-
-// Initial check for mode on page load
-checkMode();
-
 let userinfo = ref<[any]>("");
 
+const logout = () => {
+    localStorage.removeItem('access_token');
+    window.location.href = "/login";
+};
+
+const toggleSidebar = () => {
+    const sidebar = document.getElementById('separator-sidebar');
+    if(sidebar) {
+        sidebar.classList.toggle('-translate-x-full');
+    }
+};
+
+const html = document.querySelector('html');
+const darkmode = ref<boolean>("");
+
+
+const toggleMode = () => {
+    const currentMode = localStorage.getItem('mode');
+    if (currentMode === 'dark') {
+        html.classList.remove('dark');
+        localStorage.setItem('mode', 'light');
+        darkmode.value = false;
+    } else {
+        html.classList.add('dark');
+        localStorage.setItem('mode', 'dark');
+        darkmode.value = true;
+    }
+};
+
+const checkMode = () => {
+    const mode = localStorage.getItem('mode');
+    if (mode === 'dark') {
+        html.classList.add('dark');
+    } else {
+        html.classList.remove('dark');
+    }
+};
+
 const getuserinfo = async () => {
-        var apiUrl = 'http://localhost:3000/profile';
+    var apiUrl = 'http://localhost:3000/profile';
 
-        const response = await fetch(apiUrl, {
-                method: "GET",
-                headers: {
-                    "accept": "*/*",
-                    "authorization": `Bearer ${localStorage.getItem('access_token')}`
-                }
-            });
+    const response = await fetch(apiUrl, {
+            method: "GET",
+            headers: {
+                "accept": "*/*",
+                "authorization": `Bearer ${localStorage.getItem('access_token')}`
+            }
+        });
 
-        const data = await response.json();
-        userinfo.value = data;
+    const data = await response.json();
+    userinfo.value = data;
 }
 
 onMounted(() => getuserinfo(), checkMode());
@@ -116,7 +112,7 @@ onMounted(() => getuserinfo(), checkMode());
             <li v-if="userinfo" >
                 <router-link to="/profile" class="flex items-center space-x-4">
                     <div class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600">
-                        <span class="font-medium text-gray-300 dark:text-gray-300">{{ userinfo.firstname.slice(0, 1)}}{{ userinfo.lastname.slice(0, 1)}}</span><!--needs some more adjustments-->
+                        <span class="font-medium text-gray-300 dark:text-gray-300">{{ userinfo.firstname.slice(0, 1)}}{{ userinfo.lastname.slice(0, 1)}}</span>
                     </div>
                     <div class="font-medium dark:text-white">
                         <div>{{ userinfo.firstname }} {{ userinfo.lastname }}</div>

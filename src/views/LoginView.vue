@@ -24,7 +24,6 @@ const checkMode = () => {
     }
 };
 
-
 const submitData = async () => {
   try {
     const body = new FormData();

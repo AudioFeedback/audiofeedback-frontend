@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
-import Navbar from "./../components/Navbar.vue";
+import Navbar from "./../components/navbar.vue";
 
 const apiUrl = 'http://localhost:3000/tracks';
 let uploadedfileUrl = ref<string>("");
@@ -117,7 +117,7 @@ const seek = (seconds: number) => {
                         <p class="mb-2 text-sm text-gray-100 dark:text-gray-400"><span class="font-semibold">File uploaded succesfully</span></p>
                         <p class="text-xs text-gray-100 dark:text-gray-400">{{ audiofile.name }}</p>
                     </div>
-                    <input id="dropzone-file" type="file" class="hidden"  v-on:change="handleFileChange"/>
+                    <input id="dropzone-file" type="file" class="hidden"  @change="handleFileChange"/>
                 </label>
             </div> 
             <button @click="submitData" class="w-full mt-2 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">Submit</button>
