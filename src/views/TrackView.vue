@@ -260,6 +260,8 @@ const seek = (seconds: number) => {
                         </th>
                         <td class="px-6 py-4">
                             {{ getTimeInMinutesAndSeconds(trackinfo!.trackversions[0].duration * feedback.timestamp) }}
+                        <td class="px-6 py-4 cursor-pointer" @click='seek(trackinfo?.trackversions[0].duration*feedback.timestamp)'>
+                            {{ getTimeInMinutesAndSeconds(trackinfo?.trackversions[0].duration*feedback.timestamp)}}
                         </td>
                         <td class="px-6 py-4">
                             {{ feedback.comment }}
