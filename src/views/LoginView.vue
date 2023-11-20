@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { login } from "@/services/app.service";
-import { darkmode } from "@/stores/darkmodeStore";
+import { checkMode } from "@/stores/darkmodeStore";
 import { onMounted, ref } from "vue";
 
 const username = ref<string>("");
@@ -11,11 +11,6 @@ const incorrect = ref<boolean>(false);
 if (localStorage.getItem("access_token")) {
     window.location.href = "/";
 }
-
-const checkMode = () => {
-    const mode = localStorage.getItem("mode");
-    darkmode.value = mode === "dark";
-};
 
 const submitData = async () => {
     try {

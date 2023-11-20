@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { getProfile } from "@/services/app.service";
-import { darkmode } from "@/stores/darkmodeStore";
+import { checkMode, darkmode, toggleMode } from "@/stores/darkmodeStore";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 
@@ -16,22 +16,6 @@ const toggleSidebar = () => {
     if (sidebar) {
         sidebar.classList.toggle("-translate-x-full");
     }
-};
-
-const toggleMode = () => {
-    const currentMode = localStorage.getItem("mode");
-    if (currentMode === "dark") {
-        localStorage.setItem("mode", "light");
-        darkmode.value = false;
-    } else {
-        localStorage.setItem("mode", "dark");
-        darkmode.value = true;
-    }
-};
-
-const checkMode = () => {
-    const mode = localStorage.getItem("mode");
-    darkmode.value = mode === "dark";
 };
 
 const getUserInfo = async () => {
