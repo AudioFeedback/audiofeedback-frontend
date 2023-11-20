@@ -36,7 +36,7 @@ const router = createRouter({
         {
             path: "/feedback/:id",
             name: "feedback",
-            component: () => import("../views/AddFeedback.vue"),
+            component: () => import("../views/AddFeedbackView.vue"),
             meta: { role: ["FEEDBACKGEVER"] }
         }
     ]

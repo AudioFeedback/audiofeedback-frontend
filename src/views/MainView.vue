@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import Navbar from "./../components/navbar.vue";
-import Table from "./../components/table.vue";
-
+import Navbar from "@/components/NavBarComponent.vue";
+import Table from "@/components/TableComponent.vue";
 </script>
 
 <template class="flex flex-row">
@@ -13,10 +12,9 @@ import Table from "./../components/table.vue";
 </template>
 
 <style>
-
-.width-custom{
+.width-custom {
     width: calc(100% - 256px);
-    
+
     @media only screen and (max-width: 640px) {
         width: 100%;
     }

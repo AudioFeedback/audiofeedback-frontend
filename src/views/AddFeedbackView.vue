@@ -6,19 +6,26 @@ import { AVWaveform } from "vue-audio-visual";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
-const apiUrl = "http://localhost:3000/tracks/" + route.params.id;
+var apiUrl = "http://localhost:3000/tracks/" + route.params.id;
+var uploadFeedbackUrl = "http://localhost:3000/feedback";
 const componentKey = ref(0);
 const uploadedfileUrl = ref<string>("");
 const trackinfo = ref<Components.Schemas.GetTrackDeepDto>();
 const trackversion = ref<Components.Schemas.GetTrackVersionDeepDto>();
 const audioPlayer = ref<AVWaveform | null>(null);
 const canvasDiv = ref<HTMLElement | null>(null);
+const selectedpercentageleft = ref<any>(0);
+const selectedTimeStamp = ref<any>(0);
+const closepopup = ref<boolean>(false);
+const rating = ref<boolean>(true);
+const comments = ref<string>("");
+const userinfo = ref<Components.Schemas.GetUserDto>();
 
 const forceRerender = () => {
     componentKey.value += 1;
 };
 
-const getTrackInfo = async () => {
+const getTrack = async () => {
     const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
@@ -35,19 +42,62 @@ const getTrackInfo = async () => {
     forceRerender();
 };
 
-const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
-    if (!timeInSeconds || timeInSeconds <= 0) {
-        return "-";
+const submitFeedback = async () => {
+    try {
+        if (!trackinfo.value || !rating.value) {
+            return;
+        }
+
+        const body = new FormData();
+        body.set("rating", rating.value.toString());
+        body.set("comment", comments.value);
+        body.set("trackId", trackinfo.value.id.toString());
+        body.set("timestamp", selectedTimeStamp.value);
+
+        const response = await fetch(uploadFeedbackUrl, {
+            method: "POST",
+            headers: {
+                accept: "*/*",
+                authorization: `Bearer ${localStorage.getItem("access_token")}`
+            },
+            body: body
+        });
+
+        if (!response) {
+            return;
+        }
+
+        const data = await response.json();
+        console.log("data", data);
+        CloseFeedback();
+        forceRerender();
+    } catch (error) {
+        console.error("API Error:", error);
     }
+};
 
-    const mins = Math.floor(timeInSeconds / 60);
-    const seconds = Math.floor(timeInSeconds % 60);
+const GetPointerLocation = () => {
+    if (closepopup.value === true) {
+        closepopup.value = false;
+        return;
+    }
+    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
+    selectedpercentageleft.value = (audioElement.currentTime / audioElement.duration) * 100;
+    selectedTimeStamp.value = (audioElement.currentTime / audioElement.duration).toFixed(2);
+};
 
-    return `${mins}:${seconds < 10 ? "0" : ""}${seconds}`;
+const CloseFeedback = () => {
+    selectedpercentageleft.value = null;
+    closepopup.value = true;
+    console.log("selectedpercentageleft", selectedpercentageleft.value);
 };
 
 onMounted(() => {
-    getTrackInfo();
+    getTrack();
+    getUserInfo();
+    if (!userinfo.value) {
+        return;
+    }
     window.addEventListener("resize", forceRerender);
 });
 
@@ -80,6 +130,20 @@ const seek = (seconds: number) => {
     if (!audioElement.paused) {
         audioElement.pause();
     }
+};
+
+const getUserInfo = async () => {
+    const apiUrl = "http://localhost:3000/profile";
+
+    const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+            accept: "*/*",
+            authorization: `Bearer ${localStorage.getItem("access_token")}`
+        }
+    });
+
+    userinfo.value = await response.json();
 };
 </script>
 
@@ -127,7 +191,9 @@ const seek = (seconds: number) => {
                                 stroke-width="2"
                             />
                         </svg>
-                        <span class="ml-1 text-sm font-medium text-gray-500 sm:ml-2 dark:text-gray-400">track</span>
+                        <span class="ml-1 text-sm font-medium text-gray-500 sm:ml-2 dark:text-gray-400"
+                            >review track</span
+                        >
                     </div>
                 </li>
                 <li aria-current="page">
@@ -182,7 +248,7 @@ const seek = (seconds: number) => {
                     Stop
                 </button>
             </div>
-            <div ref="canvasDiv" class="w-full">
+            <div id="canvasDiv" ref="canvasDiv" class="w-full relative" @click="GetPointerLocation()">
                 <AVWaveform
                     :key="componentKey"
                     ref="audioPlayer"
@@ -200,30 +266,101 @@ const seek = (seconds: number) => {
                 ></AVWaveform>
                 <div class="relative -top-5">
                     <div
-                        v-for="(feedback, i) in trackinfo?.trackversions[0].feedback"
-                        :key="i"
-                        :style="{ left: `${feedback.timestamp * 100 - 1.5}%` }"
+                        v-if="selectedpercentageleft"
+                        :style="{ left: `${selectedpercentageleft - 1.5}%` }"
                         class="absolute"
                     >
                         <div
-                            class="relative inline-flex items-center justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600"
+                            class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600"
                         >
-                            <span class="font-medium text-gray-600 dark:text-gray-300"
-                                >{{ feedback.user.firstname.slice(0, 1) }}{{ feedback.user.lastname.slice(0, 1) }}</span
+                            <span class="font-medium text-gray-300 dark:text-gray-300"
+                                >{{ userinfo?.firstname.slice(0, 1) }}{{ userinfo?.lastname.slice(0, 1) }}</span
                             >
-                            <img
-                                v-if="feedback.rating"
-                                alt="thumbsup"
-                                class="bottom-0 left-7 absolute w-5 h-5"
-                                src="./../assets/up.svg"
-                            />
-                            <img
-                                v-if="!feedback.rating"
-                                alt="thumbsdown"
-                                class="bottom-0 left-7 absolute w-5 h-5"
-                                src="./../assets/down.svg"
-                            />
                         </div>
+                    </div>
+                    <div
+                        v-if="selectedpercentageleft"
+                        :style="{ left: `${selectedpercentageleft + 4}%` }"
+                        class="absolute bg-white rounded-lg dark:bg-gray-700 p-4 z-[99] drop-shadow-2xl min-w-[20em]"
+                    >
+                        <form name="feedbackform" v-on:submit.prevent="submitFeedback()">
+                            <div class="flex flex-row align-items justify-between">
+                                <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">Rating</h3>
+                                <span class="cursor-pointer" @click.prevent="CloseFeedback()">
+                                    <svg
+                                        aria-hidden="true"
+                                        class="w-4 h-4 text-gray-800 dark:text-white"
+                                        fill="none"
+                                        viewBox="0 0 14 14"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                        />
+                                    </svg>
+                                </span>
+                            </div>
+                            <ul class="grid w-full gap-6 md:grid-cols-2">
+                                <li>
+                                    <input
+                                        id="rating-postive"
+                                        v-model="rating"
+                                        checked
+                                        class="hidden peer"
+                                        name="rating"
+                                        required
+                                        type="radio"
+                                        value="true"
+                                    />
+                                    <label
+                                        class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+                                        for="rating-postive"
+                                    >
+                                        <img alt="thumbsup" src="./../assets/up.svg" />
+                                    </label>
+                                </li>
+                                <li>
+                                    <input
+                                        id="hosting-big"
+                                        v-model="rating"
+                                        class="hidden peer"
+                                        name="rating"
+                                        required
+                                        type="radio"
+                                        value="false"
+                                    />
+                                    <label
+                                        class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+                                        for="hosting-big"
+                                    >
+                                        <img alt="thumbsdown" src="./../assets/down.svg" />
+                                    </label>
+                                </li>
+                            </ul>
+                            <h3 class="mb-2 mt-5 text-lg font-medium text-gray-900 dark:text-white">Comments</h3>
+                            <div>
+                                <div class="mb-6">
+                                    <textarea
+                                        id="message"
+                                        v-model="comments"
+                                        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        placeholder="Write your thoughts here..."
+                                        required
+                                        rows="4"
+                                    ></textarea>
+                                </div>
+                            </div>
+                            <button
+                                class="text-white w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                type="submit"
+                            >
+                                Add Feedback
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -251,15 +388,11 @@ const seek = (seconds: number) => {
                         :key="i"
                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                     >
-                        <th
-                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white cursor-pointer"
-                            scope="row"
-                            @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
-                        >
+                        <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">
                             @{{ feedback.user.username }} ({{ feedback.user.firstname }} {{ feedback.user.lastname }})
                         </th>
                         <td class="px-6 py-4">
-                            {{ getTimeInMinutesAndSeconds(trackinfo!.trackversions[0].duration * feedback.timestamp) }}
+                            {{ feedback.timestamp }}
                         </td>
                         <td class="px-6 py-4">
                             {{ feedback.comment }}
@@ -269,41 +402,6 @@ const seek = (seconds: number) => {
                 </tbody>
             </table>
         </div>
-        <!-- <h4 class="text-2xl mb-2 font-bold dark:text-white">Timeline</h4>
-        <div classxs="px-5">
-            <ol class="relative border-l border-gray-200 dark:border-gray-700">                  
-                <li class="mb-10 ml-6">            
-                    <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                        <img class="rounded-full shadow-lg" src="./../assets/avatar.svg" alt="Bonnie image"/>
-                    </span>
-                    <div class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:bg-gray-700 dark:border-gray-600">
-                        <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">just now</time>
-                        <div class="text-sm font-normal text-gray-500 dark:text-gray-300">Bonnie moved <a href="#" class="font-semibold text-blue-600 dark:text-blue-500 hover:underline">Jese Leos</a> to <span class="bg-gray-100 text-gray-800 text-xs font-normal mr-2 px-2.5 py-0.5 rounded dark:bg-gray-600 dark:text-gray-300">Funny Group</span></div>
-                    </div>
-                </li>
-                <li class="mb-10 ml-6">
-                    <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                        <img class="rounded-full shadow-lg" src="./../assets/avatar.svg" alt="Thomas Lean image"/>
-                    </span>
-                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600">
-                        <div class="items-center justify-between mb-3 sm:flex">
-                            <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">2 hours ago</time>
-                            <div class="text-sm font-normal text-gray-500 lex dark:text-gray-300">Thomas Lean commented on  <a href="#" class="font-semibold text-gray-900 dark:text-white hover:underline">Flowbite Pro</a></div>
-                        </div>
-                        <div class="p-3 text-xs italic font-normal text-gray-500 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300">Hi ya'll! I wanted to share a webinar zeroheight is having regarding how to best measure your design system! This is the second session of our new webinar series on #DesignSystems discussions where we'll be speaking about Measurement.</div>
-                    </div>
-                </li>
-                <li class="ml-6">
-                    <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                        <img class="rounded-full shadow-lg" src="./../assets/avatar.svg" alt="Jese Leos image"/>
-                    </span>
-                    <div class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:bg-gray-700 dark:border-gray-600">
-                        <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">1 day ago</time>
-                        <div class="text-sm font-normal text-gray-500 lex dark:text-gray-300">Jese Leos has changed <a href="#" class="font-semibold text-blue-600 dark:text-blue-500 hover:underline">Pricing page</a> task status to  <span class="font-semibold text-gray-900 dark:text-white">Finished</span></div>
-                    </div>
-                </li>
-            </ol>
-        </div> -->
     </main>
 </template>
 
