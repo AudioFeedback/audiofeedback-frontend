@@ -34,6 +34,7 @@ const toggleMode = () => {
 
 const checkMode = () => {
     const mode = localStorage.getItem("mode");
+    darkmode.value = mode === "dark" ? true : false;
     if (mode === "dark") {
         html.classList.add("dark");
     } else {
@@ -58,6 +59,7 @@ const getuserinfo = async () => {
 onMounted(() => {
     getuserinfo();
     checkMode();
+    
 });
 </script>
 
