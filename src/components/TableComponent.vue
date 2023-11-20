@@ -16,7 +16,6 @@ const gettrack = async () => {
         }
     });
 
-    await response.json();
     trackdata.value = await response.json();
 };
 const roles = getRoles();
