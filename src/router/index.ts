@@ -1,3 +1,5 @@
+import type { roles } from "@/utils/authorisationhelper";
+import { getRoles } from "@/utils/authorisationhelper";
 import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
@@ -6,36 +8,66 @@ const router = createRouter({
         {
             path: "/login",
             name: "login",
-            component: import("../views/LoginView.vue")
+            component: () => import("../views/LoginView.vue")
         },
         {
             path: "/",
             name: "main",
-            component: import("../views/MainView.vue")
+            component: () => import("../views/MainView.vue")
         },
         {
-            path: '/track/:id',
-            name: 'track',
+            path: "/track/:id",
+            name: "track",
             props: true,
-            component: import('../views/TrackView.vue'),
+            component: () => import("../views/TrackView.vue"),
+            meta: { role: ["MUZIEKPRODUCER"] }
         },
         {
             path: "/upload",
             name: "upload",
-            component: import("../views/UploadView.vue")
+            component: () => import("../views/UploadView.vue"),
+            meta: { role: ["MUZIEKPRODUCER"] }
         },
         {
             path: "/profile",
             name: "profile",
-            component: import("../views/ProfileView.vue")
+            component: () => import("../views/ProfileView.vue")
         },
         {
-            path: '/feedback/:id',
-            name: 'feedback',
-            props: true,
-            component: import('../views/AddFeedback.vue'),
+            path: "/feedback/:id",
+            name: "feedback",
+            component: () => import("../views/AddFeedback.vue"),
+            meta: { role: ["FEEDBACKGEVER"] }
         }
     ]
+});
+
+router.beforeEach((to, from, next) => {
+    const roles = getRoles();
+
+    if (to.name !== "login" && !roles) {
+        {
+            return next({ name: "login" });
+        }
+    }
+
+    let hasAccess = false;
+
+    const requiredRoles = <Array<roles>>to.meta.role;
+
+    if (!requiredRoles) {
+        return next();
+    }
+
+    roles!.forEach((role) => {
+        if (requiredRoles.includes(role)) {
+            hasAccess = true;
+        }
+    });
+
+    if (hasAccess) {
+        return next();
+    }
 });
 
 export default router;
