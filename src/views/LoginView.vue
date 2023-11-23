@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { login } from "@/services/app.service";
 import { checkMode } from "@/stores/darkmodeStore";
-import { onMounted, ref } from "vue";
+import router from '@/router';
+import { VueElement, onMounted, ref } from "vue";
 
 const username = ref<string>("");
 const password = ref<string>("");
@@ -9,7 +10,7 @@ const remember = ref<boolean>(true);
 const incorrect = ref<boolean>(false);
 
 if (localStorage.getItem("access_token")) {
-    window.location.href = "/";
+    router.push('/');
 }
 
 const submitData = async () => {
@@ -26,10 +27,10 @@ const submitData = async () => {
         if (response.status == 200 || response.status == 201) {
             if (remember.value == true) {
                 localStorage.setItem("access_token", data.access_token);
-                window.location.href = "/";
+                router.push('/');
                 return;
             } else {
-                window.location.href = "/";
+                router.push('/');
                 return;
             }
         } else {
