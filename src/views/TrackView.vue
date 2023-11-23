@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import Navbar from "@/components/NavBarComponent.vue";
+import { getTrack } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
-const apiUrl = "http://localhost:3000/tracks/" + route.params.id;
 const componentKey = ref(0);
 const uploadedfileUrl = ref<string>("");
 const trackinfo = ref<Components.Schemas.GetTrackDeepDto>();
@@ -16,8 +16,8 @@ const canvasDiv = ref<HTMLElement | null>(null);
 const activeTab = ref<number>(1);
 
 const setTab = (tab: number) => {
-    activeTab. value = tab;
-    forceRerender() ;
+    activeTab.value = tab;
+    forceRerender();
 };
 
 const forceRerender = () => {
@@ -25,15 +25,9 @@ const forceRerender = () => {
 };
 
 const getTrackInfo = async () => {
-    const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-            accept: "*/*",
-            authorization: `Bearer ${localStorage.getItem("access_token")}`
-        }
-    });
+    const response = await getTrack(route.params.id as unknown as number);
 
-    const data = await response.json();
+    const data = response.data;
     console.log("data", data);
     trackinfo.value = data;
     trackversion.value = data.trackversions[0];
@@ -163,16 +157,54 @@ const seek = (seconds: number) => {
         <div class="border-b border-gray-200 dark:border-gray-700 mb-5">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
                 <li class="me-2">
-                    <button @click="setTab(1)" :class="{ 'text-blue-600 border-blue-600 dark:border-blue-500': activeTab === 1, 'hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300': activeTab !== 1 }" class="inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg">
-                        <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 11.5V1s3 1 3 4m-7-3H1m9 4H1m4 4H1m13 2.4c0 1.325-1.343 2.4-3 2.4s-3-1.075-3-2.4S9.343 10 11 10s3 1.075 3 2.4Z"/>
-                        </svg>Track
+                    <button
+                        :class="{
+                            'text-blue-600 border-blue-600 dark:border-blue-500': activeTab === 1,
+                            'hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300': activeTab !== 1
+                        }"
+                        class="inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg"
+                        @click="setTab(1)"
+                    >
+                        <svg
+                            aria-hidden="true"
+                            class="w-4 h-4 me-2"
+                            fill="none"
+                            viewBox="0 0 18 16"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M14 11.5V1s3 1 3 4m-7-3H1m9 4H1m4 4H1m13 2.4c0 1.325-1.343 2.4-3 2.4s-3-1.075-3-2.4S9.343 10 11 10s3 1.075 3 2.4Z"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
+                        </svg>
+                        Track
                     </button>
                 </li>
                 <li class="me-2">
-                    <button @click="setTab(2)" :class="{ 'text-blue-600 border-blue-600 dark:border-blue-500': activeTab === 2, 'hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300': activeTab !== 2 }" class="inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg">
-                        <svg class="w-4 h-4 me-2 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M10 6v4l3.276 3.276M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                    <button
+                        :class="{
+                            'text-blue-600 border-blue-600 dark:border-blue-500': activeTab === 2,
+                            'hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300': activeTab !== 2
+                        }"
+                        class="inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg"
+                        @click="setTab(2)"
+                    >
+                        <svg
+                            aria-hidden="true"
+                            class="w-4 h-4 me-2"
+                            fill="none"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M10 6v4l3.276 3.276M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                stroke="currentColor"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
                         </svg>
                         Version History
                     </button>
@@ -235,7 +267,8 @@ const seek = (seconds: number) => {
                                 class="relative inline-flex items-center justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600"
                             >
                                 <span class="font-medium text-gray-600 dark:text-gray-300"
-                                    >{{ feedback.user.firstname.slice(0, 1) }}{{ feedback.user.lastname.slice(0, 1) }}</span
+                                    >{{ feedback.user.firstname.slice(0, 1)
+                                    }}{{ feedback.user.lastname.slice(0, 1) }}</span
                                 >
                                 <img
                                     v-if="feedback.rating"
@@ -281,13 +314,18 @@ const seek = (seconds: number) => {
                                 scope="row"
                                 @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
                             >
-                                @{{ feedback.user.username }} ({{ feedback.user.firstname }} {{ feedback.user.lastname }})
+                                @{{ feedback.user.username }} ({{ feedback.user.firstname }}
+                                {{ feedback.user.lastname }})
                             </th>
                             <td
                                 class="px-6 py-4 cursor-pointer"
                                 @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
                             >
-                                {{ getTimeInMinutesAndSeconds(trackinfo!.trackversions[0].duration * feedback.timestamp) }}
+                                {{
+                                    getTimeInMinutesAndSeconds(
+                                        trackinfo!.trackversions[0].duration * feedback.timestamp
+                                    )
+                                }}
                             </td>
                             <td class="px-6 py-4">
                                 {{ feedback.comment }}
@@ -300,8 +338,8 @@ const seek = (seconds: number) => {
         </div>
         <div v-if="activeTab === 2">
             <h4 class="text-2xl mb-2 font-bold dark:text-white">Timeline</h4>
-            <div classxs="px-5" v-for="(track, i) in trackinfo?.trackversions" :key="i">
-                <ol class="relative border-l border-gray-200 dark:border-gray-700">                  
+            <div class="px-5" v-for="(track, i) in trackinfo?.trackversions" :key="i">
+                <ol class="relative border-l border-gray-200 dark:border-gray-700">
                     <li class="mb-10 ml-6">
                         <div class="absolute flex items-center justify-center w-7 h-7 bg-primary-600 rounded-full -left-3 dark:ring-gray-900 dark:bg-primary-900">
                             <span class="text-sm text-gray-300 dark:text-gray-300">UK</span>

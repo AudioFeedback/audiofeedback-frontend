@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { getProfile } from "@/services/app.service";
+import { checkMode, darkmode, toggleMode } from "@/stores/darkmodeStore";
 import router from "@/router";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
@@ -17,50 +19,16 @@ const toggleSidebar = () => {
     }
 };
 
-const html = document.querySelector("html");
-const darkmode = ref<boolean>();
+const getUserInfo = async () => {
+    const response = await getProfile();
 
-const toggleMode = () => {
-    const currentMode = localStorage.getItem("mode");
-    if (currentMode === "dark") {
-        html?.classList.remove("dark");
-        localStorage.setItem("mode", "light");
-        darkmode.value = false;
-    } else {
-        html?.classList.add("dark");
-        localStorage.setItem("mode", "dark");
-        darkmode.value = true;
-    }
-};
-
-const checkMode = () => {
-    const mode = localStorage.getItem("mode");
-    darkmode.value = mode === "dark" ? true : false;
-    if (mode === "dark") {
-        html?.classList.add("dark");
-    } else {
-        html?.classList.remove("dark");
-    }
-};
-
-const getuserinfo = async () => {
-    var apiUrl = "http://localhost:3000/profile";
-
-    const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-            accept: "*/*",
-            authorization: `Bearer ${localStorage.getItem("access_token")}`
-        }
-    });
-
-    userinfo.value = await response.json();
+    userinfo.value = response.data;
 };
 
 onMounted(() => {
-    getuserinfo();
+    getUserInfo();
     checkMode();
-    
+
 });
 </script>
 
@@ -148,7 +116,7 @@ onMounted(() => {
                 <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
                     <li @click="toggleMode()">
                         <a
-                            v-if="darkmode == true"
+                            v-if="darkmode"
                             class="cursor-pointer flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
                         >
                             <svg
@@ -165,7 +133,7 @@ onMounted(() => {
                             <span class="ml-3">Switch to lightmode</span>
                         </a>
                         <a
-                            v-if="darkmode == false"
+                            v-if="!darkmode"
                             class="cursor-pointer flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
                         >
                             <svg

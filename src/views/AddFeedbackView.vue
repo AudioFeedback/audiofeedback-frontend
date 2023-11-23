@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import Navbar from "@/components/NavBarComponent.vue";
+import { createFeedback } from "@/services/feedback.service";
+import { getTrack } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
-var apiUrl = "http://localhost:3000/tracks/" + route.params.id;
-var uploadFeedbackUrl = "http://localhost:3000/feedback";
 const componentKey = ref(0);
 const uploadedfileUrl = ref<string>("");
 const trackinfo = ref<Components.Schemas.GetTrackDeepDto>();
@@ -25,16 +25,10 @@ const forceRerender = () => {
     componentKey.value += 1;
 };
 
-const getTrack = async () => {
-    const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-            accept: "*/*",
-            authorization: `Bearer ${localStorage.getItem("access_token")}`
-        }
-    });
+const getTrackData = async () => {
+    const response = await getTrack(route.params.id as unknown as number);
 
-    const data = await response.json();
+    const data = response.data;
     console.log("data", data);
     trackinfo.value = data;
     trackversion.value = data.trackversions[0];
@@ -48,26 +42,18 @@ const submitFeedback = async () => {
             return;
         }
 
-        const body = new FormData();
-        body.set("rating", rating.value.toString());
-        body.set("comment", comments.value);
-        body.set("trackId", trackinfo.value.id.toString());
-        body.set("timestamp", selectedTimeStamp.value);
-
-        const response = await fetch(uploadFeedbackUrl, {
-            method: "POST",
-            headers: {
-                accept: "*/*",
-                authorization: `Bearer ${localStorage.getItem("access_token")}`
-            },
-            body: body
+        const response = await createFeedback({
+            rating: rating.value,
+            comment: comments.value,
+            trackId: trackinfo.value.id,
+            timestamp: selectedTimeStamp.value
         });
 
         if (!response) {
             return;
         }
 
-        const data = await response.json();
+        const data = response.data;
         console.log("data", data);
         CloseFeedback();
         forceRerender();
@@ -93,7 +79,7 @@ const CloseFeedback = () => {
 };
 
 onMounted(() => {
-    getTrack();
+    getTrackData();
     getUserInfo();
     if (!userinfo.value) {
         return;

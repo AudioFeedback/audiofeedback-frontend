@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import Navbar from "@/components/NavBarComponent.vue";
+import { getProfile } from "@/services/app.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 
@@ -7,20 +8,12 @@ let userinfo = ref<Components.Schemas.GetUserDto>({ id: 0, username: "", firstna
 
 let password = ref<string>("");
 
-const getuserinfo = async () => {
-    const apiUrl = "http://localhost:3000/profile";
+const getUserInfo = async () => {
+    const response = await getProfile();
 
-    const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-            accept: "*/*",
-            authorization: `Bearer ${localStorage.getItem("access_token")}`
-        }
-    });
-
-    userinfo.value = await response.json();
+    userinfo.value = response.data;
 };
-onMounted(() => getuserinfo());
+onMounted(() => getUserInfo());
 </script>
 
 <template class="flex flex-row">
