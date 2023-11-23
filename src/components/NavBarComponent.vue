@@ -22,11 +22,11 @@ const darkmode = ref<boolean>();
 const toggleMode = () => {
     const currentMode = localStorage.getItem("mode");
     if (currentMode === "dark") {
-        html.classList.remove("dark");
+        html?.classList.remove("dark");
         localStorage.setItem("mode", "light");
         darkmode.value = false;
     } else {
-        html.classList.add("dark");
+        html?.classList.add("dark");
         localStorage.setItem("mode", "dark");
         darkmode.value = true;
     }
@@ -36,9 +36,9 @@ const checkMode = () => {
     const mode = localStorage.getItem("mode");
     darkmode.value = mode === "dark" ? true : false;
     if (mode === "dark") {
-        html.classList.add("dark");
+        html?.classList.add("dark");
     } else {
-        html.classList.remove("dark");
+        html?.classList.remove("dark");
     }
 };
 
