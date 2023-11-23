@@ -137,6 +137,7 @@ const getUserInfo = async () => {
     <Navbar />
     <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
         <nav
+            ref="canvasDiv"
             aria-label="Breadcrumb"
             class="mb-5 flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
         >
@@ -234,7 +235,7 @@ const getUserInfo = async () => {
                     Stop
                 </button>
             </div>
-            <div id="canvasDiv" ref="canvasDiv" class="w-full relative" @click="GetPointerLocation()">
+            <div id="canvasDiv" class="w-full relative" @click="GetPointerLocation()">
                 <AVWaveform
                     :key="componentKey"
                     ref="audioPlayer"
