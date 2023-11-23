@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import router from "@/router";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 
@@ -6,7 +7,7 @@ let userinfo = ref<Components.Schemas.GetUserDto>();
 
 const logout = () => {
     localStorage.removeItem("access_token");
-    window.location.href = "/login";
+    router.push('/login');
 };
 
 const toggleSidebar = () => {

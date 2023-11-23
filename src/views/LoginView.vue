@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import router from '@/router';
+import { VueElement, onMounted, ref } from 'vue';
 
 const apiUrl = 'http://localhost:3000/auth/login';
 
@@ -9,7 +10,7 @@ const remember = ref<boolean>(true);
 const incorrect = ref<boolean>(false);
 
 if(localStorage.getItem('access_token')) {
-    window.location.href = "/";
+    router.push('/');
 }
 
 const html = document.querySelector('html');
@@ -48,10 +49,10 @@ const submitData = async () => {
     if(response.status == 200 || response.status == 201) {
         if(remember.value == true) {
             localStorage.setItem('access_token', data.access_token);
-            window.location.href = "/";
+            router.push('/');
             return;
         } else {
-            window.location.href = "/";
+            router.push('/');
             return;
         }
     } else {
