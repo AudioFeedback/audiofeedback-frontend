@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import Navbar from "@/components/NavBarComponent.vue";
-import { createFeedback } from "@/services/feedback.service";
+import { createFeedback, publishFeedback } from "@/services/feedback.service";
 import { getTrackReviewer } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
@@ -63,6 +63,27 @@ const submitFeedback = async () => {
     } catch (error) {
         console.error("API Error:", error);
     }
+};
+
+const publishFeedbackToArtist = async () => {
+    const versionId = trackinfo.value?.trackversions[trackinfo.value?.trackversions.length - 1].id;
+
+    if (!versionId) {
+        return;
+    }
+    
+    await publishFeedback(versionId);
+};
+
+const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
+    if (!timeInSeconds || timeInSeconds <= 0) {
+        return "-";
+    }
+
+    const mins = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+
+    return `${mins}:${seconds < 10 ? "0" : ""}${seconds}`;
 };
 
 const GetPointerLocation = () => {
@@ -236,7 +257,18 @@ const getUserInfo = async () => {
                 >
                     Stop
                 </button>
+
+                <div class="w-full flex justify-end">
+                    <button
+                        class="px-6 py-3.5 text-base font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        type="button"
+                        @click="publishFeedbackToArtist"
+                    >
+                        Submit feedback
+                    </button>
+                </div>
             </div>
+
             <div id="canvasDiv" ref="canvasDiv" class="w-full relative" @click="GetPointerLocation()">
                 <AVWaveform
                     :key="componentKey"
@@ -380,7 +412,7 @@ const getUserInfo = async () => {
                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                     >
                         <td class="px-6 py-4" @click="seek(feedback.timestamp * trackinfo!.trackversions[0].duration)">
-                            {{ feedback.timestamp }}
+                            {{ getTimeInMinutesAndSeconds(feedback.timestamp * trackinfo!.trackversions[0].duration) }}
                         </td>
                         <td class="px-6 py-4">
                             {{ feedback.comment }}
