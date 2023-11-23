@@ -17,7 +17,6 @@ const activeTab = ref<number>(1);
 
 const setTab = (tab: number) => {
     activeTab.value = tab;
-    forceRerender();
 };
 
 const forceRerender = () => {
@@ -87,6 +86,7 @@ const seek = (seconds: number) => {
     <Navbar />
     <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
         <nav
+            ref="canvasDiv"
             aria-label="Breadcrumb"
             class="mb-5 flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
         >
@@ -240,7 +240,7 @@ const seek = (seconds: number) => {
                         Stop
                     </button>
                 </div>
-                <div ref="canvasDiv" class="w-full">
+                <div class="w-full">
                     <AVWaveform
                         :key="componentKey"
                         ref="audioPlayer"
