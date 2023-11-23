@@ -1,22 +1,15 @@
 <script lang="ts" setup>
+import { getTracks } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
 import { onMounted, ref } from "vue";
 
-let trackdata = ref<[Components.Schemas.GetTrackDeepDto]>();
+const trackdata = ref<Array<Components.Schemas.GetTrackWithAuthorDto>>();
 
 const gettrack = async () => {
-    const apiUrl = "http://localhost:3000/tracks";
+    const response = await getTracks();
 
-    const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-            accept: "*/*",
-            authorization: `Bearer ${localStorage.getItem("access_token")}`
-        }
-    });
-
-    trackdata.value = await response.json();
+    trackdata.value = response.data;
 };
 const roles = getRoles();
 

@@ -10,10 +10,11 @@ const route = useRoute();
 const componentKey = ref(0);
 const uploadedfileUrl = ref<string>("");
 const trackinfo = ref<Components.Schemas.GetTrackDeepDto>();
-const trackversion = ref<Components.Schemas.GetTrackVersionDeepDto>();
 const audioPlayer = ref<AVWaveform | null>(null);
 const canvasDiv = ref<HTMLElement | null>(null);
 const activeTab = ref<number>(1);
+
+const trackVersion = ref<number>(0);
 
 const setTab = (tab: number) => {
     activeTab.value = tab;
@@ -30,7 +31,10 @@ const getTrackInfo = async () => {
     const data = response.data;
     console.log("data", data);
     trackinfo.value = data;
-    trackversion.value = data.trackversions[0];
+
+    console.log(data);
+
+    trackVersion.value = data.trackversions.length - 1;
     uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
     forceRerender();
 };
@@ -81,11 +85,16 @@ const seek = (seconds: number) => {
         audioElement.pause();
     }
 };
+
+const changeVersion = (version: number) => {
+    trackVersion.value = version - 1;
+    activeTab.value = 1;
+};
 </script>
 
 <template class="flex flex-row">
     <Navbar />
-    <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
+    <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900">
         <nav
             aria-label="Breadcrumb"
             class="mb-5 flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
@@ -127,7 +136,7 @@ const seek = (seconds: number) => {
                                 stroke-width="2"
                             />
                         </svg>
-                        <span class="ml-1 text-sm font-medium text-gray-500 sm:ml-2 dark:text-gray-400">track</span>
+                        <span class="ml-1 text-sm font-medium text-gray-500 sm:ml-2 dark:text-gray-400">Track</span>
                     </div>
                 </li>
                 <li aria-current="page">
@@ -150,6 +159,28 @@ const seek = (seconds: number) => {
                         <span class="ml-1 text-sm font-medium text-gray-500 sm:ml-2 dark:text-gray-400">{{
                             trackinfo?.title
                         }}</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg
+                            aria-hidden="true"
+                            class="w-3 h-3 mx-1 text-gray-400"
+                            fill="none"
+                            viewBox="0 0 6 10"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="m1 9 4-4-4-4"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 sm:ml-2 dark:text-gray-400">
+                            Version {{ trackVersion + 1 }}
+                        </span>
                     </div>
                 </li>
             </ol>
@@ -216,6 +247,11 @@ const seek = (seconds: number) => {
                 <h1 class="text-3xl font-bold dark:text-white mb-6">
                     {{ trackinfo?.title }}
                     <span
+                        class="ml-2 bg-green-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
+                    >
+                        Version {{ trackVersion + 1 }}
+                    </span>
+                    <span
                         class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"
                         >{{ trackinfo?.genre }}</span
                     >
@@ -258,7 +294,7 @@ const seek = (seconds: number) => {
                     ></AVWaveform>
                     <div class="relative -top-5">
                         <div
-                            v-for="(feedback, i) in trackinfo?.trackversions[0].feedback"
+                            v-for="(feedback, i) in trackinfo?.trackversions[trackVersion].feedback"
                             :key="i"
                             :style="{ left: `${feedback.timestamp * 100 - 1.5}%` }"
                             class="absolute"
@@ -305,25 +341,25 @@ const seek = (seconds: number) => {
                     </thead>
                     <tbody>
                         <tr
-                            v-for="(feedback, i) in trackinfo?.trackversions[0].feedback"
+                            v-for="(feedback, i) in trackinfo?.trackversions[trackVersion].feedback"
                             :key="i"
                             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                         >
                             <th
                                 class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white cursor-pointer"
                                 scope="row"
-                                @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
+                                @click="seek(trackinfo!.trackversions[trackVersion].duration * feedback.timestamp)"
                             >
                                 @{{ feedback.user.username }} ({{ feedback.user.firstname }}
                                 {{ feedback.user.lastname }})
                             </th>
                             <td
                                 class="px-6 py-4 cursor-pointer"
-                                @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
+                                @click="seek(trackinfo!.trackversions[trackVersion].duration * feedback.timestamp)"
                             >
                                 {{
                                     getTimeInMinutesAndSeconds(
-                                        trackinfo!.trackversions[0].duration * feedback.timestamp
+                                        trackinfo!.trackversions[trackVersion].duration * feedback.timestamp
                                     )
                                 }}
                             </td>
@@ -338,18 +374,36 @@ const seek = (seconds: number) => {
         </div>
         <div v-if="activeTab === 2">
             <h4 class="text-2xl mb-2 font-bold dark:text-white">Timeline</h4>
-            <div class="px-5" v-for="(track, i) in trackinfo?.trackversions" :key="i">
+            <div v-for="(track, i) in trackinfo?.trackversions" :key="i" class="px-5">
                 <ol class="relative border-l border-gray-200 dark:border-gray-700">
                     <li class="mb-10 ml-6">
-                        <div class="absolute flex items-center justify-center w-7 h-7 bg-primary-600 rounded-full -left-3 dark:ring-gray-900 dark:bg-primary-900">
+                        <div
+                            class="absolute flex items-center justify-center w-7 h-7 bg-primary-600 rounded-full -left-3 dark:ring-gray-900 dark:bg-primary-900"
+                        >
                             <span class="text-sm text-gray-300 dark:text-gray-300">UK</span>
                         </div>
-                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600">
+                        <div
+                            class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600"
+                        >
                             <div class="items-center justify-between mb-3 sm:flex">
-                                <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">{{ track.createdAt }}</time>
-                                <div class="text-sm font-normal text-gray-500 lex dark:text-gray-300">Thomas Lean uploaded track version {{ track.versionNumber }}</div>
+                                <time class="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">
+                                    {{ track.createdAt }}
+                                </time>
+                                <div class="text-sm font-normal text-gray-500 lex dark:text-gray-300">
+                                    Thomas Lean uploaded track version {{ track.versionNumber }}
+                                </div>
                             </div>
-                            <div class="p-3 text-xs italic font-normal text-gray-500 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300">{{track.description}}</div>
+                            <button
+                                class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                                @click="changeVersion(track.versionNumber)"
+                            >
+                                View version
+                            </button>
+                            <div
+                                class="p-3 text-xs italic font-normal text-gray-500 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300"
+                            >
+                                {{ track.description }}
+                            </div>
                         </div>
                     </li>
                 </ol>
