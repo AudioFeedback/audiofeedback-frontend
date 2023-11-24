@@ -38,6 +38,12 @@ const router = createRouter({
             name: "feedback",
             component: () => import("../views/AddFeedbackView.vue"),
             meta: { role: ["FEEDBACKGEVER"] }
+        },
+        {
+            path: "/manage-track/:id",
+            name: "manage track",
+            component: () => import("../views/AdminTrackView.vue"),
+            meta: { role: ["ADMIN"] }
         }
     ]
 });
