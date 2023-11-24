@@ -1,5 +1,12 @@
 # audiofeedback-frontend
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=AudioFeedback_audiofeedback-frontend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=AudioFeedback_audiofeedback-frontend)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=AudioFeedback_audiofeedback-frontend&metric=bugs)](https://sonarcloud.io/summary/new_code?id=AudioFeedback_audiofeedback-frontend)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=AudioFeedback_audiofeedback-frontend&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=AudioFeedback_audiofeedback-frontend)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=AudioFeedback_audiofeedback-frontend&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=AudioFeedback_audiofeedback-frontend)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=AudioFeedback_audiofeedback-frontend&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=AudioFeedback_audiofeedback-frontend)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=AudioFeedback_audiofeedback-frontend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=AudioFeedback_audiofeedback-frontend)
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
