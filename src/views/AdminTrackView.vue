@@ -467,30 +467,15 @@ const changeVersion = (version: number) => {
                     </thead>
                     <tbody>
                         <tr v-for="(reviewers, i) in trackinfo.reviewers" :key="i" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">
+                            <th class="px-6 py-4 flex flex-row align-center font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">
+                                <div class="relative mr-2 inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600">
+                                    <span class="font-medium text-gray-300 dark:text-gray-300">{{ reviewers.firstname.slice(0, 1) }}{{ reviewers.lastname.slice(0, 1) }}</span>
+                                </div>
                                 <div class="flex flex-col align-left justify-center">
                                     <p class="font-semibold">{{ reviewers.firstname }} {{ reviewers.lastname }}</p>
                                     <p class="text-gray-600 dark:text-gray-400">@{{ reviewers.username }}</p>
                                 </div>
                             </th>
-                            <!-- <td class="px-6 py-4">
-                                <div class="flex -space-x-2 rtl:space-x-reverse relative">
-                                    <div v-for="(reviewer, i) in reviewers" :key="i">
-                                        <img @click="Showoverlay(reviewer, track.id)" class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800" src="./../assets/profile-picture-5.jpg" alt="">
-                                        <div v-if="ShowOverlay == reviewer.id && ShowOverlay2 == track.id" :class="{'bottom-10':ShowOverlay2 > 1, 'top-10': ShowOverlay2 < (trackdata.length-1)}" class="absolute z-[990] inline-block w-64 text-sm text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600">
-                                            <div class="p-3">
-                                                <div class="flex items-center justify-between mb-2">
-                                                    <img class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800" src="./../assets/profile-picture-5.jpg" alt="">
-                                                    <button type="button" class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">Remove as reviewer</button>
-                                                </div>
-                                                <p class="text-base font-semibold leading-none text-gray-900 dark:text-white">Jese Leos</p>
-                                                <p class="text-sm font-normal">@username</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <a class="flex items-center justify-center w-10 h-10 text-xs font-medium text-white bg-gray-500 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800" href="#">+</a>
-                                </div>
-                            </td> -->
                             <td class="px-6 py-4">
                                 <span class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-gray-900 dark:text-gray-300">Waiting to review</span>
                                 <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Reviewing</span>
@@ -516,7 +501,7 @@ const changeVersion = (version: number) => {
                                     </li>
                                     </ul>
                                     <div class="py-2">
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Remove {{ reviewers.firstname }}</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-red-700 hover:bg-red-100 dark:hover:bg-red-600 dark:text-red-200 dark:hover:text-white">Remove {{ reviewers.firstname }}</a>
                                     </div>
                                 </div>
                             </td>

@@ -44,6 +44,12 @@ const router = createRouter({
             name: "manage track",
             component: () => import("../views/AdminTrackView.vue"),
             meta: { role: ["ADMIN"] }
+        },
+        {
+            path: "/manage-users",
+            name: "manage users",
+            component: () => import("../views/AdminManageUsersView.vue"),
+            meta: { role: ["ADMIN"] }
         }
     ]
 });
