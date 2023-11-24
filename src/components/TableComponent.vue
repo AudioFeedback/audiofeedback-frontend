@@ -94,5 +94,3 @@ onMounted(() => gettrack());
         </table>
     </div>
 </template>
-
-<style scoped></style>

@@ -150,7 +150,7 @@ onMounted(() => getUserInfo());
     </main>
 </template>
 
-<style>
+<style scoped>
 .width-custom {
     width: calc(100% - 256px);
 
