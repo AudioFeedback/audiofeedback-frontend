@@ -101,7 +101,8 @@ const NextStep = (step: number) => {
     }
 
     if(step == 2){
-        if (labelreviewer.value == "" || allreviewers.value.length == 0) {
+
+        if (labelreviewer.value == "" && allreviewers.value.length == 0) {
             alert("Please fill in all fields")
             return;
         }
@@ -338,11 +339,10 @@ onMounted(() => {
                         </ul>
                     </div>
                 </div>
-                <p>{{ allreviewers.length }} - {{ labelreviewer === '' || allreviewers.length >= 1 }} - {{ labelreviewer !== '' || allreviewers.length === 0 }} - {{ allreviewers.length }}</p>
                 <button :class="{
                     'bg-gray-400 hover:bg-gray-500': labelreviewer === '' || allreviewers.length === 0,
                     'bg-gray-800 hover:bg-gray-900': labelreviewer !== '' || allreviewers.length > 0
-                    }"  :disabled="labelreviewer !== '' || allreviewers.length > 0" @click="NextStep(2)" class=" absolute bottom-0 right-0 w-full mt-2 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2">Next Step: Review</button>
+                    }" @click="NextStep(2)" class=" absolute bottom-0 right-0 w-full mt-2 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2">Next Step: Review</button>
             </div>
             <div v-if="uploadstatus === 2">
                 <h1 class="text-3xl font-bold dark:text-white mb-4">Review information</h1>
