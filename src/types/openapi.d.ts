@@ -289,18 +289,6 @@ declare namespace Paths {
             export type $200 = Components.Schemas.GetUserWithTrackDto[];
         }
     }
-    namespace UsersControllerFindOne {
-        namespace Parameters {
-            export type Id = string;
-        }
-        export interface PathParameters {
-            id: Parameters.Id;
-        }
-        namespace Responses {
-            export interface $200 {
-            }
-        }
-    }
     namespace UsersControllerGetReviewers {
         namespace Responses {
             export type $200 = Components.Schemas.GetUserDto[];
@@ -420,14 +408,6 @@ export interface OperationMethods {
     data?: Paths.UsersControllerCreate.RequestBody,
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.UsersControllerCreate.Responses.$201>
-  /**
-   * UsersController_findOne
-   */
-  'UsersController_findOne'(
-    parameters?: Parameters<Paths.UsersControllerFindOne.PathParameters> | null,
-    data?: any,
-    config?: AxiosRequestConfig  
-  ): OperationResponse<Paths.UsersControllerFindOne.Responses.$200>
   /**
    * UsersController_update
    */
@@ -594,14 +574,6 @@ export interface PathsDictionary {
     ): OperationResponse<Paths.UsersControllerFindAll.Responses.$200>
   }
   ['/users/{id}']: {
-    /**
-     * UsersController_findOne
-     */
-    'get'(
-      parameters?: Parameters<Paths.UsersControllerFindOne.PathParameters> | null,
-      data?: any,
-      config?: AxiosRequestConfig  
-    ): OperationResponse<Paths.UsersControllerFindOne.Responses.$200>
     /**
      * UsersController_update
      */
