@@ -11,7 +11,7 @@ declare namespace Components {
         export interface CreateFeedbackDto {
             rating: boolean;
             comment: string;
-            trackId: number;
+            trackVersionId: number;
             timestamp: number;
         }
         export interface CreateUserDto {
@@ -27,9 +27,10 @@ declare namespace Components {
             id: number;
             createdAt: string; // date-time
             updatedAt: string; // date-time
+            isPublished: boolean;
             rating: boolean;
             timestamp: number;
-            trackId: number;
+            trackVersionId: number;
             comment: string;
         }
         export interface GetFeedbackWithUserDto {
@@ -119,14 +120,10 @@ declare namespace Components {
             tracks?: GetTrackDto[];
             feedback?: GetFeedbackDto[];
         }
-        export interface LoginDto {
-            access_token: string;
-        }
         export interface UpdateFeedbackDto {
-            rating?: boolean;
-            comment?: string;
-            trackId?: number;
-            timestamp?: number;
+            rating: boolean;
+            comment: string;
+            timestamp: number;
         }
         export interface UpdateUserDto {
             username?: string;
@@ -156,7 +153,8 @@ declare namespace Paths {
             password?: string;
         }
         namespace Responses {
-            export type $201 = Components.Schemas.LoginDto;
+            export interface $201 {
+            }
         }
     }
     namespace FeedbackControllerCreate {
@@ -165,20 +163,15 @@ declare namespace Paths {
             export type $201 = Components.Schemas.GetFeedbackDto;
         }
     }
-    namespace FeedbackControllerFindAll {
-        namespace Responses {
-            export type $200 = Components.Schemas.GetFeedbackDto[];
-        }
-    }
-    namespace FeedbackControllerFindOne {
+    namespace FeedbackControllerPublishFeedback {
         namespace Parameters {
-            export type Id = number;
+            export type TrackVersionId = number;
         }
         export interface PathParameters {
-            id: Parameters.Id;
+            trackVersionId: Parameters.TrackVersionId;
         }
         namespace Responses {
-            export type $200 = string;
+            export type $200 = Components.Schemas.GetFeedbackDto[];
         }
     }
     namespace FeedbackControllerRemove {
@@ -258,6 +251,18 @@ declare namespace Paths {
         }
         namespace Responses {
             export type $200 = Components.Schemas.GetTrackDeepDto;
+        }
+    }
+    namespace TracksControllerGetReviewTrack {
+        namespace Parameters {
+            export type Id = number;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
+        namespace Responses {
+            export interface $200 {
+            }
         }
     }
     namespace TracksControllerGetReviewable {
@@ -393,6 +398,14 @@ export interface OperationMethods {
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.TracksControllerGetReviewable.Responses.$200>
   /**
+   * TracksController_getReviewTrack
+   */
+  'TracksController_getReviewTrack'(
+    parameters?: Parameters<Paths.TracksControllerGetReviewTrack.PathParameters> | null,
+    data?: any,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.TracksControllerGetReviewTrack.Responses.$200>
+  /**
    * UsersController_findAll
    */
   'UsersController_findAll'(
@@ -441,14 +454,6 @@ export interface OperationMethods {
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.UsersControllerGetReviewers.Responses.$200>
   /**
-   * FeedbackController_findAll
-   */
-  'FeedbackController_findAll'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: any,
-    config?: AxiosRequestConfig  
-  ): OperationResponse<Paths.FeedbackControllerFindAll.Responses.$200>
-  /**
    * FeedbackController_create
    */
   'FeedbackController_create'(
@@ -456,14 +461,6 @@ export interface OperationMethods {
     data?: Paths.FeedbackControllerCreate.RequestBody,
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.FeedbackControllerCreate.Responses.$201>
-  /**
-   * FeedbackController_findOne
-   */
-  'FeedbackController_findOne'(
-    parameters?: Parameters<Paths.FeedbackControllerFindOne.PathParameters> | null,
-    data?: any,
-    config?: AxiosRequestConfig  
-  ): OperationResponse<Paths.FeedbackControllerFindOne.Responses.$200>
   /**
    * FeedbackController_update
    */
@@ -480,6 +477,14 @@ export interface OperationMethods {
     data?: any,
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.FeedbackControllerRemove.Responses.$200>
+  /**
+   * FeedbackController_publishFeedback
+   */
+  'FeedbackController_publishFeedback'(
+    parameters?: Parameters<Paths.FeedbackControllerPublishFeedback.PathParameters> | null,
+    data?: any,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.FeedbackControllerPublishFeedback.Responses.$200>
 }
 
 export interface PathsDictionary {
@@ -561,7 +566,7 @@ export interface PathsDictionary {
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.TracksControllerFindOne.Responses.$200>
   }
-  ['/tracks/reviewer/reviewable']: {
+  ['/tracks/review/reviewable']: {
     /**
      * TracksController_getReviewable
      */
@@ -570,6 +575,16 @@ export interface PathsDictionary {
       data?: any,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.TracksControllerGetReviewable.Responses.$200>
+  }
+  ['/tracks/review/{id}']: {
+    /**
+     * TracksController_getReviewTrack
+     */
+    'get'(
+      parameters?: Parameters<Paths.TracksControllerGetReviewTrack.PathParameters> | null,
+      data?: any,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.TracksControllerGetReviewTrack.Responses.$200>
   }
   ['/users']: {
     /**
@@ -634,24 +649,8 @@ export interface PathsDictionary {
       data?: Paths.FeedbackControllerCreate.RequestBody,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.FeedbackControllerCreate.Responses.$201>
-    /**
-     * FeedbackController_findAll
-     */
-    'get'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: any,
-      config?: AxiosRequestConfig  
-    ): OperationResponse<Paths.FeedbackControllerFindAll.Responses.$200>
   }
   ['/feedback/{id}']: {
-    /**
-     * FeedbackController_findOne
-     */
-    'get'(
-      parameters?: Parameters<Paths.FeedbackControllerFindOne.PathParameters> | null,
-      data?: any,
-      config?: AxiosRequestConfig  
-    ): OperationResponse<Paths.FeedbackControllerFindOne.Responses.$200>
     /**
      * FeedbackController_update
      */
@@ -668,6 +667,16 @@ export interface PathsDictionary {
       data?: any,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.FeedbackControllerRemove.Responses.$200>
+  }
+  ['/feedback/publish/{trackVersionId}']: {
+    /**
+     * FeedbackController_publishFeedback
+     */
+    'patch'(
+      parameters?: Parameters<Paths.FeedbackControllerPublishFeedback.PathParameters> | null,
+      data?: any,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.FeedbackControllerPublishFeedback.Responses.$200>
   }
 }
 
