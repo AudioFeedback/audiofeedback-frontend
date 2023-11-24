@@ -101,88 +101,218 @@ const seek = (seconds: number) => {
 
 <template class="flex flex-row justify-between">
     <Navbar />
-    <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden grid gap-x-4 grid-cols-[auto_1fr]">
+    <main
+        class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden grid gap-x-4 grid-cols-[auto_1fr]"
+    >
         <ol class="space-y-4 w-72">
-            <li @click="NextStep(0)" class="cursor-pointer">
-                <div :class="{
-                    'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400': uploadstatus > 0,
-                    'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400': uploadstatus === 0,
-                    'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400': uploadstatus < 0
-                    }" 
-                    class="w-full p-4 border rounded-lg " role="alert">
+            <li class="cursor-pointer" @click="NextStep(0)">
+                <div
+                    :class="{
+                        'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400':
+                            uploadstatus > 0,
+                        'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400':
+                            uploadstatus === 0,
+                        'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400':
+                            uploadstatus < 0
+                    }"
+                    class="w-full p-4 border rounded-lg"
+                    role="alert"
+                >
                     <div class="flex items-center justify-between">
                         <span class="sr-only">Upload track</span>
                         <h3 class="font-medium">1. Upload Track</h3>
-                        <svg v-if="uploadstatus > 0" class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5.917 5.724 10.5 15 1.5"/>
+                        <svg
+                            v-if="uploadstatus > 0"
+                            aria-hidden="true"
+                            class="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 16 12"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M1 5.917 5.724 10.5 15 1.5"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
                         </svg>
-                        <svg v-if="uploadstatus == 0" class="rtl:rotate-180 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                        <svg
+                            v-if="uploadstatus == 0"
+                            aria-hidden="true"
+                            class="rtl:rotate-180 w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 14 10"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M1 5h12m0 0L9 1m4 4L9 9"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
                         </svg>
                     </div>
                 </div>
             </li>
-            <li @click="NextStep(1)" class="cursor-pointer">
-                <div :class="{
-                    'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400': uploadstatus > 1,
-                    'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400': uploadstatus === 1,
-                    'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400': uploadstatus < 1
-                    }" 
-                    class="w-full p-4 border rounded-lg " role="alert">
+            <li class="cursor-pointer" @click="NextStep(1)">
+                <div
+                    :class="{
+                        'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400':
+                            uploadstatus > 1,
+                        'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400':
+                            uploadstatus === 1,
+                        'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400':
+                            uploadstatus < 1
+                    }"
+                    class="w-full p-4 border rounded-lg"
+                    role="alert"
+                >
                     <div class="flex items-center justify-between">
                         <span class="sr-only">Assign Reviewers</span>
                         <h3 class="font-medium">2. Assign Reviewers</h3>
-                        <svg v-if="uploadstatus > 1" class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5.917 5.724 10.5 15 1.5"/>
+                        <svg
+                            v-if="uploadstatus > 1"
+                            aria-hidden="true"
+                            class="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 16 12"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M1 5.917 5.724 10.5 15 1.5"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
                         </svg>
-                        <svg v-if="uploadstatus == 1" class="rtl:rotate-180 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                        <svg
+                            v-if="uploadstatus == 1"
+                            aria-hidden="true"
+                            class="rtl:rotate-180 w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 14 10"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M1 5h12m0 0L9 1m4 4L9 9"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
                         </svg>
                     </div>
                 </div>
             </li>
-            <li @click="NextStep(2)" class="cursor-pointer">
-                <div :class="{
-                    'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400': uploadstatus > 2,
-                    'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400': uploadstatus === 2,
-                    'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400': uploadstatus < 2
-                    }" 
-                    class="w-full p-4 border rounded-lg " role="alert">
+            <li class="cursor-pointer" @click="NextStep(2)">
+                <div
+                    :class="{
+                        'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400':
+                            uploadstatus > 2,
+                        'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400':
+                            uploadstatus === 2,
+                        'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400':
+                            uploadstatus < 2
+                    }"
+                    class="w-full p-4 border rounded-lg"
+                    role="alert"
+                >
                     <div class="flex items-center justify-between">
                         <span class="sr-only">Review</span>
                         <h3 class="font-medium">3. Review</h3>
-                        <svg v-if="uploadstatus > 2" class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5.917 5.724 10.5 15 1.5"/>
+                        <svg
+                            v-if="uploadstatus > 2"
+                            aria-hidden="true"
+                            class="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 16 12"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M1 5.917 5.724 10.5 15 1.5"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
                         </svg>
-                        <svg v-if="uploadstatus == 2" class="rtl:rotate-180 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                        <svg
+                            v-if="uploadstatus == 2"
+                            aria-hidden="true"
+                            class="rtl:rotate-180 w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 14 10"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M1 5h12m0 0L9 1m4 4L9 9"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
                         </svg>
                     </div>
                 </div>
             </li>
-            <li @click="NextStep(3)" class="cursor-pointer">
-                <div :class="{
-                    'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400': uploadstatus > 3,
-                    'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400': uploadstatus === 3,
-                    'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400': uploadstatus < 3
-                    }" 
-                    class="w-full p-4 border rounded-lg " role="alert">
+            <li class="cursor-pointer" @click="NextStep(3)">
+                <div
+                    :class="{
+                        'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400':
+                            uploadstatus > 3,
+                        'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400':
+                            uploadstatus === 3,
+                        'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400':
+                            uploadstatus < 3
+                    }"
+                    class="w-full p-4 border rounded-lg"
+                    role="alert"
+                >
                     <div class="flex items-center justify-between">
                         <span class="sr-only">Confirmation</span>
                         <h3 class="font-medium">4. Confirmation</h3>
-                        <svg v-if="uploadstatus > 3" class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5.917 5.724 10.5 15 1.5"/>
+                        <svg
+                            v-if="uploadstatus > 3"
+                            aria-hidden="true"
+                            class="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 16 12"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M1 5.917 5.724 10.5 15 1.5"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
                         </svg>
-                        <svg v-if="uploadstatus == 3" class="rtl:rotate-180 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                        <svg
+                            v-if="uploadstatus == 3"
+                            aria-hidden="true"
+                            class="rtl:rotate-180 w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 14 10"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M1 5h12m0 0L9 1m4 4L9 9"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
                         </svg>
                     </div>
                 </div>
             </li>
-
         </ol>
         <div>
-            <div v-if="uploadstatus === 0" class="flex flex-col w-full"> <!--v-if="!uploadedfileUrl"-->
+            <div v-if="uploadstatus === 0" class="flex flex-col w-full">
+                <!--v-if="!uploadedfileUrl"-->
                 <h1 class="text-3xl font-bold dark:text-white mb-4">Upload a track</h1>
                 <input
                     v-model="name"
@@ -316,7 +446,7 @@ const seek = (seconds: number) => {
     </main>
 </template>
 
-<style>
+<style scoped>
 .width-custom {
     width: calc(100% - 256px);
 
