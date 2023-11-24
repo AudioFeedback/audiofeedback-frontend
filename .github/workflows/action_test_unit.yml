@@ -41,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: junit-test-report
-          path: ./test-report
+          path: ./test-report.xml
           retention-days: 14
 
       - name: Upload lcov test report
