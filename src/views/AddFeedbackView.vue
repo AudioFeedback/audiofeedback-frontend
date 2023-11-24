@@ -202,7 +202,7 @@ const getUserInfo = async () => {
                             />
                         </svg>
                         <span class="ml-1 text-sm font-medium text-gray-500 sm:ml-2 dark:text-gray-400"
-                            >review track</span
+                            >Review Track</span
                         >
                     </div>
                 </li>
