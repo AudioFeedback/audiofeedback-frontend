@@ -1,3 +1,5 @@
+name: Run SonarCloud scan
+
 on:
   workflow_call:
     secrets:
@@ -19,6 +21,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: lcov-test-report
+
+      - name: Download test report
+        uses: actions/download-artifact@v2
+        with:
+          name: junit-test-report
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
