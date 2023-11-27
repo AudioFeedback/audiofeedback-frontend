@@ -2,9 +2,9 @@ import type { Client } from "@/types/openapi.d.ts";
 import OpenAPIClientAxios from "openapi-client-axios";
 
 const api = new OpenAPIClientAxios({
-    definition: "http://localhost:3000/api-json",
+    definition: `http://${import.meta.env.VITE_SERVER_IP}/api-json`,
     withServer: {
-        url: "http://localhost:3000"
+        url: `http://${import.meta.env.VITE_SERVER_IP}`
     },
     axiosConfigDefaults: {
         headers: {
