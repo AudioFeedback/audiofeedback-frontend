@@ -3,8 +3,7 @@ import Navbar from "@/components/NavBarComponent.vue";
 import Table from "@/components/TableComponent.vue";
 </script>
 
-<template class="flex flex-row">
-    <Navbar />
+<template>
     <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
         <h2 class="text-4xl mb-4 font-bold dark:text-white">Manage tracks</h2>
         <Table />

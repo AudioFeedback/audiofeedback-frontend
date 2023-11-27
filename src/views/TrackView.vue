@@ -82,8 +82,7 @@ const seek = (seconds: number) => {
 };
 </script>
 
-<template class="flex flex-row">
-    <Navbar />
+<template>
     <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
         <nav
             ref="canvasDiv"
