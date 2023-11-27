@@ -12,3 +12,9 @@ export async function getTrack(id: number) {
     return client.TracksController_findOne(id);
 }
 
+export async function getTrackReviews(id: number) {
+    const client = await APIClient();
+
+    return client.TracksController_getReviewTrack(id);
+}
+

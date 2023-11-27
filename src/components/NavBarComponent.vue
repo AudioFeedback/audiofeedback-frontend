@@ -10,6 +10,7 @@ let userinfo = ref<Components.Schemas.GetUserDto>();
 const logout = () => {
     localStorage.removeItem("access_token");
     router.push('/login');
+    return router.go(0);
 };
 
 const toggleSidebar = () => {
@@ -113,7 +114,7 @@ onMounted(() => {
                         </router-link>
                     </li>
                 </ul>
-                <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+                <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700 cursor-pointer">
                     <li @click="toggleMode()">
                         <a
                             v-if="darkmode"

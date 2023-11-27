@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Navbar from "@/components/NavBarComponent.vue";
 import { createFeedback } from "@/services/feedback.service";
-import { getTrack } from "@/services/tracks.service";
+import { getTrack, getTrackReviews } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
@@ -10,8 +10,8 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 const componentKey = ref(0);
 const uploadedfileUrl = ref<string>("");
-const trackinfo = ref<Components.Schemas.GetTrackDeepDto>();
-const trackversion = ref<Components.Schemas.GetTrackVersionDeepDto>();
+const trackinfo = ref<Components.Schemas.GetReviewTrackDto>();
+const trackversion = ref<Components.Schemas.GetReviewTrackVersionDto>();
 const audioPlayer = ref<AVWaveform | null>(null);
 const canvasDiv = ref<HTMLElement | null>(null);
 const selectedpercentageleft = ref<any>(0);
@@ -26,10 +26,9 @@ const forceRerender = () => {
 };
 
 const getTrackData = async () => {
-    const response = await getTrack(route.params.id as unknown as number);
+    const response = await getTrackReviews(route.params.id as unknown as number);
 
     const data = response.data;
-    console.log("data", data);
     trackinfo.value = data;
     trackversion.value = data.trackversions[0];
     uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
@@ -38,15 +37,18 @@ const getTrackData = async () => {
 
 const submitFeedback = async () => {
     try {
-        if (!trackinfo.value || !rating.value) {
+        if (!trackinfo.value || !trackversion.value) {
+            alert("Please fill in all required fields")
             return;
         }
+
+        console.log('rating', rating.value)
 
         const response = await createFeedback({
             rating: rating.value,
             comment: comments.value,
-            trackId: trackinfo.value.id,
-            timestamp: selectedTimeStamp.value
+            trackVersionId: trackversion.value.id,
+            timestamp: +selectedTimeStamp.value
         });
 
         if (!response) {
@@ -56,6 +58,10 @@ const submitFeedback = async () => {
         const data = response.data;
         console.log("data", data);
         CloseFeedback();
+        rating.value = true;
+        comments.value = "";
+        selectedTimeStamp.value = 0;
+        getTrackData();
         forceRerender();
     } catch (error) {
         console.error("API Error:", error);
@@ -301,7 +307,7 @@ const getUserInfo = async () => {
                                         name="rating"
                                         required
                                         type="radio"
-                                        value="true"
+                                        :value=true
                                     />
                                     <label
                                         class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
@@ -318,7 +324,7 @@ const getUserInfo = async () => {
                                         name="rating"
                                         required
                                         type="radio"
-                                        value="false"
+                                        :value=false
                                     />
                                     <label
                                         class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
@@ -358,6 +364,7 @@ const getUserInfo = async () => {
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th class="px-6 py-3" scope="col">User</th>
+                        <th class="px-6 py-3" scope="col">Rating</th>
                         <th class="px-6 py-3" scope="col">
                             <div class="flex items-center">Timestamp</div>
                         </th>
@@ -376,8 +383,12 @@ const getUserInfo = async () => {
                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                     >
                         <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">
-                            @{{ feedback.user.username }} ({{ feedback.user.firstname }} {{ feedback.user.lastname }})
+                            @{{ userinfo?.username }} ({{ userinfo?.firstname }} {{ userinfo?.lastname }})
                         </th>
+                        <td class="px-6 py-4">
+                            <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
+                            <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
+                        </td>
                         <td class="px-6 py-4">
                             {{ feedback.timestamp }}
                         </td>

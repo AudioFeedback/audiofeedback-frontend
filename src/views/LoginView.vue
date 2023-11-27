@@ -11,6 +11,7 @@ const incorrect = ref<boolean>(false);
 
 if (localStorage.getItem("access_token")) {
     router.push('/');
+    router.go(0);
 }
 
 const submitData = async () => {
@@ -28,9 +29,11 @@ const submitData = async () => {
             if (remember.value == true) {
                 localStorage.setItem("access_token", data.access_token);
                 router.push('/');
+                router.go(0);
                 return;
             } else {
                 router.push('/');
+                router.go(0);
                 return;
             }
         } else {
