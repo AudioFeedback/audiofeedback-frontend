@@ -1,3 +1,4 @@
+import type { Paths } from "@/types/openapi";
 import { APIClient } from ".";
 
 export async function getTracks() {
@@ -6,15 +7,14 @@ export async function getTracks() {
     return client.TracksController_findAll();
 }
 
-export async function getTrack(id: number) {
+export async function getTrack(id: Paths.TracksControllerFindOne.Parameters.Id) {
     const client = await APIClient();
 
     return client.TracksController_findOne(id);
 }
 
-export async function getTrackReviews(id: number) {
+export async function getTrackReviewer(id: Paths.TracksControllerGetReviewTrack.Parameters.Id) {
     const client = await APIClient();
 
     return client.TracksController_getReviewTrack(id);
 }
-

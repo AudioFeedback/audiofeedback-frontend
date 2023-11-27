@@ -1,22 +1,15 @@
 <script lang="ts" setup>
+import { getTracks } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
 import { onMounted, ref } from "vue";
 
-let trackdata = ref<[Components.Schemas.GetTrackDeepDto]>();
+const trackdata = ref<Array<Components.Schemas.GetTrackWithAuthorDto>>();
 
 const gettrack = async () => {
-    const apiUrl = "http://localhost:3000/tracks";
+    const response = await getTracks();
 
-    const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-            accept: "*/*",
-            authorization: `Bearer ${localStorage.getItem("access_token")}`
-        }
-    });
-
-    trackdata.value = await response.json();
+    trackdata.value = response.data;
 };
 const roles = getRoles();
 
@@ -25,7 +18,7 @@ onMounted(() => gettrack());
 
 <template>
     <div class="relative overflow-x-auto shadow-sm sm:rounded-lg">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <table aria-label="Music table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th class="px-6 py-3" scope="col">ID</th>
@@ -101,5 +94,3 @@ onMounted(() => gettrack());
         </table>
     </div>
 </template>
-
-<style scoped></style>

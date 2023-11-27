@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import router from "@/router";
 import { login } from "@/services/app.service";
 import { checkMode } from "@/stores/darkmodeStore";
-import router from '@/router';
-import { VueElement, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const username = ref<string>("");
 const password = ref<string>("");
@@ -10,7 +10,7 @@ const remember = ref<boolean>(true);
 const incorrect = ref<boolean>(false);
 
 if (localStorage.getItem("access_token")) {
-    router.push('/');
+    router.push("/");
 }
 
 const submitData = async () => {
@@ -27,13 +27,13 @@ const submitData = async () => {
         if (response.status == 200 || response.status == 201) {
             if (remember.value == true) {
                 localStorage.setItem("access_token", data.access_token);
-                router.push('/');
+                await router.push("/");
                 router.go(0);
-                return;
+                return router.go(0);
             } else {
-                router.push('/');
+                await router.push("/");
                 router.go(0);
-                return;
+                return router.go(0);
             }
         } else {
             incorrect.value = true;
@@ -137,13 +137,3 @@ onMounted(() => checkMode());
         </div>
     </div>
 </template>
-
-<style>
-.width-custom {
-    width: calc(100% - 256px);
-
-    @media only screen and (max-width: 640px) {
-        width: 100%;
-    }
-}
-</style>

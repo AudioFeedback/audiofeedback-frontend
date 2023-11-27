@@ -6,7 +6,7 @@ import NavBarComponent from "./components/NavBarComponent.vue";
 
 <template>
     <div :class="{ dark: darkmode }" class="w-full h-full relative justify-center items-center bg-gray-50 dark:bg-gray-900">
-        <div class="flex flex-row">
+        <div class="flex flex-row h-full">
             <NavBarComponent v-if="$router?.currentRoute.value.path !== '/login'" />
             <RouterView />
         </div>

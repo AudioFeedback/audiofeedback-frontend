@@ -7,12 +7,6 @@ export async function getUsers() {
     return client.UsersController_findAll();
 }
 
-export async function getUser(id: number) {
-    const client = await APIClient();
-
-    return client.UsersController_findOne(id);
-}
-
 export async function createUser(body: Paths.UsersControllerCreate.RequestBody) {
     const client = await APIClient();
 

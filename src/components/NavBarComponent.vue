@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import router from "@/router";
 import { getProfile } from "@/services/app.service";
 import { checkMode, darkmode, toggleMode } from "@/stores/darkmodeStore";
-import router from "@/router";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 
@@ -9,8 +9,7 @@ let userinfo = ref<Components.Schemas.GetUserDto>();
 
 const logout = () => {
     localStorage.removeItem("access_token");
-    router.push('/login');
-    return router.go(0);
+    router.push("/login");
 };
 
 const toggleSidebar = () => {
@@ -29,7 +28,6 @@ const getUserInfo = async () => {
 onMounted(() => {
     getUserInfo();
     checkMode();
-
 });
 </script>
 
@@ -193,5 +191,3 @@ onMounted(() => {
         </div>
     </aside>
 </template>
-
-<style scoped></style>

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import Navbar from "@/components/NavBarComponent.vue";
-import { createFeedback } from "@/services/feedback.service";
-import { getTrack, getTrackReviews } from "@/services/tracks.service";
+import { getProfile } from "@/services/app.service";
+import { createFeedback, publishFeedback } from "@/services/feedback.service";
+import { getTrackReviewer } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
@@ -15,7 +15,7 @@ const trackversion = ref<Components.Schemas.GetReviewTrackVersionDto>();
 const audioPlayer = ref<AVWaveform | null>(null);
 const canvasDiv = ref<HTMLElement | null>(null);
 const selectedpercentageleft = ref<any>(0);
-const selectedTimeStamp = ref<any>(0);
+const selectedTimeStamp = ref<number>(0);
 const closepopup = ref<boolean>(false);
 const rating = ref<boolean>(true);
 const comments = ref<string>("");
@@ -26,7 +26,7 @@ const forceRerender = () => {
 };
 
 const getTrackData = async () => {
-    const response = await getTrackReviews(route.params.id as unknown as number);
+    const response = await getTrackReviewer(route.params.id as unknown as number);
 
     const data = response.data;
     trackinfo.value = data;
@@ -41,8 +41,6 @@ const submitFeedback = async () => {
             alert("Please fill in all required fields")
             return;
         }
-
-        console.log('rating', rating.value)
 
         const response = await createFeedback({
             rating: rating.value,
@@ -63,9 +61,31 @@ const submitFeedback = async () => {
         selectedTimeStamp.value = 0;
         getTrackData();
         forceRerender();
+        await getTrackData();
     } catch (error) {
         console.error("API Error:", error);
     }
+};
+
+const publishFeedbackToArtist = async () => {
+    const versionId = trackinfo.value?.trackversions[trackinfo.value?.trackversions.length - 1].id;
+
+    if (!versionId) {
+        return;
+    }
+
+    await publishFeedback(versionId);
+};
+
+const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
+    if (!timeInSeconds || timeInSeconds <= 0) {
+        return "-";
+    }
+
+    const mins = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+
+    return `${mins}:${seconds < 10 ? "0" : ""}${seconds}`;
 };
 
 const GetPointerLocation = () => {
@@ -75,7 +95,7 @@ const GetPointerLocation = () => {
     }
     const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
     selectedpercentageleft.value = (audioElement.currentTime / audioElement.duration) * 100;
-    selectedTimeStamp.value = (audioElement.currentTime / audioElement.duration).toFixed(2);
+    selectedTimeStamp.value = audioElement.currentTime / audioElement.duration;
 };
 
 const CloseFeedback = () => {
@@ -125,22 +145,14 @@ const seek = (seconds: number) => {
 };
 
 const getUserInfo = async () => {
-    const apiUrl = "http://localhost:3000/profile";
+    const response = await getProfile();
 
-    const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-            accept: "*/*",
-            authorization: `Bearer ${localStorage.getItem("access_token")}`
-        }
-    });
-
-    userinfo.value = await response.json();
+    userinfo.value = await response.data;
 };
 </script>
 
 <template>
-    <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
+    <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-x-hidden">
         <nav
             ref="canvasDiv"
             aria-label="Breadcrumb"
@@ -184,7 +196,7 @@ const getUserInfo = async () => {
                             />
                         </svg>
                         <span class="ml-1 text-sm font-medium text-gray-500 sm:ml-2 dark:text-gray-400"
-                            >review track</span
+                            >Review Track</span
                         >
                     </div>
                 </li>
@@ -239,6 +251,16 @@ const getUserInfo = async () => {
                 >
                     Stop
                 </button>
+
+                <div class="w-full flex justify-end">
+                    <button
+                        class="px-6 py-3.5 text-base font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        type="button"
+                        @click="publishFeedbackToArtist"
+                    >
+                        Submit feedback
+                    </button>
+                </div>
             </div>
             <div id="canvasDiv" class="w-full relative" @click="GetPointerLocation()">
                 <AVWaveform
@@ -301,12 +323,12 @@ const getUserInfo = async () => {
                                     <input
                                         id="rating-postive"
                                         v-model="rating"
+                                        :value="true"
                                         checked
                                         class="hidden peer"
                                         name="rating"
                                         required
                                         type="radio"
-                                        :value=true
                                     />
                                     <label
                                         class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
@@ -319,11 +341,11 @@ const getUserInfo = async () => {
                                     <input
                                         id="hosting-big"
                                         v-model="rating"
+                                        :value="false"
                                         class="hidden peer"
                                         name="rating"
                                         required
                                         type="radio"
-                                        :value=false
                                     />
                                     <label
                                         class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
@@ -359,7 +381,7 @@ const getUserInfo = async () => {
         </div>
 
         <div class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <table aria-label="Feedback table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th class="px-6 py-3" scope="col">User</th>
@@ -369,6 +391,9 @@ const getUserInfo = async () => {
                         </th>
                         <th class="px-6 py-3" scope="col">
                             <div class="flex items-center">Feedback</div>
+                        </th>
+                        <th class="px-6 py-3" scope="col">
+                            <div class="flex items-center">Rating</div>
                         </th>
                         <th class="px-6 py-3" scope="col">
                             <div class="flex items-center">Attachments</div>
@@ -381,18 +406,15 @@ const getUserInfo = async () => {
                         :key="i"
                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                     >
-                        <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">
-                            @{{ userinfo?.username }} ({{ userinfo?.firstname }} {{ userinfo?.lastname }})
-                        </th>
-                        <td class="px-6 py-4">
-                            <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
-                            <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
-                        </td>
-                        <td class="px-6 py-4">
-                            {{ feedback.timestamp }}
+                        <td class="px-6 py-4" @click="seek(feedback.timestamp * trackinfo!.trackversions[0].duration)">
+                            {{ getTimeInMinutesAndSeconds(feedback.timestamp * trackinfo!.trackversions[0].duration) }}
                         </td>
                         <td class="px-6 py-4">
                             {{ feedback.comment }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
+                            <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
                         </td>
                         <td class="px-6 py-4">file attachment</td>
                     </tr>
@@ -402,7 +424,7 @@ const getUserInfo = async () => {
     </main>
 </template>
 
-<style>
+<style scoped>
 .width-custom {
     width: calc(100% - 256px);
 
