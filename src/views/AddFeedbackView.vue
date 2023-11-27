@@ -252,7 +252,7 @@ const getUserInfo = async () => {
                     Stop
                 </button>
 
-                <div class="w-full flex justify-end">
+                <div class="w-full flex justify-end" v-if="!trackversion?.feedback[0].isPublished">
                     <button
                         class="px-6 py-3.5 text-base font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                         type="button"
@@ -393,9 +393,6 @@ const getUserInfo = async () => {
                             <div class="flex items-center">Feedback</div>
                         </th>
                         <th class="px-6 py-3" scope="col">
-                            <div class="flex items-center">Rating</div>
-                        </th>
-                        <th class="px-6 py-3" scope="col">
                             <div class="flex items-center">Attachments</div>
                         </th>
                     </tr>
@@ -404,17 +401,19 @@ const getUserInfo = async () => {
                     <tr
                         v-for="(feedback, i) in trackinfo?.trackversions[0].feedback"
                         :key="i"
-                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-                    >
+                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <td class="px-6 py-4">
+                            {{ userinfo?.firstname}} {{ userinfo?.lastname}} (@{{ userinfo?.username}})
+                        </td>
+                        <td class="px-6 py-4">
+                            <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
+                            <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
+                        </td>
                         <td class="px-6 py-4" @click="seek(feedback.timestamp * trackinfo!.trackversions[0].duration)">
                             {{ getTimeInMinutesAndSeconds(feedback.timestamp * trackinfo!.trackversions[0].duration) }}
                         </td>
                         <td class="px-6 py-4">
                             {{ feedback.comment }}
-                        </td>
-                        <td class="px-6 py-4">
-                            <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
-                            <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
                         </td>
                         <td class="px-6 py-4">file attachment</td>
                     </tr>
