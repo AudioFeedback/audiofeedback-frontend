@@ -264,7 +264,8 @@ const seek = (seconds: number) => {
                             class="absolute"
                         >
                             <div
-                                class="relative inline-flex items-center justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600"
+                                @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
+                                class="relative inline-flex items-center cursor-pointer justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600"
                             >
                                 <span class="font-medium text-gray-600 dark:text-gray-300"
                                     >{{ feedback.user.firstname.slice(0, 1)
