@@ -154,8 +154,8 @@ onMounted(() => {
                             class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-gray-900 dark:text-gray-300"
                             >Ready to review</span
                         >
-                        <!-- <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Reviewing</span>
-    <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Ready to Send</span> -->
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Reviewing</span>
+                         <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Ready to Send</span>
                     </td>
                     <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right">
                         <router-link
@@ -164,9 +164,9 @@ onMounted(() => {
                             >Manage
                         </router-link>
                     </td>
-                    <!-- <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
-    Send Feedback to Artist
-</td> -->
+                    <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                        Send Feedback to Artist
+                    </td>
                     <td class="px-6 py-4 text-right">Not all reviewers have given feedback</td>
                 </tr>
                 <!--demo tablerow-->

@@ -8,7 +8,7 @@ import { getRoles } from "@/utils/authorisationhelper";
 <template>
     <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
         <h2 class="text-4xl mb-4 font-bold dark:text-white">Manage tracks</h2>
-        <div v-if="getRoles()?.includes('MUZIEKPRODUCER')">
+        <div v-if="getRoles()?.includes('MUZIEKPRODUCER') || getRoles()?.includes('FEEDBACKGEVER')">
             <TableComponent></TableComponent>
         </div>
         <div v-if="getRoles()?.includes('ADMIN')">
