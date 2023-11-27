@@ -105,7 +105,7 @@ const changeVersion = (version: number) => {
 
 <template class="flex flex-row">
     <Navbar />
-    <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900">
+    <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-x-hidden">
         <nav
             aria-label="Breadcrumb"
             class="mb-5 flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
@@ -363,7 +363,7 @@ const changeVersion = (version: number) => {
                 </div>
             </div>
             <div class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12">
-                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <table aria-label="Feedback table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th class="px-6 py-3" scope="col">User</th>
@@ -450,7 +450,10 @@ const changeVersion = (version: number) => {
         </div>
         <div v-if="activeTab === 3">
             <div class="relative shadow-sm sm:rounded-lg">
-                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <table
+                    aria-label="Manage reviewer table"
+                    class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
+                >
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th class="px-6 py-3" scope="col">Name</th>

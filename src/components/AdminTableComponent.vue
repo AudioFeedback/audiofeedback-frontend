@@ -63,7 +63,7 @@ onMounted(() => {
 
 <template>
     <div class="relative shadow-sm overflow-x-auto sm:rounded-lg">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <table aria-label="Admin table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th class="px-6 py-3" scope="col">Track</th>
@@ -155,7 +155,7 @@ onMounted(() => {
                             >Ready to review</span
                         >
                         <!-- <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Reviewing</span>
-                <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Ready to Send</span> -->
+    <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Ready to Send</span> -->
                     </td>
                     <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right">
                         <router-link
@@ -165,8 +165,8 @@ onMounted(() => {
                         </router-link>
                     </td>
                     <!-- <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                Send Feedback to Artist
-            </td> -->
+    Send Feedback to Artist
+</td> -->
                     <td class="px-6 py-4 text-right">Not all reviewers have given feedback</td>
                 </tr>
                 <!--demo tablerow-->
@@ -249,5 +249,3 @@ onMounted(() => {
         </table>
     </div>
 </template>
-
-<style scoped></style>

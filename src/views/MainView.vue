@@ -16,7 +16,7 @@ import { getRoles } from "@/utils/authorisationhelper";
             <AdminTableComponent />
         </div>
     </main>
-</template> 
+</template>
 
 <style>
 .width-custom {
