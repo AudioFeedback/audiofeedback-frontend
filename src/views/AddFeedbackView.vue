@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import Navbar from "@/components/NavBarComponent.vue";
 import { getProfile } from "@/services/app.service";
 import { createFeedback, publishFeedback } from "@/services/feedback.service";
 import { getTrackReviewer } from "@/services/tracks.service";
@@ -30,7 +29,6 @@ const getTrackData = async () => {
     const response = await getTrackReviewer(route.params.id as unknown as number);
 
     const data = response.data;
-    console.log("data", data);
     trackinfo.value = data;
     trackversion.value = data.trackversions[0];
     uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
@@ -40,16 +38,15 @@ const getTrackData = async () => {
 const submitFeedback = async () => {
     try {
         if (!trackinfo.value || !trackversion.value) {
+            alert("Please fill in all required fields")
             return;
         }
-
-        console.log(selectedTimeStamp.value);
 
         const response = await createFeedback({
             rating: rating.value,
             comment: comments.value,
             trackVersionId: trackversion.value.id,
-            timestamp: selectedTimeStamp.value
+            timestamp: +selectedTimeStamp.value
         });
 
         if (!response) {
@@ -59,6 +56,10 @@ const submitFeedback = async () => {
         const data = response.data;
         console.log("data", data);
         CloseFeedback();
+        rating.value = true;
+        comments.value = "";
+        selectedTimeStamp.value = 0;
+        getTrackData();
         forceRerender();
         await getTrackData();
     } catch (error) {
@@ -150,10 +151,10 @@ const getUserInfo = async () => {
 };
 </script>
 
-<template class="flex flex-row">
-    <Navbar />
+<template>
     <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-x-hidden">
         <nav
+            ref="canvasDiv"
             aria-label="Breadcrumb"
             class="mb-5 flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
         >
@@ -261,8 +262,7 @@ const getUserInfo = async () => {
                     </button>
                 </div>
             </div>
-
-            <div id="canvasDiv" ref="canvasDiv" class="w-full relative" @click="GetPointerLocation()">
+            <div id="canvasDiv" class="w-full relative" @click="GetPointerLocation()">
                 <AVWaveform
                     :key="componentKey"
                     ref="audioPlayer"
@@ -384,6 +384,8 @@ const getUserInfo = async () => {
             <table aria-label="Feedback table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
+                        <th class="px-6 py-3" scope="col">User</th>
+                        <th class="px-6 py-3" scope="col">Rating</th>
                         <th class="px-6 py-3" scope="col">
                             <div class="flex items-center">Timestamp</div>
                         </th>

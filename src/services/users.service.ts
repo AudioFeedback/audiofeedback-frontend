@@ -24,3 +24,9 @@ export async function deleteUser(id: number) {
 
     return client.UsersController_remove(id);
 }
+
+export async function getReviewers() {
+    const client = await APIClient();
+
+    return client.UsersController_getReviewers();
+}

@@ -18,7 +18,6 @@ const trackVersion = ref<number>(0);
 
 const setTab = (tab: number) => {
     activeTab.value = tab;
-    forceRerender();
 };
 
 const forceRerender = () => {
@@ -92,10 +91,10 @@ const changeVersion = (version: number) => {
 };
 </script>
 
-<template class="flex flex-row">
-    <Navbar />
+<template>
     <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-x-hidden">
         <nav
+            ref="canvasDiv"
             aria-label="Breadcrumb"
             class="mb-5 flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
         >
@@ -276,7 +275,7 @@ const changeVersion = (version: number) => {
                         Stop
                     </button>
                 </div>
-                <div ref="canvasDiv" class="w-full">
+                <div class="w-full">
                     <AVWaveform
                         :key="componentKey"
                         ref="audioPlayer"
@@ -300,7 +299,8 @@ const changeVersion = (version: number) => {
                             class="absolute"
                         >
                             <div
-                                class="relative inline-flex items-center justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600"
+                                @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
+                                class="relative inline-flex items-center cursor-pointer justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600"
                             >
                                 <span class="font-medium text-gray-600 dark:text-gray-300"
                                     >{{ feedback.user.firstname.slice(0, 1)

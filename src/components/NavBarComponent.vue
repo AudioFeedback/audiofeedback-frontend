@@ -124,7 +124,7 @@ onMounted(() => {
                     </li>
 
                 </ul>
-                <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+                <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700 cursor-pointer">
                     <li @click="toggleMode()">
                         <a
                             v-if="darkmode"
