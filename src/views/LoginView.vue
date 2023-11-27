@@ -11,7 +11,6 @@ const incorrect = ref<boolean>(false);
 
 if (localStorage.getItem("access_token")) {
     router.push('/');
-    router.go(0);
 }
 
 const submitData = async () => {
