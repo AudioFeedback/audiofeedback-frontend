@@ -18,8 +18,8 @@ const gettrack = async () => {
 };
 const roles = getRoles();
 
-const Showoverlay = (reviewer:any, track:any) => {
-    if(ShowOverlay.value == reviewer.id && ShowOverlay2.value == track){
+const Showoverlay = (reviewer: any, track: any) => {
+    if (ShowOverlay.value == reviewer.id && ShowOverlay2.value == track) {
         ShowOverlay.value = null;
         ShowOverlay2.value = null;
         return;
@@ -27,7 +27,6 @@ const Showoverlay = (reviewer:any, track:any) => {
     ShowOverlay.value = reviewer.id;
     ShowOverlay2.value = track;
     reviewerinfo.value = reviewer;
-
 };
 
 const reviewers = [
@@ -35,29 +34,31 @@ const reviewers = [
         id: 1,
         name: "Jese Leos",
         username: "@jeseleos",
-        profilePicture: "./../assets/profile-picture-5.jpg",
+        profilePicture: "./../assets/profile-picture-5.jpg"
     },
     {
         id: 2,
         name: "Jese Leos",
         username: "@jeseleos",
-        profilePicture: "./../assets/profile-picture-5.jpg",
+        profilePicture: "./../assets/profile-picture-5.jpg"
     },
     {
         id: 3,
         name: "Jese Leos",
         username: "@jeseleos",
-        profilePicture: "./../assets/profile-picture-5.jpg",
+        profilePicture: "./../assets/profile-picture-5.jpg"
     },
     {
         id: 4,
         name: "Jese Leos",
         username: "@jeseleos",
-        profilePicture: "./../assets/profile-picture-5.jpg",
-    },
+        profilePicture: "./../assets/profile-picture-5.jpg"
+    }
 ];
 
-onMounted(() => {gettrack()});
+onMounted(() => {
+    gettrack();
+});
 </script>
 
 <template>
@@ -84,7 +85,11 @@ onMounted(() => {gettrack()});
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(track, i) in trackdata" :key="i" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <tr
+                    v-for="(track, i) in trackdata"
+                    :key="i"
+                    class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                >
                     <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">
                         <div class="flex flex-col align-left justify-center">
                             <p class="font-semibold">{{ track.title }}</p>
@@ -95,30 +100,62 @@ onMounted(() => {gettrack()});
                         <div class="flex -space-x-1 rtl:space-x-reverse relative">
                             <div v-for="(reviewer, i) in reviewers" :key="i">
                                 <div class="relative">
-                                    <img @click="Showoverlay(reviewer, track.id)" class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800" src="./../assets/profile-picture-5.jpg" alt="">
-                                    <span class="bottom-0 left-7 absolute w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
+                                    <img
+                                        alt=""
+                                        class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
+                                        src="./../assets/profile-picture-5.jpg"
+                                        @click="Showoverlay(reviewer, track.id)"
+                                    />
+                                    <span
+                                        class="bottom-0 left-7 absolute w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"
+                                    ></span>
                                 </div>
-                                <div v-if="ShowOverlay == reviewer.id && ShowOverlay2 == track.id" :class="{'bottom-10':ShowOverlay2 > 1, 'top-10': ShowOverlay2 < (trackdata.length-1)}" class="absolute z-[990] inline-block w-64 text-sm text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600">
+                                <div
+                                    v-if="ShowOverlay == reviewer.id && ShowOverlay2 == track.id"
+                                    :class="{
+                                        'bottom-10': ShowOverlay2 > 1,
+                                        'top-10': ShowOverlay2 < trackdata!.length - 1
+                                    }"
+                                    class="absolute z-[990] inline-block w-64 text-sm text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600"
+                                >
                                     <div class="p-3">
                                         <div class="flex items-center justify-between mb-2">
-                                            <img class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800" src="./../assets/profile-picture-5.jpg" alt="">
-                                            <button type="button" class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">Remove as reviewer</button>
+                                            <img
+                                                alt=""
+                                                class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
+                                                src="./../assets/profile-picture-5.jpg"
+                                            />
+                                            <button
+                                                class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800"
+                                                type="button"
+                                            >
+                                                Remove as reviewer
+                                            </button>
                                         </div>
-                                        <p class="text-base font-semibold leading-none text-gray-900 dark:text-white">Jese Leos</p>
+                                        <p class="text-base font-semibold leading-none text-gray-900 dark:text-white">
+                                            Jese Leos
+                                        </p>
                                         <p class="text-sm font-normal">@username</p>
                                     </div>
                                 </div>
                             </div>
-                            <a class="flex items-center z-10 justify-center w-10 h-10 text-xs font-medium text-white bg-gray-500 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800" href="#">+</a>
+                            <a
+                                class="flex items-center z-10 justify-center w-10 h-10 text-xs font-medium text-white bg-gray-500 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800"
+                                href="#"
+                                >+</a
+                            >
                         </div>
                     </td>
                     <td class="px-6 py-4">
                         {{ track.genre }}
                     </td>
                     <td class="px-6 py-4">
-                        <span class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-gray-900 dark:text-gray-300">Ready to review</span>
+                        <span
+                            class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-gray-900 dark:text-gray-300"
+                            >Ready to review</span
+                        >
                         <!-- <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Reviewing</span>
-                        <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Ready to Send</span> -->
+                <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Ready to Send</span> -->
                     </td>
                     <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right">
                         <router-link
@@ -128,11 +165,9 @@ onMounted(() => {gettrack()});
                         </router-link>
                     </td>
                     <!-- <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        Send Feedback to Artist
-                    </td> -->
-                    <td class="px-6 py-4 text-right">
-                        Not all reviewers have given feedback
-                    </td>
+                Send Feedback to Artist
+            </td> -->
+                    <td class="px-6 py-4 text-right">Not all reviewers have given feedback</td>
                 </tr>
                 <!--demo tablerow-->
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
@@ -146,28 +181,55 @@ onMounted(() => {gettrack()});
                         <div class="flex -space-x-1 rtl:space-x-reverse relative">
                             <div v-for="(reviewer, i) in reviewers" :key="i">
                                 <div class="relative">
-                                    <img @click="Showoverlay(reviewer, 1)" class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800" src="./../assets/profile-picture-5.jpg" alt="">
-                                    <span class="bottom-0 left-7 absolute w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
+                                    <img
+                                        alt=""
+                                        class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
+                                        src="./../assets/profile-picture-5.jpg"
+                                        @click="Showoverlay(reviewer, 1)"
+                                    />
+                                    <span
+                                        class="bottom-0 left-7 absolute w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"
+                                    ></span>
                                 </div>
-                                <div v-if="ShowOverlay == reviewer.id && ShowOverlay2 == 1" :class="{'bottom-10':ShowOverlay2 > 1, 'top-10': ShowOverlay2 < (1-1)}" class="absolute z-[990] inline-block w-64 text-sm text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600">
+                                <div
+                                    v-if="ShowOverlay == reviewer.id && ShowOverlay2 == 1"
+                                    :class="{ 'bottom-10': ShowOverlay2 > 1, 'top-10': ShowOverlay2 < 1 - 1 }"
+                                    class="absolute z-[990] inline-block w-64 text-sm text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600"
+                                >
                                     <div class="p-3">
                                         <div class="flex items-center justify-between mb-2">
-                                            <img class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800" src="./../assets/profile-picture-5.jpg" alt="">
-                                            <button type="button" class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">Remove as reviewer</button>
+                                            <img
+                                                alt=""
+                                                class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
+                                                src="./../assets/profile-picture-5.jpg"
+                                            />
+                                            <button
+                                                class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800"
+                                                type="button"
+                                            >
+                                                Remove as reviewer
+                                            </button>
                                         </div>
-                                        <p class="text-base font-semibold leading-none text-gray-900 dark:text-white">Jese Leos</p>
+                                        <p class="text-base font-semibold leading-none text-gray-900 dark:text-white">
+                                            Jese Leos
+                                        </p>
                                         <p class="text-sm font-normal">@username</p>
                                     </div>
                                 </div>
                             </div>
-                            <a class="flex items-center z-10 justify-center w-10 h-10 text-xs font-medium text-white bg-gray-500 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800" href="#">+</a>
+                            <a
+                                class="flex items-center z-10 justify-center w-10 h-10 text-xs font-medium text-white bg-gray-500 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800"
+                                href="#"
+                                >+</a
+                            >
                         </div>
                     </td>
+                    <td class="px-6 py-4">House</td>
                     <td class="px-6 py-4">
-                       House
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Ready to Send</span>
+                        <span
+                            class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300"
+                            >Ready to Send</span
+                        >
                     </td>
                     <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right">
                         <router-link
@@ -176,7 +238,10 @@ onMounted(() => {gettrack()});
                             >Manage
                         </router-link>
                     </td>
-                    <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                    <td
+                        v-if="roles?.includes('ADMIN')"
+                        class="px-6 py-4 text-right cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                    >
                         Send Feedback to Artist
                     </td>
                 </tr>
