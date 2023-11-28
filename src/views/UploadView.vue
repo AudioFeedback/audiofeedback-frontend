@@ -322,7 +322,7 @@ onMounted(() => {
                     </div>
                 </div>
             </li>
-            <li class="cursor-pointer" @click="NextStep(3)">
+            <li class="cursor-pointer">
                 <div
                     :class="{
                         'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400':
