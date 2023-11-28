@@ -12,6 +12,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "lint:output": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore --output-file eslint-report.json --format json",
     "format": "prettier --write src/",
     "client:generate": "npx openapicmd typegen http://localhost:3000/api-json > src/types/openapi.d.ts"
   },
