@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import Navbar from "@/components/NavBarComponent.vue";
+import { APIClient } from "@/services";
+import { getReviewers } from "@/services/users.service";
 import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
-import { getReviewers } from "@/services/users.service";
 import { useRoute } from "vue-router";
 
-const apiUrl = "http://localhost:3000/tracks";
+const apiUrl = `${(await APIClient()).api.getBaseURL()}/tracks`;
+
 let uploadedfileUrl = ref<string>("");
 let uploadedfileTitle = ref<string>("");
 let uploadedfileGenre = ref<string>("");
@@ -39,14 +40,14 @@ const handleFileChange = (event: Event) => {
 
     audiofile.value = target.files![0];
 
-    if(name.value === null || name.value === undefined || name.value === ''){
-        const value  = audiofile.value.name;
-        name.value = value.substring(0, value.lastIndexOf('.'));
+    if (name.value === null || name.value === undefined || name.value === "") {
+        const value = audiofile.value.name;
+        name.value = value.substring(0, value.lastIndexOf("."));
     }
 };
 
 const AddReviewer = () => {
-    for(let i = 0; i < allreviewers.value.length; i++) {
+    for (let i = 0; i < allreviewers.value.length; i++) {
         if (allreviewers.value[i] == reviewers.value) {
             revieweralreadyadded.value = true;
             return;
@@ -76,7 +77,7 @@ const submitData = async () => {
         body.set("genre", genre.value);
         body.set("file", audiofile.value!);
         // body.set("description", "Beschrijving van de track");
-        body.set("reviewerIds", allreviewers.value.map((reviewer) => reviewer.id).join(','));
+        body.set("reviewerIds", allreviewers.value.map((reviewer) => reviewer.id).join(","));
 
         const response = await fetch(apiUrl, {
             method: "POST",
@@ -107,22 +108,21 @@ const submitData = async () => {
 };
 
 const NextStep = (step: number) => {
-    if(step == 1){
+    if (step == 1) {
         if (name.value == "" || genre.value == "" || audiofile.value == null) {
-            alert("Please fill in all fields")
+            alert("Please fill in all fields");
             return;
         }
     }
 
-    if(step == 2){
-
+    if (step == 2) {
         if (labelreviewer.value == "" && allreviewers.value.length == 0) {
-            alert("Please enter an label or select a reviewer")
+            alert("Please enter an label or select a reviewer");
             return;
         }
     }
 
-    if (step == 3){
+    if (step == 3) {
         if (uploadstatus.value == 3) {
             return;
         }
@@ -167,7 +167,6 @@ const seek = (seconds: number) => {
 onMounted(() => {
     getReviewer();
 });
-
 </script>
 
 <template class="flex flex-row justify-between">
@@ -178,8 +177,20 @@ onMounted(() => {
             <div class="flex flex-col w-full">
                 <!--v-if="!uploadedfileUrl"-->
                 <h1 class="text-3xl font-bold dark:text-white mb-4">Upload a track</h1>
-                <input v-model="name" type="text" class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Name" required>
-                <input v-model="genre" type="text" class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Genre" required>
+                <input
+                    v-model="name"
+                    class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Name"
+                    required
+                    type="text"
+                />
+                <input
+                    v-model="genre"
+                    class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Genre"
+                    required
+                    type="text"
+                />
                 <div class="flex items-center justify-center w-full">
                     <label
                         :class="[
@@ -237,7 +248,8 @@ onMounted(() => {
                 </div>
                 <button
                     class="w-full mt-2 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
-                    @click="NextStep(1)">
+                    @click="NextStep(1)"
+                >
                     Submit
                 </button>
             </div>

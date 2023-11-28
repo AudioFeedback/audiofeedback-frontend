@@ -1,9 +1,11 @@
 <script lang="ts" setup>
+import { APIClient } from "@/services";
 import { getReviewers } from "@/services/users.service";
 import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 
-const apiUrl = `http://${import.meta.env.VITE_SERVER_IP}/tracks`;
+const apiUrl = `${(await APIClient()).api.getBaseURL()}/tracks`;
+
 let uploadedfileUrl = ref<string>("");
 let uploadedfileTitle = ref<string>("");
 let uploadedfileGenre = ref<string>("");
