@@ -1,14 +1,12 @@
 <script lang="ts" setup>
+import { getTrackVersion } from "@/services/tracks.service";
 import { getReviewers } from "@/services/users.service";
+import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 import { useRoute } from "vue-router";
 
-const apiUrl = `http://${import.meta.env.VITE_API_URL}/tracks`;
-let uploadedfileUrl = ref<string>("");
-let uploadedfileTitle = ref<string>("");
-let uploadedfileGenre = ref<string>("");
-let uploadedtrackid = ref<number>(0);
+const apiUrl = `http://${import.meta.env.VITE_API_URL}/tracks/`;
 
 const route = useRoute();
 const id = route.params.id;
@@ -16,11 +14,9 @@ const name = ref<string>("");
 const genre = ref<string>("");
 const audiofile = ref<File | null>(null);
 const labelreviewer = ref<string>("");
-const reviewers = ref<any[] | null>(null); //change
-const allreviewers = ref<any[]>([]); //change
-const possiblereviewers = ref<any[]>([]); //change
-const revieweralreadyadded = ref<boolean>(false);
+const allreviewers = ref<any[]>([]);
 const sendSuccess = ref<boolean>(false);
+const description = ref<string>(""); 
 
 const componentKey = ref(0);
 const uploadstatus = ref<number>(0);
@@ -44,38 +40,11 @@ const handleFileChange = (event: Event) => {
     }
 };
 
-const AddReviewer = () => {
-    for (let i = 0; i < allreviewers.value.length; i++) {
-        if (allreviewers.value[i] == reviewers.value) {
-            revieweralreadyadded.value = true;
-            return;
-        }
-    }
-    revieweralreadyadded.value = false;
-    allreviewers.value.push(reviewers.value);
-};
-
-const RemoveReviewer = (reviewer: string) => {
-    const index = allreviewers.value.indexOf(reviewer);
-    if (index > -1) {
-        allreviewers.value.splice(index, 1);
-    }
-};
-
-const getReviewer = async () => {
-    const response = await getReviewers();
-    possiblereviewers.value = response.data;
-    forceRerender();
-};
-
 const submitData = async () => {
     try {
         const body = new FormData();
-        body.set("title", name.value);
-        body.set("genre", genre.value);
         body.set("file", audiofile.value!);
-        // body.set("description", "Beschrijving van de track");
-        body.set("reviewerIds", allreviewers.value.map((reviewer) => reviewer.id).join(","));
+        body.set("description", description.value);
 
         const response = await fetch(apiUrl, {
             method: "POST",
@@ -92,11 +61,6 @@ const submitData = async () => {
         }
 
         console.log("API Response:", response);
-        const data = await response.json();
-        uploadedfileTitle.value = data.title;
-        uploadedfileGenre.value = data.genre;
-        uploadedtrackid.value = data.id;
-        uploadedfileUrl.value = `http://${data.full_url}`;
         sendSuccess.value = true;
         forceRerender();
     } catch (error) {
@@ -163,25 +127,16 @@ const seek = (seconds: number) => {
 };
 
 onMounted(() => {
-    getReviewer();
+    initFlowbite();
 });
 </script>
 
 <template class="flex flex-row justify-between">
-    <main
-        class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden grid gap-x-4 grid-cols-[auto_1fr]"
-    >
+    <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
         <div class="h-full">
             <div class="flex flex-col w-full">
-                <!--v-if="!uploadedfileUrl"-->
                 <h1 class="text-3xl font-bold dark:text-white mb-4">Upload a track</h1>
-                <input
-                    v-model="name"
-                    class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Name"
-                    required
-                    type="text"
-                />
+                <textarea v-model="description" id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Description"></textarea>
                 <input
                     v-model="genre"
                     class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -244,9 +199,10 @@ onMounted(() => {
                         <input id="dropzone-file" class="hidden" type="file" @change="handleFileChange" />
                     </label>
                 </div>
+                
                 <button
                     class="w-full mt-2 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
-                    @click="NextStep(1)"
+                    @click="submitData()"
                 >
                     Submit
                 </button>
