@@ -159,7 +159,7 @@ onMounted(() => {
                     </td>
                     <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right">
                         <router-link
-                            :to="`/manage-track/${track.id}`"
+                            :to="`/track/${track.id}`"
                             class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                             >Manage
                         </router-link>

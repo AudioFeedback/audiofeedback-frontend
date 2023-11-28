@@ -5,6 +5,7 @@ import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 import { useRoute } from "vue-router";
 import { initFlowbite } from "flowbite";
+import { getRoles } from "@/utils/authorisationhelper";
 
 const route = useRoute();
 const componentKey = ref(0);
@@ -16,6 +17,7 @@ const activeTab = ref<number>(1);
 const showModal = ref<boolean>(false);
 const description = ref<string>(""); 
 const audiofile = ref<File | null>(null);
+const ShowOverlay = ref<any>();
 
 const trackVersion = ref<number>(0);
 
@@ -89,6 +91,15 @@ const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
 
     audiofile.value = target.files![0];
+};
+
+const Showoverlay = (reviewer: any) => {
+    if (ShowOverlay.value == reviewer.id) {
+        ShowOverlay.value = null;
+        return;
+    }
+    ShowOverlay.value = reviewer.id;
+    reviewerinfo.value = reviewer;
 };
 
 
@@ -283,6 +294,32 @@ const changeVersion = (version: number) => {
                         Version History
                     </button>
                 </li>
+                <li v-if="getRoles()?.includes('ADMIN')" class="me-2">
+                    <button
+                        :class="{
+                            'text-blue-600 border-blue-600 dark:border-blue-500': activeTab === 3,
+                            'hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300': activeTab !== 3
+                        }"
+                        class="inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg"
+                        @click="setTab(3)"
+                    >
+                        <svg
+                            aria-hidden="true"
+                            class="w-4 h-4 me-2"
+                            fill="none"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M10 6v4l3.276 3.276M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                stroke="currentColor"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
+                        </svg>
+                        Manage Reviewers
+                    </button>
+                </li>
             </ul>
         </div>
         <div v-if="activeTab === 1">
@@ -461,11 +498,11 @@ const changeVersion = (version: number) => {
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                                     Add new version
                                 </h3>
-                                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                                <button @click="showModal = !showModal" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
                                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                                     </svg>
-                                    <span @click="!showModal" class="sr-only">Close modal</span>
+                                    <span class="sr-only">Close modal</span>
                                 </button>
                             </div>
                             <form class="p-4 md:p-5" v-on:submit.prevent="submitData()">
@@ -534,7 +571,7 @@ const changeVersion = (version: number) => {
                     </div>
                 </div> 
         </div>
-        <div v-if="activeTab === 3 && ">
+        <div v-if="activeTab === 3 && getRoles()?.includes('ADMIN')">
             <div class="relative shadow-sm sm:rounded-lg">
                 <table
                     aria-label="Manage reviewer table"
