@@ -1,30 +1,95 @@
 <script lang="ts" setup>
 import Navbar from "@/components/NavBarComponent.vue";
 import { getProfile } from "@/services/app.service";
-import { initFlowbite } from "flowbite";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
+import { deleteUser, updateUser } from "@/services/users.service";
 
-let userinfo = ref<Components.Schemas.GetUserDto>({ id: 0, username: "", firstname: "", lastname: "", roles: [] });
-
-let password = ref<string>("");
+const userinfo = ref<Components.Schemas.GetUserDto>({ id: 0, username: "", firstname: "", lastname: "", roles: [] });
+const confirmDeletion = ref<boolean>();
+const username = ref<string>();
+const firstname = ref<string>();
+const lastname = ref<string>();
+const password = ref<string>();
+const confirm_password = ref<string>();
+const password_match = ref<boolean>(true);
 
 const getUserInfo = async () => {
     const response = await getProfile();
 
     userinfo.value = response.data;
-    initFlowbite();
+    username.value = response.data.username;
+    firstname.value = response.data.firstname;
+    lastname.value = response.data.lastname;
 };
+
+const deleteAccount = async () => {
+    const response = await deleteUser(userinfo.value.id as number);
+
+    if(response.status === 200) {
+        confirmDeletion.value = false;
+        localStorage.removeItem("token");
+        window.location.href = "/";
+    } else {
+        alert("Something went wrong, please try again");
+        confirmDeletion.value = false;
+    }
+};
+
+const validatePassword = async () => {
+    if(password.value !== confirm_password.value) {
+        password_match.value = false;
+        return;
+    } else {
+        password_match.value = true;
+    }
+};
+
+const checkFormValid = async () => {
+    try {
+       if(password_match.value){
+            editUser();
+            return;
+       }
+    } catch (error) {
+        console.log(error);
+        alert("Something went wrong, please try again");
+        return;
+    }
+
+};
+
+const editUser = async () => {
+    try{
+        const response = await updateUser( {
+            username: username.value ?? userinfo.value.username,
+            firstname: firstname.value ?? userinfo.value.firstname,
+            lastname: lastname.value ?? userinfo.value.lastname,
+            password: password.value
+        }, userinfo.value.id as number);
+
+        if (!response) {
+            return;
+        } else {
+            alert("Account updated");
+            return;
+        }
+    } catch (error) {
+        console.log(error);
+        alert("Something went wrong, please try again");
+        return;
+    }
+};
+
 onMounted(() => getUserInfo());
 </script>
 
 <template>
     <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
-        <!-- <h2 class="text-4xl mb-4 font-bold dark:text-white">Manage account</h2> -->
         <section>
             <div class="max-w-2xl">
-                <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Update product</h2>
-                <form action="#">
+                <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Update account</h2>
+                <form v-on:submit.prevent="checkFormValid()">
                     <div class="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5">
                         <div>
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="first_name"
@@ -32,7 +97,7 @@ onMounted(() => getUserInfo());
                             >
                             <input
                                 id="first_name"
-                                :value="userinfo.firstname"
+                                v-model="firstname" 
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Firstname"
                                 type="text"
@@ -44,7 +109,7 @@ onMounted(() => getUserInfo());
                             >
                             <input
                                 id="last_name"
-                                :value="userinfo.lastname"
+                                v-model="lastname"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Lastname"
                                 type="text"
@@ -53,8 +118,7 @@ onMounted(() => getUserInfo());
                         <div>
                             <label
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white inline-flex items-center"
-                                for="username"
-                            >
+                                for="username">
                                 Username
                                 <button class="bg-transparent ml-2" data-tooltip-target="tooltip-default" type="button">
                                     <svg
@@ -72,8 +136,7 @@ onMounted(() => getUserInfo());
                                 <div
                                     id="tooltip-default"
                                     class="absolute z-100 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-                                    role="tooltip"
-                                >
+                                    role="tooltip">
                                     Your username is public.
                                     <div class="tooltip-arrow" data-popper-arrow></div>
                                 </div>
@@ -84,7 +147,7 @@ onMounted(() => getUserInfo());
                                 </div>
                                 <input
                                     id="username"
-                                    :value="userinfo.username"
+                                    v-model="username"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="username"
                                     type="text"
@@ -98,7 +161,7 @@ onMounted(() => getUserInfo());
                             >
                             <input
                                 id="password"
-                                :value="password"
+                                v-model="password"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="•••••••••"
                                 type="password"
@@ -112,21 +175,26 @@ onMounted(() => getUserInfo());
                             >
                             <input
                                 id="confirm_password"
-                                :value="password"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                @blur="validatePassword()"
+                                v-model="confirm_password"
+                                :class="{
+                                    'bg-red-50 border-red-500 text-red-900 ocus:ring-red-500 dark:bg-gray-700 focus:border-red-500 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500': !password_match, 
+                                    'bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500': password_match}"
+                                class=" border text-sm rounded-lg block w-full p-2.5"
                                 placeholder="•••••••••"
                                 type="password"
                             />
+                            <p v-if="!password_match" class="mt-2 text-sm text-red-600 dark:text-red-500 font-medium">Password are not the same</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <button
+                        <button type="submit"
                             class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                            type="submit"
                         >
                             Update account
                         </button>
                         <button
+                            @click='confirmDeletion = !confirmDeletion'
                             class="text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
                             type="button"
                         >
@@ -145,6 +213,30 @@ onMounted(() => getUserInfo());
                             Delete account
                         </button>
                     </div>
+
+                    <div v-if="confirmDeletion" class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7]  justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                        <div class="relative p-4 w-full max-w-md max-h-full">
+                            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                                <button @click='confirmDeletion = !confirmDeletion' type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                                <div class="p-4 md:p-5 text-center">
+                                    <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                    </svg>
+                                    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Are you sure you want to delete your account? This action is permanent</h3>
+                                    <button @click='deleteAccount()' class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2">
+                                        Yes, I'm sure
+                                    </button>
+                                    <button @click='confirmDeletion = !confirmDeletion' class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">No, cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </form>
             </div>
         </section>
