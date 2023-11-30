@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import TrackComponent from "@/components/TrackComponent.vue";
 import { getProfile } from "@/services/app.service";
-import { createFeedback, publishFeedback } from "@/services/feedback.service";
+import { publishFeedback } from "@/services/feedback.service";
 import { getTrackReviewer } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
-import { onMounted, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 import { useRoute } from "vue-router";
 
@@ -15,11 +15,6 @@ const trackinfo = ref<Components.Schemas.GetReviewTrackDto>();
 const trackversion = ref<Components.Schemas.GetReviewTrackVersionDto>();
 const audioPlayer = ref<AVWaveform | null>(null);
 const canvasDiv = ref<HTMLElement | null>(null);
-const selectedpercentageleft = ref<any>(0);
-const selectedTimeStamp = ref<number>(0);
-const closepopup = ref<boolean>(false);
-const rating = ref<boolean>(true);
-const comments = ref<string>("");
 const userinfo = ref<Components.Schemas.GetUserDto>();
 
 const trackComponent = ref();
@@ -36,38 +31,6 @@ const getTrackData = async () => {
     trackversion.value = data.trackversions[0];
     uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
     forceRerender();
-};
-
-const submitFeedback = async () => {
-    try {
-        if (!trackinfo.value || !trackversion.value) {
-            alert("Please fill in all required fields");
-            return;
-        }
-
-        const response = await createFeedback({
-            rating: rating.value,
-            comment: comments.value,
-            trackVersionId: trackversion.value.id,
-            timestamp: +selectedTimeStamp.value
-        });
-
-        if (!response) {
-            return;
-        }
-
-        const data = response.data;
-        console.log("data", data);
-        CloseFeedback();
-        rating.value = true;
-        comments.value = "";
-        selectedTimeStamp.value = 0;
-        getTrackData();
-        forceRerender();
-        await getTrackData();
-    } catch (error) {
-        console.error("API Error:", error);
-    }
 };
 
 const publishFeedbackToArtist = async () => {
@@ -91,23 +54,7 @@ const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
     return `${mins}:${seconds < 10 ? "0" : ""}${seconds}`;
 };
 
-const GetPointerLocation = () => {
-    if (closepopup.value === true) {
-        closepopup.value = false;
-        return;
-    }
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    selectedpercentageleft.value = (audioElement.currentTime / audioElement.duration) * 100;
-    selectedTimeStamp.value = audioElement.currentTime / audioElement.duration;
-};
-
-const CloseFeedback = () => {
-    selectedpercentageleft.value = null;
-    closepopup.value = true;
-    console.log("selectedpercentageleft", selectedpercentageleft.value);
-};
-
-onMounted(() => {
+onBeforeMount(() => {
     getTrackData();
     getUserInfo();
     if (!userinfo.value) {
@@ -115,24 +62,6 @@ onMounted(() => {
     }
     window.addEventListener("resize", forceRerender);
 });
-
-const play = () => {
-    if (!audioPlayer.value) {
-        return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    audioElement.play();
-};
-
-const pause = () => {
-    if (!audioPlayer.value) {
-        return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    audioElement.pause();
-};
 
 const seek = (seconds: number) => {
     if (!audioPlayer.value) {
@@ -152,7 +81,7 @@ const seek = (seconds: number) => {
 const getUserInfo = async () => {
     const response = await getProfile();
 
-    userinfo.value = await response.data;
+    userinfo.value = response.data;
 };
 </script>
 
@@ -233,6 +162,7 @@ const getUserInfo = async () => {
             :id="route.params.id as unknown as number"
             ref="trackComponent"
             :canvas-div="canvasDiv!"
+            :version="trackversion?.versionNumber"
             feedback
             @refresh-feedback="getTrackData()"
         ></TrackComponent>

@@ -3,14 +3,19 @@ import { getProfile } from "@/services/app.service";
 import { createFeedback } from "@/services/feedback.service";
 import { getTrack, getTrackReviewer } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
-import { onMounted, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 
-const props = defineProps<{
+interface Props {
     id: number;
     canvasDiv: HTMLElement;
+    version: number;
     feedback?: boolean;
-}>();
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    version: 0
+});
 
 const componentKey = ref(0);
 const uploadedfileUrl = ref<string>("");
@@ -35,15 +40,15 @@ const getTrackInfo = async () => {
         const response = await getTrack(props.id);
 
         const data = response.data;
-        console.log("data", data);
+
         track.value = data;
         trackdata.value = data;
 
-        console.log(data);
-
-        trackVersion.value = data.trackversions.length - 1;
-        uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
+        trackVersion.value = props.version;
+        uploadedfileUrl.value = `http://${data.trackversions[props.version].fullUrl}`;
         forceRerender();
+
+        console.log(props.version);
     }
 
     if (props.feedback) {
@@ -51,6 +56,8 @@ const getTrackInfo = async () => {
 
         const data = response.data;
         trackdata.value = data;
+
+        trackVersion.value = data.trackversions.length + 1;
 
         track.value = data.trackversions[0];
         uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
@@ -68,7 +75,7 @@ const GetPointerLocation = () => {
     selectedTimeStamp.value = audioElement.currentTime / audioElement.duration;
 };
 
-onMounted(() => {
+onBeforeMount(() => {
     getTrackInfo();
     if (props.feedback) {
         getUserInfo();
@@ -119,7 +126,7 @@ const submitFeedback = async () => {
         const response = await createFeedback({
             rating: rating.value,
             comment: comments.value,
-            trackVersionId: trackVersion.value || track.value.id,
+            trackVersionId: track.value.id,
             timestamp: selectedTimeStamp.value
         });
 
@@ -149,7 +156,7 @@ const CloseFeedback = () => {
 const getUserInfo = async () => {
     const response = await getProfile();
 
-    userinfo.value = await response.data;
+    userinfo.value = response.data;
 };
 
 defineExpose({ seek });
@@ -160,7 +167,7 @@ defineExpose({ seek });
         <h1 class="text-3xl font-bold dark:text-white mb-6">
             {{ trackdata?.title }}
             <span
-                class="ml-2 bg-green-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
+                class="ml-2 bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
             >
                 Version {{ trackVersion + 1 }}
             </span>
@@ -205,28 +212,30 @@ defineExpose({ seek });
                 :src="`${uploadedfileUrl}`"
                 cors-anonym
             ></AVWaveform>
+
             <div v-if="!feedback" class="relative -top-5">
                 <div
-                    v-for="(feedback, i) in trackdata?.trackversions[trackVersion].feedback"
+                    v-for="(trackFeedback, i) in trackdata?.trackversions[trackVersion].feedback"
                     :key="i"
-                    :style="{ left: `${feedback.timestamp * 100 - 1.5}%` }"
+                    :style="{ left: `${trackFeedback.timestamp * 100 - 1.5}%` }"
                     class="absolute"
                 >
                     <div
                         class="relative inline-flex items-center cursor-pointer justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600"
-                        @click="seek(trackdata!.trackversions[0].duration * feedback.timestamp)"
+                        @click="seek(trackdata!.trackversions[0].duration * trackFeedback.timestamp)"
                     >
-                        <span class="font-medium text-gray-600 dark:text-gray-300"
-                            >{{ feedback.user.firstname.slice(0, 1) }}{{ feedback.user.lastname.slice(0, 1) }}</span
+                        <span v-if="'user' in trackFeedback" class="font-medium text-gray-600 dark:text-gray-300"
+                            >{{ trackFeedback.user.firstname.slice(0, 1)
+                            }}{{ trackFeedback.user.lastname.slice(0, 1) }}</span
                         >
                         <img
-                            v-if="feedback.rating"
+                            v-if="trackFeedback.rating"
                             alt="thumbsup"
                             class="bottom-0 left-7 absolute w-5 h-5"
                             src="./../assets/up.svg"
                         />
                         <img
-                            v-if="!feedback.rating"
+                            v-if="!trackFeedback.rating"
                             alt="thumbsdown"
                             class="bottom-0 left-7 absolute w-5 h-5"
                             src="./../assets/down.svg"

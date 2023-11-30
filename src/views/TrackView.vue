@@ -2,12 +2,11 @@
 import TrackComponent from "@/components/TrackComponent.vue";
 import { getTrack } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
-import { onMounted, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 const componentKey = ref(0);
-const uploadedfileUrl = ref<string>("");
 const trackinfo = ref<Components.Schemas.GetTrackDeepDto>();
 const canvasDiv = ref<HTMLElement | null>(null);
 const activeTab = ref<number>(1);
@@ -28,13 +27,11 @@ const getTrackInfo = async () => {
     const response = await getTrack(route.params.id as unknown as number);
 
     const data = response.data;
-    console.log("data", data);
+
     trackinfo.value = data;
 
-    console.log(data);
-
     trackVersion.value = data.trackversions.length - 1;
-    uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
+    console.log(trackVersion.value);
     forceRerender();
 };
 
@@ -49,7 +46,7 @@ const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
     return `${mins}:${seconds < 10 ? "0" : ""}${seconds}`;
 };
 
-onMounted(() => {
+onBeforeMount(() => {
     getTrackInfo();
     window.addEventListener("resize", forceRerender);
 });
@@ -219,6 +216,7 @@ const changeVersion = (version: number) => {
                 :id="route.params.id as unknown as number"
                 ref="trackComponent"
                 :canvas-div="canvasDiv!"
+                :version="trackVersion"
             ></TrackComponent>
 
             <div class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12">
