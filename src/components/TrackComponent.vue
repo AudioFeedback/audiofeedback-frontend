@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { getProfile } from "@/services/app.service";
-import { createFeedback } from "@/services/feedback.service";
+import { createFeedback, publishFeedback } from "@/services/feedback.service";
 import { getTrack, getTrackReviewer } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { onBeforeMount, ref } from "vue";
@@ -31,6 +31,12 @@ const rating = ref<boolean>(true);
 const comments = ref<string>("");
 const userinfo = ref<Components.Schemas.GetUserDto>();
 
+const submitted = ref<boolean>(false);
+
+const isType = (trackdata: Components.Schemas.GetTrackDeepDto | Components.Schemas.GetReviewTrackDto | undefined) => {
+    return (trackdata as Components.Schemas.GetReviewTrackDto)?.trackversions[0].feedback[0].isPublished;
+};
+
 const forceRerender = () => {
     componentKey.value += 1;
 };
@@ -44,7 +50,7 @@ const getTrackInfo = async () => {
         track.value = data;
         trackdata.value = data;
 
-        trackVersion.value = props.version;
+        trackVersion.value = props.version + 1;
         uploadedfileUrl.value = `http://${data.trackversions[props.version].fullUrl}`;
         forceRerender();
 
@@ -57,7 +63,7 @@ const getTrackInfo = async () => {
         const data = response.data;
         trackdata.value = data;
 
-        trackVersion.value = data.trackversions.length + 1;
+        trackVersion.value = data.trackversions[0].versionNumber;
 
         track.value = data.trackversions[0];
         uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
@@ -89,6 +95,7 @@ const play = () => {
     }
 
     const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
+
     audioElement.play();
 };
 
@@ -159,6 +166,17 @@ const getUserInfo = async () => {
     userinfo.value = response.data;
 };
 
+const publishFeedbackToArtist = async () => {
+    const versionId = track.value?.id;
+
+    if (!versionId) {
+        return;
+    }
+
+    await publishFeedback(versionId);
+    submitted.value = true;
+};
+
 defineExpose({ seek });
 </script>
 
@@ -169,7 +187,7 @@ defineExpose({ seek });
             <span
                 class="ml-2 bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
             >
-                Version {{ trackVersion + 1 }}
+                Version {{ trackVersion }}
             </span>
             <span
                 class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"
@@ -195,6 +213,24 @@ defineExpose({ seek });
             >
                 Stop
             </button>
+
+            <div v-if="isType(trackdata)" class="w-full flex justify-end">
+                <button
+                    v-if="!submitted"
+                    class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    type="button"
+                    @click="publishFeedbackToArtist"
+                >
+                    Submit feedback
+                </button>
+                <div
+                    v-if="submitted"
+                    class="flex flex-row items-center px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                    <img alt="thumbsup" src="./../assets/up.svg" />
+                    <p class="ml-2">Feedback Published</p>
+                </div>
+            </div>
         </div>
         <div class="w-full" @click="GetPointerLocation()">
             <AVWaveform
@@ -215,7 +251,7 @@ defineExpose({ seek });
 
             <div v-if="!feedback" class="relative -top-5">
                 <div
-                    v-for="(trackFeedback, i) in trackdata?.trackversions[trackVersion].feedback"
+                    v-for="(trackFeedback, i) in trackdata?.trackversions[trackVersion - 1].feedback"
                     :key="i"
                     :style="{ left: `${trackFeedback.timestamp * 100 - 1.5}%` }"
                     class="absolute"
