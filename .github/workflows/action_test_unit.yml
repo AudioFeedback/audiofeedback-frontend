@@ -2,12 +2,13 @@ name: Test unit
 
 on: [ workflow_call ]
 
-permissions:
-  contents: read
-  checks: write
 
 jobs:
   test:
+    permissions:
+      contents: read
+      checks: write
+
     runs-on: ubuntu-latest
 
     steps:
