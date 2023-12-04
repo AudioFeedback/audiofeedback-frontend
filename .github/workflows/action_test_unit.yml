@@ -6,6 +6,7 @@ on: [ workflow_call ]
 jobs:
   test:
     permissions:
+      contents: write
       checks: write
 
     runs-on: ubuntu-latest
