@@ -20,6 +20,7 @@ const closepopup = ref<boolean>(false);
 const rating = ref<boolean>(true);
 const comments = ref<string>("");
 const userinfo = ref<Components.Schemas.GetUserDto>();
+const giveGeneralFeedback = ref<boolean>(false);
 
 const forceRerender = () => {
     componentKey.value += 1;
@@ -64,6 +65,14 @@ const submitFeedback = async () => {
         await getTrackData();
     } catch (error) {
         console.error("API Error:", error);
+    }
+};
+
+const generalfeedback = async () => {
+    console.log("F U");
+    giveGeneralFeedback.value = true;
+    if (giveGeneralFeedback.value === true){
+        console.log("no u");
     }
 };
 
@@ -369,7 +378,7 @@ const getUserInfo = async () => {
                                 </div>
                             </div>
                             <button
-                                class="text-white w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                 type="submit"
                             >
                                 Add Feedback
@@ -419,6 +428,25 @@ const getUserInfo = async () => {
                     </tr>
                 </tbody>
             </table>
+
+            <div class="flex-row w-full justify-center mt-8">
+                <button class="px-6 py-3.5 text-base font-medium text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    @click="generalfeedback"
+                    >
+                    Add general feedback
+                </button>
+
+                <form class="max-w-sm mx-auto" v-if="giveGeneralFeedback">
+                    <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your message</label>
+                    <textarea id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write your thoughts here..."></textarea>
+                    <button
+                        class="mt-6 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        type="submit"
+                        >
+                        Add Feedback
+                    </button>
+                </form>
+            </div>
         </div>
     </main>
 </template>
