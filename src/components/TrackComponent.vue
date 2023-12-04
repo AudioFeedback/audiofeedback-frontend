@@ -32,9 +32,22 @@ const comments = ref<string>("");
 const userinfo = ref<Components.Schemas.GetUserDto>();
 
 const submitted = ref<boolean>(false);
+const showSubmitButton = ref<boolean>(false);
 
-const isType = (trackdata: Components.Schemas.GetTrackDeepDto | Components.Schemas.GetReviewTrackDto | undefined) => {
-    return (trackdata as Components.Schemas.GetReviewTrackDto)?.trackversions[0].feedback[0].isPublished;
+const checkSubmitted = async () => {
+    const response = await getTrackReviewer(props.id);
+
+    const data = response.data;
+
+    if (!data) {
+        return console.log("no trackdata found");
+    }
+
+    if (data.trackversions[0].feedback.length > 0 && !data.trackversions[0].feedback[0].isPublished) {
+        return (showSubmitButton.value = true);
+    }
+
+    return (showSubmitButton.value = false);
 };
 
 const forceRerender = () => {
@@ -53,8 +66,6 @@ const getTrackInfo = async () => {
         trackVersion.value = props.version + 1;
         uploadedfileUrl.value = `http://${data.trackversions[props.version].fullUrl}`;
         forceRerender();
-
-        console.log(props.version);
     }
 
     if (props.feedback) {
@@ -68,6 +79,7 @@ const getTrackInfo = async () => {
         track.value = data.trackversions[0];
         uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
         forceRerender();
+        await checkSubmitted();
     }
 };
 
@@ -85,6 +97,7 @@ onBeforeMount(() => {
     getTrackInfo();
     if (props.feedback) {
         getUserInfo();
+        checkSubmitted();
     }
     window.addEventListener("resize", forceRerender);
 });
@@ -149,6 +162,7 @@ const submitFeedback = async () => {
         selectedTimeStamp.value = 0;
 
         emit("refreshFeedback");
+        await checkSubmitted();
     } catch (error) {
         console.error("API Error:", error);
     }
@@ -196,25 +210,25 @@ defineExpose({ seek });
         </h1>
         <div class="flex flex-row gap-4 mb-6">
             <button
-                class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                 @click="play"
             >
                 Play
             </button>
             <button
-                class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                 @click="pause"
             >
                 Pause
             </button>
             <button
-                class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                 @click="seek(0)"
             >
                 Stop
             </button>
 
-            <div v-if="isType(trackdata)" class="w-full flex justify-end">
+            <div v-if="feedback && showSubmitButton" class="w-full flex justify-end">
                 <button
                     v-if="!submitted"
                     class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"

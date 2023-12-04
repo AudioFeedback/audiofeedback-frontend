@@ -170,24 +170,6 @@ const getUserInfo = async () => {
             @refresh-feedback="getTrackData()"
         ></TrackComponent>
 
-        <div v-if="!trackversion?.feedback[0]?.isPublished" class="w-full flex justify-end">
-            <button
-                v-if="!submitted"
-                class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                type="button"
-                @click="publishFeedbackToArtist"
-            >
-                Submit feedback
-            </button>
-            <div
-                v-if="submitted"
-                class="flex flex-row items-center px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            >
-                <img alt="thumbsup" src="./../assets/up.svg" />
-                <p class="ml-2">Feedback Published</p>
-            </div>
-        </div>
-
         <div class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12">
             <table aria-label="Feedback table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
