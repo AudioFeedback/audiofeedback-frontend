@@ -23,6 +23,13 @@ const router = createRouter({
             meta: { role: ["MUZIEKPRODUCER"] }
         },
         {
+            path: "/track/:id/new",
+            name: "tracknew",
+            props: true,
+            component: () => import("../views/UploadTrackVersionView.vue"),
+            meta: { role: ["MUZIEKPRODUCER"] }
+        },
+        {
             path: "/upload",
             name: "upload",
             component: () => import("../views/UploadView.vue"),
@@ -38,12 +45,6 @@ const router = createRouter({
             name: "feedback",
             component: () => import("../views/AddFeedbackView.vue"),
             meta: { role: ["FEEDBACKGEVER"] }
-        },
-        {
-            path: "/manage-track/:id",
-            name: "manage track",
-            component: () => import("../views/AdminTrackView.vue"),
-            meta: { role: ["ADMIN"] }
         },
         {
             path: "/manage-users",

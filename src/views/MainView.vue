@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import AdminTableComponent from "@/components/AdminTableComponent.vue";
-import Navbar from "@/components/NavBarComponent.vue";
 import TableComponent from "@/components/TableComponent.vue";
 import { getRoles } from "@/utils/authorisationhelper";
 </script>
