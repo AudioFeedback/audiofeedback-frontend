@@ -13,7 +13,7 @@ const name = ref<string>("");
 const genre = ref<string>("");
 const audiofile = ref<File | null>(null);
 const labelreviewer = ref<string>("");
-const reviewers = ref<any[] | null>(null); //change
+const reviewers = ref<any[] | string>("noreviewers"); //change
 const allreviewers = ref<any[]>([]); //change
 const possiblereviewers = ref<any[]>([]); //change
 const revieweralreadyadded = ref<boolean>(false);
@@ -380,14 +380,14 @@ onMounted(() => {
                 <h1 class="text-3xl font-bold dark:text-white mb-4">Upload a track</h1>
                 <input
                     v-model="name"
-                    class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Name"
                     required
                     type="text"
                 />
                 <input
                     v-model="genre"
-                    class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Genre"
                     required
                     type="text"
@@ -448,7 +448,7 @@ onMounted(() => {
                     </label>
                 </div>
                 <button
-                    class="w-full mt-2 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                    class="w-full mt-2 text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                     @click="NextStep(1)"
                 >
                     Submit
@@ -464,7 +464,7 @@ onMounted(() => {
                         id="label-reviewer"
                         v-model="labelreviewer"
                         aria-describedby="helper-text-explanation"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         placeholder="name@muzieklabel.com"
                         type="email"
                     />
@@ -480,8 +480,8 @@ onMounted(() => {
                         for="reviewers"
                     >
                         Add Reviewers</label
-                    >
-                    <p
+
+                    ><p
                         v-if="labelreviewer.length > 0"
                         id="label-reviewer-explanation"
                         class="mt-2 text-sm text-gray-500 dark:text-gray-400"
@@ -492,9 +492,9 @@ onMounted(() => {
                         v-if="labelreviewer.length <= 0"
                         id="reviewers"
                         v-model="reviewers"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     >
-                        <option selected>Select a reviewer</option>
+                        <option selectedvalue="noreviewers">Select a reviewer</option>
                         <option
                             v-for="(reviewer, i) in possiblereviewers"
                             :key="i"
@@ -507,9 +507,10 @@ onMounted(() => {
                     <button
                         v-if="labelreviewer.length <= 0"
                         :class="{
-                            'text-white bg-gray-800 hover:bg-gray-900':
+                            'text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800':
                                 labelreviewer.length < 0 || labelreviewer.length === 0,
-                            'bg-gray-400 text-gray-900 dark:text-white': labelreviewer.length > 0
+                            'bg-gray-400 text-gray-900 dark:text-white': labelreviewer.length > 0,
+                            '!bg-gray-400 pointer-events-none': reviewers?.length
                         }"
                         :disabled="labelreviewer.length > 0"
                         class="w-full mt-2 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
@@ -578,8 +579,9 @@ onMounted(() => {
                 </div>
                 <button
                     :class="{
-                        'bg-gray-400 hover:bg-gray-500': labelreviewer === '' && allreviewers.length === 0,
-                        'bg-gray-800 hover:bg-gray-900': labelreviewer !== '' || allreviewers.length > 0
+                        'bg-gray-400 pointer-events-none': labelreviewer === '' && allreviewers.length === 0,
+                        'bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800':
+                            labelreviewer !== '' || allreviewers.length > 0
                     }"
                     class="absolute bottom-0 right-0 w-full mt-2 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2"
                     @click="NextStep(2)"
@@ -682,7 +684,7 @@ onMounted(() => {
                     />
                 </div>
                 <button
-                    class="absolute bottom-0 right-0 w-full mt-2 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 bg-gray-800 hover:bg-gray-900"
+                    class="absolute bottom-0 right-0 w-full mt-2 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800"
                     @click="NextStep(3)"
                 >
                     Submit Track
@@ -738,7 +740,7 @@ onMounted(() => {
                             d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
                         />
                     </svg>
-                    <h3 class="text-3xl font-bold dark:text-white">Track has been send</h3>
+                    <h3 class="text-3xl font-bold dark:text-white">Track has been sent</h3>
                 </div>
                 <div v-if="!sendSuccess" class="flex flex-col items-center justify-center mb-4">
                     <svg

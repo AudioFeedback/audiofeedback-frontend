@@ -27,3 +27,13 @@ jobs:
 
       - name: Run linting
         run: pnpm run lint
+
+      - name: Generate eslint report
+        run: pnpm run lint:output
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: eslint-lint-report
+          path: ./eslint-report.json
+          retention-days: 14

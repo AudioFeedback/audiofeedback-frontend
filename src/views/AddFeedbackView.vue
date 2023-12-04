@@ -39,7 +39,7 @@ const getTrackData = async () => {
 const submitFeedback = async () => {
     try {
         if (!trackinfo.value || !trackversion.value) {
-            alert("Please fill in all required fields")
+            alert("Please fill in all required fields");
             return;
         }
 
@@ -236,33 +236,39 @@ const getUserInfo = async () => {
             </h1>
             <div class="flex flex-row gap-4 mb-6">
                 <button
-                    class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"
+                    class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"
                     @click="play"
                 >
                     Play
                 </button>
                 <button
-                    class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"
+                    class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"
                     @click="pause"
                 >
                     Pause
                 </button>
                 <button
-                    class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"
+                    class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"
                     @click="seek(0)"
                 >
                     Stop
                 </button>
 
-                <div class="w-full flex justify-end" v-if="!trackversion?.feedback[0]?.isPublished">
-                    <button v-if="!submitted"
+                <div v-if="!trackversion?.feedback[0]?.isPublished" class="w-full flex justify-end">
+                    <button
+                        v-if="!submitted"
                         class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                         type="button"
-                        @click="publishFeedbackToArtist">
+                        @click="publishFeedbackToArtist"
+                    >
                         Submit feedback
                     </button>
-                    <div v-if="submitted" class="flex flex-row items-center px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        <img src="./../assets/up.svg" alt="thumbsup" /> <p class="ml-2">Feedback Published</p>
+                    <div
+                        v-if="submitted"
+                        class="flex flex-row items-center px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    >
+                        <img alt="thumbsup" src="./../assets/up.svg" />
+                        <p class="ml-2">Feedback Published</p>
                     </div>
                 </div>
             </div>
@@ -335,7 +341,7 @@ const getUserInfo = async () => {
                                         type="radio"
                                     />
                                     <label
-                                        class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+                                        class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-600"
                                         for="rating-postive"
                                     >
                                         <img alt="thumbsup" src="./../assets/up.svg" />
@@ -397,9 +403,6 @@ const getUserInfo = async () => {
                             <div class="flex items-center">Feedback</div>
                         </th>
                         <th class="px-6 py-3" scope="col">
-                            <div class="flex items-center">Rating</div>
-                        </th>
-                        <th class="px-6 py-3" scope="col">
                             <div class="flex items-center">Attachments</div>
                         </th>
                     </tr>
@@ -410,15 +413,18 @@ const getUserInfo = async () => {
                         :key="i"
                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                     >
+                        <td class="px-6 py-4">
+                            {{ userinfo?.firstname }} {{ userinfo?.lastname }} (@{{ userinfo?.username }})
+                        </td>
+                        <td class="px-6 py-4">
+                            <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
+                            <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
+                        </td>
                         <td class="px-6 py-4" @click="seek(feedback.timestamp * trackinfo!.trackversions[0].duration)">
                             {{ getTimeInMinutesAndSeconds(feedback.timestamp * trackinfo!.trackversions[0].duration) }}
                         </td>
                         <td class="px-6 py-4">
                             {{ feedback.comment }}
-                        </td>
-                        <td class="px-6 py-4">
-                            <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
-                            <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
                         </td>
                         <td class="px-6 py-4">file attachment</td>
                     </tr>

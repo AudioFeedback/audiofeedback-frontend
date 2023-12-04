@@ -23,6 +23,13 @@ const router = createRouter({
             meta: { role: ["MUZIEKPRODUCER"] }
         },
         {
+            path: "/track/:id/new",
+            name: "tracknew",
+            props: true,
+            component: () => import("../views/UploadTrackVersionView.vue"),
+            meta: { role: ["MUZIEKPRODUCER"] }
+        },
+        {
             path: "/upload",
             name: "upload",
             component: () => import("../views/UploadView.vue"),
