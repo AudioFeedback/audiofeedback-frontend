@@ -4,6 +4,7 @@ import { getProfile } from "@/services/app.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 import { deleteUser, updateUser } from "@/services/users.service";
+import { initFlowbite } from "flowbite";
 
 const userinfo = ref<Components.Schemas.GetUserDto>({ id: 0, username: "", firstname: "", lastname: "", roles: [] });
 const confirmDeletion = ref<boolean>();
@@ -21,6 +22,7 @@ const getUserInfo = async () => {
     username.value = response.data.username;
     firstname.value = response.data.firstname;
     lastname.value = response.data.lastname;
+    initFlowbite();
 };
 
 const deleteAccount = async () => {
