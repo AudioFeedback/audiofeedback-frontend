@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import Navbar from "@/components/NavBarComponent.vue";
 import { getTrack } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
@@ -257,22 +256,28 @@ const changeVersion = (version: number) => {
                 </h1>
                 <div class="flex flex-row gap-4 mb-6">
                     <button
-                        class="text-white bg-gray-700  hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                        class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                         @click="play"
                     >
                         Play
                     </button>
                     <button
-                        class="text-white bg-gray-700  hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                        class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                         @click="pause"
                     >
                         Pause
                     </button>
                     <button
-                        class="text-white bg-gray-700  hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                        class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                         @click="seek(0)"
                     >
                         Stop
+                    </button>
+                    <button
+                        class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 ml-auto font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                        @click="$router.push(`/track/${trackinfo?.id}/new`)"
+                    >
+                        New Version
                     </button>
                 </div>
                 <div class="w-full">
@@ -299,8 +304,8 @@ const changeVersion = (version: number) => {
                             class="absolute"
                         >
                             <div
-                                @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
                                 class="relative inline-flex items-center cursor-pointer justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600"
+                                @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
                             >
                                 <span class="font-medium text-gray-600 dark:text-gray-300"
                                     >{{ feedback.user.firstname.slice(0, 1)

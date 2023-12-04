@@ -66,7 +66,7 @@ onMounted(() => {
             <div class="flex flex-col h-full justify-between">
                 <ul class="space-y-2 font-medium">
                     <a class="flex items-center pl-2.5 mb-5" href="/">
-                        <img alt="logo" class="h-auto w-48 mr-2 pt-6" src="./../assets/logo-temp.svg" />
+                        <img alt="logo" class="h-auto w-48 mr-2 pt-4" src="./../assets/logo-temp.svg" />
                     </a>
                     <li>
                         <router-link

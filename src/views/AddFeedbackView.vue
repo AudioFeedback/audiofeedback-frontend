@@ -20,6 +20,7 @@ const closepopup = ref<boolean>(false);
 const rating = ref<boolean>(true);
 const comments = ref<string>("");
 const userinfo = ref<Components.Schemas.GetUserDto>();
+const submitted = ref<boolean>(false);
 
 const forceRerender = () => {
     componentKey.value += 1;
@@ -38,7 +39,7 @@ const getTrackData = async () => {
 const submitFeedback = async () => {
     try {
         if (!trackinfo.value || !trackversion.value) {
-            alert("Please fill in all required fields")
+            alert("Please fill in all required fields");
             return;
         }
 
@@ -75,6 +76,7 @@ const publishFeedbackToArtist = async () => {
     }
 
     await publishFeedback(versionId);
+    submitted.value = true;
 };
 
 const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
@@ -234,32 +236,40 @@ const getUserInfo = async () => {
             </h1>
             <div class="flex flex-row gap-4 mb-6">
                 <button
-                    class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                    class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"
                     @click="play"
                 >
                     Play
                 </button>
                 <button
-                    class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                    class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"
                     @click="pause"
                 >
                     Pause
                 </button>
                 <button
-                    class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                    class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"
                     @click="seek(0)"
                 >
                     Stop
                 </button>
 
-                <div class="w-full flex justify-end" v-if="!trackversion?.feedback[0].isPublished">
+                <div v-if="!trackversion?.feedback[0]?.isPublished" class="w-full flex justify-end">
                     <button
-                        class="px-6 py-3.5 text-base font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        v-if="!submitted"
+                        class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                         type="button"
                         @click="publishFeedbackToArtist"
                     >
                         Submit feedback
                     </button>
+                    <div
+                        v-if="submitted"
+                        class="flex flex-row items-center px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    >
+                        <img alt="thumbsup" src="./../assets/up.svg" />
+                        <p class="ml-2">Feedback Published</p>
+                    </div>
                 </div>
             </div>
             <div id="canvasDiv" class="w-full relative" @click="GetPointerLocation()">
@@ -401,9 +411,10 @@ const getUserInfo = async () => {
                     <tr
                         v-for="(feedback, i) in trackinfo?.trackversions[0].feedback"
                         :key="i"
-                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                    >
                         <td class="px-6 py-4">
-                            {{ userinfo?.firstname}} {{ userinfo?.lastname}} (@{{ userinfo?.username}})
+                            {{ userinfo?.firstname }} {{ userinfo?.lastname }} (@{{ userinfo?.username }})
                         </td>
                         <td class="px-6 py-4">
                             <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />

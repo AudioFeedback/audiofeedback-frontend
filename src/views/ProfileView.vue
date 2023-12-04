@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import Navbar from "@/components/NavBarComponent.vue";
 import { getProfile } from "@/services/app.service";
 import type { Components } from "@/types/openapi";
+import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
 
 let userinfo = ref<Components.Schemas.GetUserDto>({ id: 0, username: "", firstname: "", lastname: "", roles: [] });
@@ -12,6 +12,7 @@ const getUserInfo = async () => {
     const response = await getProfile();
 
     userinfo.value = response.data;
+    initFlowbite();
 };
 onMounted(() => getUserInfo());
 </script>
@@ -72,7 +73,7 @@ onMounted(() => getUserInfo());
                                     class="absolute z-100 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
                                     role="tooltip"
                                 >
-                                    Tooltip content
+                                    Your username is public.
                                     <div class="tooltip-arrow" data-popper-arrow></div>
                                 </div>
                             </label>
