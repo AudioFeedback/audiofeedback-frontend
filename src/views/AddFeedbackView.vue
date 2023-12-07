@@ -109,6 +109,9 @@ const publishFeedbackToArtist = async () => {
 const setToast = (message: string) => {
     if(message.length > 0) {
         succesmessage.value = message;
+        setTimeout(() => {
+            succesmessage.value = null
+        }, 3000);
     } else {
         succesmessage.value = null
     }
