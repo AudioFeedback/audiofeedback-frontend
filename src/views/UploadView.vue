@@ -13,7 +13,7 @@ const name = ref<string>("");
 const genre = ref<string>("");
 const audiofile = ref<File | null>(null);
 const labelid = ref<number>(-1);
-const reviewers = ref<Components.Schemas.GetUserDto | string>("noreviewers"); //change
+const reviewers = ref<Components.Schemas.GetUserDto | "noreviewers">("noreviewers"); //change
 const allreviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
 const possiblereviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
 const revieweralreadyadded = ref<boolean>(false);
@@ -99,7 +99,6 @@ const AddReviewer = () => {
     }
     revieweralreadyadded.value = false;
     allreviewers.value.push(reviewers.value);
-    console.log(allreviewers.value.length);
 };
 
 const RemoveReviewer = (reviewer: Components.Schemas.GetUserDto) => {
