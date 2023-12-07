@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { getReviewers } from "@/services/users.service";
+import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
-import { AVWaveform } from "vue-audio-visual";
 
 const apiUrl = `http://${import.meta.env.VITE_API_URL}/tracks`;
 let uploadedfileUrl = ref<string>("");
@@ -13,14 +13,54 @@ const name = ref<string>("");
 const genre = ref<string>("");
 const audiofile = ref<File | null>(null);
 const labelreviewer = ref<string>("");
-const reviewers = ref<any[] | string>("noreviewers"); //change
-const allreviewers = ref<any[]>([]); //change
-const possiblereviewers = ref<any[]>([]); //change
+const labelid = ref<number>(-1);
+const reviewers = ref<Components.Schemas.GetUserDto | string>("noreviewers"); //change
+const allreviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
+const possiblereviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
 const revieweralreadyadded = ref<boolean>(false);
 const sendSuccess = ref<boolean>(false);
 
 const componentKey = ref(0);
 const uploadstatus = ref<number>(0);
+const uploadtolabelstep = ref<number>(0);
+
+const labels = [
+    {
+        id: 0,
+        name: "Foo recordings",
+        websiteUrl: "https://foo.bar/foo",
+        description: "Foo recordings is a house record label.",
+        genre: "House",
+        profilePicture: "https://cdn.dribbble.com/users/196077/screenshots/1642569/foo_dribble.png"
+    },
+    {
+        id: 1,
+        name: "Bar recordings",
+        websiteUrl: "https://foo.bar/bar",
+        description: "Bar recordings is a drum & bass record label.",
+        genre: "Drum and Bass",
+        profilePicture:
+            "https://www.shutterstock.com/image-vector/bar-lettering-illustration-label-badge-600nw-1034296870.jpg"
+    },
+    {
+        id: 2,
+        name: "Lorem recordings",
+        websiteUrl: "https://foo.bar/lorem",
+        description: "Lorem recordings is a garage record label.",
+        genre: "Drum and Bass",
+        profilePicture:
+            "https://img.freepik.com/premium-vector/logo-lorem-ipsum-slogan-design-art-template_642953-154.jpg"
+    },
+    {
+        id: 3,
+        name: "Ipsum recordings",
+        websiteUrl: "https://foo.bar/ipsum",
+        description: "Ipsum recordings is a t*chno record label.",
+        genre: "Drum and Bass",
+        profilePicture:
+            "https://img.freepik.com/premium-vector/logo-lorem-ipsum-slogan-design-art-template_642953-154.jpg"
+    }
+];
 
 const forceRerender = () => {
     componentKey.value += 1;
@@ -41,7 +81,19 @@ const handleFileChange = (event: Event) => {
     }
 };
 
+const selectLabel = (labelId: number) => {
+    labelid.value = labelId;
+    allreviewers.value = [];
+    NextStep(2);
+};
+
 const AddReviewer = () => {
+    labelid.value = -1;
+
+    if (typeof reviewers.value === "string") {
+        return;
+    }
+
     for (let i = 0; i < allreviewers.value.length; i++) {
         if (allreviewers.value[i] == reviewers.value) {
             revieweralreadyadded.value = true;
@@ -52,7 +104,7 @@ const AddReviewer = () => {
     allreviewers.value.push(reviewers.value);
 };
 
-const RemoveReviewer = (reviewer: string) => {
+const RemoveReviewer = (reviewer: Components.Schemas.GetUserDto) => {
     const index = allreviewers.value.indexOf(reviewer);
     if (index > -1) {
         allreviewers.value.splice(index, 1);
@@ -67,12 +119,22 @@ const getReviewer = async () => {
 
 const submitData = async () => {
     try {
+        if (labelid.value === -1 && allreviewers.value.length === 0) {
+            return;
+        }
+
         const body = new FormData();
         body.set("title", name.value);
         body.set("genre", genre.value);
         body.set("file", audiofile.value!);
-        // body.set("description", "Beschrijving van de track");
-        body.set("reviewerIds", allreviewers.value.map((reviewer) => reviewer.id).join(","));
+
+        if (labelid.value !== -1 && allreviewers.value.length === 0) {
+            body.set("labelId", labelid.value.toString());
+        }
+
+        if (labelid.value === -1 && allreviewers.value.length > 0) {
+            body.set("reviewerIds", allreviewers.value.map((reviewer) => reviewer.id).join(","));
+        }
 
         const response = await fetch(apiUrl, {
             method: "POST",
@@ -111,7 +173,9 @@ const NextStep = (step: number) => {
     }
 
     if (step == 2) {
-        if (labelreviewer.value == "" && allreviewers.value.length == 0) {
+        selectReviewerType(0);
+        console.log(labelid.value);
+        if (labelreviewer.value == "" && allreviewers.value.length == 0 && labelid.value === -1) {
             alert("Please enter an label or select a reviewer");
             return;
         }
@@ -126,36 +190,21 @@ const NextStep = (step: number) => {
     uploadstatus.value = step;
 };
 
-const audioPlayer = ref<AVWaveform | null>(null);
-
-const play = () => {
-    if (!audioPlayer.value) {
-        return;
+const selectReviewerType = (step: number) => {
+    if (step === 0) {
+        labelid.value = 0;
+        allreviewers.value = [];
+        uploadtolabelstep.value = 0;
     }
 
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    audioElement.play();
-};
-
-const pause = () => {
-    if (!audioPlayer.value) {
-        return;
+    if (step === 1) {
+        labelid.value = 0;
+        uploadtolabelstep.value = 1;
     }
 
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    audioElement.pause();
-};
-
-const seek = (seconds: number) => {
-    if (!audioPlayer.value) {
-        return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-
-    audioElement.currentTime = seconds;
-    if (!audioElement.paused) {
-        audioElement.pause();
+    if (step === 2) {
+        allreviewers.value = [];
+        uploadtolabelstep.value = 2;
     }
 };
 
@@ -166,7 +215,7 @@ onMounted(() => {
 
 <template class="flex flex-row justify-between">
     <main
-        class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden grid gap-x-4 grid-cols-[auto_1fr]"
+        class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-x-hidden grid gap-x-4 grid-cols-[auto_1fr]"
     >
         <ol class="space-y-4 w-72">
             <li class="cursor-pointer" @click="NextStep(0)">
@@ -376,7 +425,6 @@ onMounted(() => {
         </ol>
         <div class="h-full">
             <div v-if="uploadstatus === 0" class="flex flex-col w-full">
-                <!--v-if="!uploadedfileUrl"-->
                 <h1 class="text-3xl font-bold dark:text-white mb-4">Upload a track</h1>
                 <input
                     v-model="name"
@@ -455,140 +503,274 @@ onMounted(() => {
                 </button>
             </div>
             <div v-if="uploadstatus === 1" class="relative h-full">
-                <h1 class="text-3xl font-bold dark:text-white mb-4">Assign reviewers to "{{ name }}".</h1>
-                <div>
-                    <label class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white" for="label-reviewer"
-                        >Add email of label</label
-                    >
-                    <input
-                        id="label-reviewer"
-                        v-model="labelreviewer"
-                        aria-describedby="helper-text-explanation"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="name@muzieklabel.com"
-                        type="email"
-                    />
-                    <p id="label-reviewer-explanation" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        The label will assign individual reviewers, and will send the track back once all reviewers have
-                        given feedback.
-                    </p>
-                </div>
-                <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
-                <div>
-                    <label
-                        class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white inline-flex items-center"
-                        for="reviewers"
-                    >
-                        Add Reviewers</label
+                <div v-if="uploadtolabelstep === 0" class="flex flex-col gap-4 w-1/2">
+                    <h1 class="w-max text-3xl font-bold dark:text-white mb-4">Select reviewer type</h1>
 
-                    ><p
-                        v-if="labelreviewer.length > 0"
-                        id="label-reviewer-explanation"
-                        class="mt-2 text-sm text-gray-500 dark:text-gray-400"
+                    <div
+                        class="max-w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
                     >
-                        You cannot add individual reviewers when assigning an label.
-                    </p>
-                    <select
-                        v-if="labelreviewer.length <= 0"
-                        id="reviewers"
-                        v-model="reviewers"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    >
-                        <option selectedvalue="noreviewers">Select a reviewer</option>
-                        <option
-                            v-for="(reviewer, i) in possiblereviewers"
-                            :key="i"
-                            :value="reviewer"
-                            class="cursor-pointer"
+                        <div class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                            Upload to private reviewer
+                        </div>
+                        <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
+                            Upload your track to one or more reviewers assigned by you.
+                        </p>
+                        <button
+                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            @click="selectReviewerType(1)"
                         >
-                            @{{ reviewer.username }}
-                        </option>
-                    </select>
+                            Upload
+                            <svg
+                                aria-hidden="true"
+                                class="rtl:rotate-180 w-3.5 h-3.5 ms-2"
+                                fill="none"
+                                viewBox="0 0 14 10"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="M1 5h12m0 0L9 1m4 4L9 9"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div
+                        class="max-w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+                    >
+                        <div class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                            Upload to label
+                        </div>
+                        <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
+                            Submit your track to a record label for review.
+                        </p>
+                        <button
+                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            @click="selectReviewerType(2)"
+                        >
+                            Upload
+                            <svg
+                                aria-hidden="true"
+                                class="rtl:rotate-180 w-3.5 h-3.5 ms-2"
+                                fill="none"
+                                viewBox="0 0 14 10"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="M1 5h12m0 0L9 1m4 4L9 9"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="uploadtolabelstep === 1">
                     <button
-                        v-if="labelreviewer.length <= 0"
-                        :class="{
-                            'text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800':
-                                labelreviewer.length < 0 || labelreviewer.length === 0,
-                            'bg-gray-400 text-gray-900 dark:text-white': labelreviewer.length > 0,
-                            '!bg-gray-400 pointer-events-none': reviewers?.length
-                        }"
-                        :disabled="labelreviewer.length > 0"
-                        class="w-full mt-2 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
-                        @click="AddReviewer()"
+                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-4 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                        type="button"
+                        @click="selectReviewerType(0)"
                     >
-                        Add reviewer
+                        Go back
                     </button>
-                    <div v-if="labelreviewer.length <= 0 && revieweralreadyadded">
-                        <p
-                            class="bg-red-100 !mt-2 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
+
+                    <h1 class="text-3xl font-bold dark:text-white mb-4">Assign reviewers to "{{ name }}".</h1>
+                    <div>
+                        <label
+                            class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white"
+                            for="label-reviewer"
+                            >Add email of label</label
                         >
-                            Reviewer already added
+                        <input
+                            id="label-reviewer"
+                            v-model="labelreviewer"
+                            aria-describedby="helper-text-explanation"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="name@muzieklabel.com"
+                            type="email"
+                        />
+                        <p id="label-reviewer-explanation" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            The label will assign individual reviewers, and will send the track back once all reviewers
+                            have given feedback.
                         </p>
                     </div>
-                    <div v-if="labelreviewer.length <= 0">
-                        <ul
-                            v-for="(reviewer, i) in allreviewers"
-                            :key="i"
-                            class="w-full divide-y divide-gray-200 dark:divide-gray-700"
+                    <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
+                    <div>
+                        <label
+                            class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white inline-flex items-center"
+                            for="reviewers"
                         >
-                            <li class="py-3 sm:py-4">
-                                <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                                    <div class="flex-shrink-0">
-                                        <div
-                                            class="relative inline-flex text-sm items-center justify-center w-8 h-8 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600"
-                                        >
-                                            <span class="font-medium text-gray-300 dark:text-gray-300"
-                                                >{{ reviewer.firstname.slice(0, 1)
-                                                }}{{ reviewer.lastname.slice(0, 1) }}</span
+                            Add Reviewers</label
+                        >
+                        <p
+                            v-if="labelreviewer.length > 0"
+                            id="label-reviewer-explanation"
+                            class="mt-2 text-sm text-gray-500 dark:text-gray-400"
+                        >
+                            You cannot add individual reviewers when assigning an label.
+                        </p>
+                        <select
+                            v-if="labelreviewer.length <= 0"
+                            id="reviewers"
+                            v-model="reviewers"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
+                            <option selected value="noreviewers">Select a reviewer</option>
+                            <option
+                                v-for="(reviewer, i) in possiblereviewers"
+                                :key="i"
+                                :value="reviewer"
+                                class="cursor-pointer"
+                            >
+                                @{{ reviewer.username }}
+                            </option>
+                        </select>
+                        <button
+                            v-if="labelreviewer.length <= 0"
+                            :class="{
+                                'text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800':
+                                    labelreviewer.length < 0 || labelreviewer.length === 0,
+                                'bg-gray-400 text-gray-900 dark:text-white': labelreviewer.length > 0,
+                                '!bg-gray-400 pointer-events-none': reviewers === 'noreviewers'
+                            }"
+                            :disabled="labelreviewer.length > 0"
+                            class="w-full mt-2 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                            @click="AddReviewer()"
+                        >
+                            Add reviewer
+                        </button>
+                        <div v-if="labelreviewer.length <= 0 && revieweralreadyadded">
+                            <p
+                                class="bg-red-100 !mt-2 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
+                            >
+                                Reviewer already added
+                            </p>
+                        </div>
+                        <div v-if="labelreviewer.length <= 0">
+                            <ul
+                                v-for="(reviewer, i) in allreviewers"
+                                :key="i"
+                                class="w-full divide-y divide-gray-200 dark:divide-gray-700"
+                            >
+                                <li class="py-3 sm:py-4">
+                                    <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                                        <div class="flex-shrink-0">
+                                            <div
+                                                class="relative inline-flex text-sm items-center justify-center w-8 h-8 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600"
                                             >
+                                                <span class="font-medium text-gray-300 dark:text-gray-300"
+                                                    >{{ reviewer.firstname.slice(0, 1)
+                                                    }}{{ reviewer.lastname.slice(0, 1) }}</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-semibold text-gray-900 truncate dark:text-white">
+                                                {{ reviewer.firstname }} {{ reviewer.lastname }}
+                                            </p>
+                                            <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                                @{{ reviewer.username }}
+                                            </p>
+                                        </div>
+                                        <div
+                                            class="flex flex-row items-center justify-center p-2 px-4 dark:text-white hover:bg-primary-500 hover:text-white rounded-md cursor-pointer"
+                                            @click="RemoveReviewer(reviewer)"
+                                        >
+                                            <svg
+                                                aria-hidden="true"
+                                                class="w-4 h-4 mr-2"
+                                                fill="none"
+                                                viewBox="0 0 20 20"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                                <path
+                                                    d="m13 7-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                                    stroke="currentColor"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                />
+                                            </svg>
+                                            <p>remove reviewer</p>
                                         </div>
                                     </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-semibold text-gray-900 truncate dark:text-white">
-                                            {{ reviewer.firstname }} {{ reviewer.lastname }}
-                                        </p>
-                                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                            @{{ reviewer.username }}
-                                        </p>
-                                    </div>
-                                    <div
-                                        class="flex flex-row items-center justify-center p-2 px-4 dark:text-white hover:bg-primary-500 hover:text-white rounded-md cursor-pointer"
-                                        @click="RemoveReviewer(reviewer)"
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button
+                        :class="{
+                            'bg-gray-400 pointer-events-none': labelreviewer === '' && allreviewers.length === 0,
+                            'bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800':
+                                labelreviewer !== '' || allreviewers.length > 0
+                        }"
+                        class="absolute bottom-0 right-0 w-full mt-2 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2"
+                        @click="NextStep(2)"
+                    >
+                        Next Step: Review
+                    </button>
+                </div>
+
+                <div v-if="uploadtolabelstep === 2">
+                    <button
+                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-4 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                        type="button"
+                        @click="selectReviewerType(0)"
+                    >
+                        Go back
+                    </button>
+                    <h1 class="text-3xl font-bold dark:text-white mb-4">Choose label for "{{ name }}"</h1>
+                    <div class="mb-5">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="base-input"
+                            >Search label</label
+                        >
+                        <input
+                            id="base-input"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full max-w-sm p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            type="text"
+                        />
+                    </div>
+                    <div class="flex flex-row flex-wrap">
+                        <div
+                            v-for="label in labels"
+                            :key="label.id"
+                            class="w-full max-w-sm bg-white mr-3 mb-3 border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+                        >
+                            <div class="flex flex-col items-center p-10">
+                                <img
+                                    :src="label.profilePicture"
+                                    alt="Label image"
+                                    class="w-24 h-24 mb-3 rounded-full shadow-lg"
+                                />
+                                <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">{{ label.name }}</h5>
+                                <span class="text-sm text-gray-600 dark:text-gray-300">{{ label.genre }}</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">{{ label.description }}</span>
+                                <div class="flex mt-4 md:mt-6">
+                                    <button
+                                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                        @click="selectLabel(label.id)"
                                     >
-                                        <svg
-                                            aria-hidden="true"
-                                            class="w-4 h-4 mr-2"
-                                            fill="none"
-                                            viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                d="m13 7-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                                stroke="currentColor"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                        <p>remove reviewer</p>
-                                    </div>
+                                        Submit track
+                                    </button>
+                                    <a
+                                        :href="label.websiteUrl"
+                                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-700 dark:focus:ring-gray-700 ms-3"
+                                        target="_blank"
+                                        >View website</a
+                                    >
                                 </div>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <button
-                    :class="{
-                        'bg-gray-400 pointer-events-none': labelreviewer === '' && allreviewers.length === 0,
-                        'bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800':
-                            labelreviewer !== '' || allreviewers.length > 0
-                    }"
-                    class="absolute bottom-0 right-0 w-full mt-2 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2"
-                    @click="NextStep(2)"
-                >
-                    Next Step: Review
-                </button>
             </div>
+
             <div v-if="uploadstatus === 2" class="relative h-full">
                 <h1 class="text-3xl font-bold dark:text-white mb-4">Review information</h1>
                 <div class="sm:col-span-2">
@@ -671,17 +853,33 @@ onMounted(() => {
                         </li>
                     </ul>
                 </div>
-                <div v-if="labelreviewer" class="w-full">
-                    <label
-                        class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white inline-flex items-center"
-                        >Assigned label</label
+                <div v-if="labelid !== -1" class="w-full">
+                    <div
+                        class="w-max max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
                     >
-                    <input
-                        v-model="labelreviewer"
-                        class="mb-6 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-400"
-                        disabled
-                        type="text"
-                    />
+                        <div class="flex flex-col items-center p-10">
+                            <img
+                                alt="Bonnie image"
+                                class="w-24 h-24 mb-3 rounded-full shadow-lg"
+                                src="https://skybass.nl/wp-content/uploads/2023/01/SkyBass-Logo.png"
+                            />
+                            <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">
+                                {{ labels[labelid].name }}
+                            </h5>
+                            <span class="text-sm text-gray-600 dark:text-gray-300">{{ labels[labelid].genre }}</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">{{
+                                labels[labelid].description.slice(0, 100)
+                            }}</span>
+                            <div class="flex mt-4 md:mt-6">
+                                <a
+                                    :href="labels[labelid].websiteUrl"
+                                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-700 dark:focus:ring-gray-700 ms-3"
+                                    target="_blank"
+                                    >View website</a
+                                >
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <button
                     class="absolute bottom-0 right-0 w-full mt-2 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800"
@@ -689,43 +887,6 @@ onMounted(() => {
                 >
                     Submit Track
                 </button>
-                <!-- <div class="flex flex-row gap-4 mb-6">
-                    <button
-                        class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
-                        @click="play"
-                    >
-                        Play
-                    </button>
-                    <button
-                        class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
-                        @click="pause"
-                    >
-                        Pause
-                    </button>
-                    <button
-                        class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
-                        @click="seek(0)"
-                    >
-                        Stop
-                    </button>
-                </div>
-                <div>
-                    <AVWaveform
-                        :key="componentKey"
-                        ref="audioPlayer"
-                        :audio-controls="false"
-                        :canv-height="200"
-                        :canv-width="800"
-                        :ftt-size="2048"
-                        :noplayed-line-color="'#4F46E5'"
-                        :played-line-color="'#4f46e5'"
-                        :playtime="false"
-                        :playtime-slider-color="'#d5540f'"
-                        :playtime-slider-width="5"
-                        :src="'file:///Users/kiran/Projects/HHS/ID%20-%20Audiofeedback/Audio/yuo.are.hiv.aladeen.mp3'"
-                        cors-anonym
-                    ></AVWaveform>
-                </div> -->
             </div>
             <div v-if="uploadstatus === 3" class="flex flex-col items-center mt-14 w-full h-full">
                 <div v-if="sendSuccess" class="flex flex-col items-center justify-center mb-4">
