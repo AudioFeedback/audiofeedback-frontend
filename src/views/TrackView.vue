@@ -20,7 +20,7 @@ const description = ref<string>("");
 const audiofile = ref<File | null>(null);
 const ShowOverlay = ref<any>();
 const userinfo = ref<Components.Schemas.GetUserDto>();
-const trackVersion = ref<number | null>(0);
+const trackVersion = ref<number>(0);
 
 const setTab = (tab: number) => {
     activeTab.value = tab;
