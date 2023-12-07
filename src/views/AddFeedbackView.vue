@@ -26,7 +26,7 @@ const feedbackId = ref<number>(0);
 const localfeedbackId = ref<number>(0);
 const succesmessage = ref<string | null>(null);
 const confirmDeletion = ref<boolean>(false);
-const deleteID = ref<number | null>(null);
+const deleteID = ref<number>(0);
 const publishFeedbackModal = ref<boolean>(false);
 
 const forceRerender = () => {
@@ -81,6 +81,7 @@ const editFeedback = async (localid: number) => {
         alert("Please change something");
         return;
     }
+    if(!trackinfo.value?.trackversions[0].feedback[localid].timestamp) return;
 
     const reponse = await updateFeedback(feedbackId.value, {
         rating: rating.value,
@@ -114,6 +115,8 @@ const setToast = (message: string) => {
 };
 
 const setEditModal = (id: number, localid: number) => {
+    if(!trackinfo.value?.trackversions[0].feedback[localid]) return;
+
     if(showEditModal.value === true) {
         showEditModal.value = false;
         feedbackId.value = id;
@@ -463,7 +466,7 @@ const getUserInfo = async () => {
             </div>
         </div>
         <div v-if="trackinfo?.trackversions[0].feedback.length === 0">Feedback will appear here</div>
-        <div v-if="trackinfo?.trackversions[0].feedback.length > 0" class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12">
+        <div v-if="trackinfo && trackinfo.trackversions[0]?.feedback.length > 0"  class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12">
             <table aria-label="Feedback table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
