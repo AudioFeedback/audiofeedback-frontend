@@ -12,7 +12,6 @@ let uploadedtrackid = ref<number>(0);
 const name = ref<string>("");
 const genre = ref<string>("");
 const audiofile = ref<File | null>(null);
-const labelreviewer = ref<string>("");
 const labelid = ref<number>(-1);
 const reviewers = ref<Components.Schemas.GetUserDto | string>("noreviewers"); //change
 const allreviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
@@ -88,9 +87,7 @@ const selectLabel = (labelId: number) => {
 };
 
 const AddReviewer = () => {
-    labelid.value = -1;
-
-    if (typeof reviewers.value === "string") {
+    if (reviewers.value === "noreviewers") {
         return;
     }
 
@@ -102,6 +99,7 @@ const AddReviewer = () => {
     }
     revieweralreadyadded.value = false;
     allreviewers.value.push(reviewers.value);
+    console.log(allreviewers.value.length);
 };
 
 const RemoveReviewer = (reviewer: Components.Schemas.GetUserDto) => {
@@ -173,9 +171,7 @@ const NextStep = (step: number) => {
     }
 
     if (step == 2) {
-        selectReviewerType(0);
-        console.log(labelid.value);
-        if (labelreviewer.value == "" && allreviewers.value.length == 0 && labelid.value === -1) {
+        if (allreviewers.value.length === 0 && labelid.value === -1) {
             alert("Please enter an label or select a reviewer");
             return;
         }
@@ -192,13 +188,13 @@ const NextStep = (step: number) => {
 
 const selectReviewerType = (step: number) => {
     if (step === 0) {
-        labelid.value = 0;
+        labelid.value = -1;
         allreviewers.value = [];
         uploadtolabelstep.value = 0;
     }
 
     if (step === 1) {
-        labelid.value = 0;
+        labelid.value = -1;
         uploadtolabelstep.value = 1;
     }
 
@@ -579,28 +575,7 @@ onMounted(() => {
                     >
                         Go back
                     </button>
-
                     <h1 class="text-3xl font-bold dark:text-white mb-4">Assign reviewers to "{{ name }}".</h1>
-                    <div>
-                        <label
-                            class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white"
-                            for="label-reviewer"
-                            >Add email of label</label
-                        >
-                        <input
-                            id="label-reviewer"
-                            v-model="labelreviewer"
-                            aria-describedby="helper-text-explanation"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder="name@muzieklabel.com"
-                            type="email"
-                        />
-                        <p id="label-reviewer-explanation" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                            The label will assign individual reviewers, and will send the track back once all reviewers
-                            have given feedback.
-                        </p>
-                    </div>
-                    <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
                     <div>
                         <label
                             class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white inline-flex items-center"
@@ -608,15 +583,10 @@ onMounted(() => {
                         >
                             Add Reviewers</label
                         >
-                        <p
-                            v-if="labelreviewer.length > 0"
-                            id="label-reviewer-explanation"
-                            class="mt-2 text-sm text-gray-500 dark:text-gray-400"
-                        >
+                        <p id="label-reviewer-explanation" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                             You cannot add individual reviewers when assigning an label.
                         </p>
                         <select
-                            v-if="labelreviewer.length <= 0"
                             id="reviewers"
                             v-model="reviewers"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -632,27 +602,23 @@ onMounted(() => {
                             </option>
                         </select>
                         <button
-                            v-if="labelreviewer.length <= 0"
                             :class="{
-                                'text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800':
-                                    labelreviewer.length < 0 || labelreviewer.length === 0,
-                                'bg-gray-400 text-gray-900 dark:text-white': labelreviewer.length > 0,
+                                'text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800': true,
                                 '!bg-gray-400 pointer-events-none': reviewers === 'noreviewers'
                             }"
-                            :disabled="labelreviewer.length > 0"
                             class="w-full mt-2 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                             @click="AddReviewer()"
                         >
                             Add reviewer
                         </button>
-                        <div v-if="labelreviewer.length <= 0 && revieweralreadyadded">
+                        <div v-if="revieweralreadyadded">
                             <p
                                 class="bg-red-100 !mt-2 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
                             >
                                 Reviewer already added
                             </p>
                         </div>
-                        <div v-if="labelreviewer.length <= 0">
+                        <div>
                             <ul
                                 v-for="(reviewer, i) in allreviewers"
                                 :key="i"
@@ -706,9 +672,9 @@ onMounted(() => {
                     </div>
                     <button
                         :class="{
-                            'bg-gray-400 pointer-events-none': labelreviewer === '' && allreviewers.length === 0,
+                            'bg-gray-400 pointer-events-none': allreviewers.length === 0,
                             'bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800':
-                                labelreviewer !== '' || allreviewers.length > 0
+                                allreviewers.length > 0
                         }"
                         class="absolute bottom-0 right-0 w-full mt-2 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2"
                         @click="NextStep(2)"
@@ -859,9 +825,9 @@ onMounted(() => {
                     >
                         <div class="flex flex-col items-center p-10">
                             <img
-                                alt="Bonnie image"
+                                :src="labels[labelid].profilePicture"
+                                alt="Label image"
                                 class="w-24 h-24 mb-3 rounded-full shadow-lg"
-                                src="https://skybass.nl/wp-content/uploads/2023/01/SkyBass-Logo.png"
                             />
                             <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">
                                 {{ labels[labelid].name }}
