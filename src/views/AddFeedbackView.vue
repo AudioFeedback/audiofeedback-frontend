@@ -24,9 +24,9 @@ const submitted = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
 const feedbackId = ref<number>(0);
 const localfeedbackId = ref<number>(0);
-const succesmessage = ref<string>("");
+const succesmessage = ref<string | null>(null);
 const confirmDeletion = ref<boolean>(false);
-const deleteID = ref<number>(0);
+const deleteID = ref<number | null>(null);
 const publishFeedbackModal = ref<boolean>(false);
 
 const forceRerender = () => {
@@ -109,7 +109,7 @@ const setToast = (message: string) => {
     if(message.length > 0) {
         succesmessage.value = message;
     } else {
-        succesmessage.value = ""
+        succesmessage.value = null
     }
 };
 
@@ -718,7 +718,7 @@ const getUserInfo = async () => {
             </div>
 
             <!--succes toast-->
-            <div v-if='succesmessage.length > 0' id="toast-success" class="fixed top-10 right-4 flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
+            <div v-if='succesmessage' id="toast-success" class="fixed top-10 right-4 flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
                 <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
