@@ -6,8 +6,8 @@ on: [ workflow_call ]
 jobs:
   test:
     permissions:
-      contents: read
-      id-token: write
+      contents: 'read'
+      id-token: 'write'
 
     runs-on: ubuntu-latest
 
