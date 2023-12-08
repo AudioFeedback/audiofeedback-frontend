@@ -3,6 +3,7 @@ import { getProfile } from "@/services/app.service";
 import { createFeedback, publishFeedback } from "@/services/feedback.service";
 import { getTrack, getTrackReviewer } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
+import { onKeyStroke } from "@vueuse/core";
 import { onBeforeMount, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 
@@ -133,6 +134,22 @@ const seek = (seconds: number) => {
         audioElement.pause();
     }
 };
+
+onKeyStroke(" ", (e) => {
+    e.preventDefault();
+
+    if (!audioPlayer.value) {
+        return;
+    }
+
+    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
+
+    if (audioElement.paused) {
+        return play();
+    }
+
+    return pause();
+});
 
 const emit = defineEmits(["refreshFeedback"]);
 
