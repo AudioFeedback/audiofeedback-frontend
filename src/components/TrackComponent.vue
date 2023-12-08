@@ -35,6 +35,8 @@ const userinfo = ref<Components.Schemas.GetUserDto>();
 const submitted = ref<boolean>(false);
 const showSubmitButton = ref<boolean>(false);
 
+const isPlaying = ref<boolean>(false);
+
 const checkSubmitted = async () => {
     const response = await getTrackReviewer(props.id);
 
@@ -103,23 +105,20 @@ onBeforeMount(() => {
     window.addEventListener("resize", forceRerender);
 });
 
-const play = () => {
+const playpause = () => {
     if (!audioPlayer.value) {
         return;
     }
 
     const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
 
-    audioElement.play();
-};
-
-const pause = () => {
-    if (!audioPlayer.value) {
-        return;
+    if (audioElement.paused) {
+        audioElement.play();
+        return (isPlaying.value = true);
     }
 
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
     audioElement.pause();
+    return (isPlaying.value = false);
 };
 
 const seek = (seconds: number) => {
@@ -131,24 +130,14 @@ const seek = (seconds: number) => {
 
     audioElement.currentTime = seconds;
     if (!audioElement.paused) {
-        audioElement.pause();
+        playpause();
     }
 };
 
 onKeyStroke(" ", (e) => {
     e.preventDefault();
 
-    if (!audioPlayer.value) {
-        return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-
-    if (audioElement.paused) {
-        return play();
-    }
-
-    return pause();
+    playpause();
 });
 
 const emit = defineEmits(["refreshFeedback"]);
@@ -225,24 +214,51 @@ defineExpose({ seek });
                 >{{ trackdata?.genre }}</span
             >
         </h1>
-        <div class="flex flex-row gap-4 mb-6">
+        <div class="flex flex-row gap-2 mb-6">
             <button
-                class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
-                @click="play"
+                class="text-white p-1 bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                @click="playpause"
             >
-                Play
+                <svg
+                    v-if="!isPlaying"
+                    aria-hidden="true"
+                    class="w-5 h-5 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 14 16"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path
+                        d="M0 .984v14.032a1 1 0 0 0 1.506.845l12.006-7.016a.974.974 0 0 0 0-1.69L1.506.139A1 1 0 0 0 0 .984Z"
+                    />
+                </svg>
+                <svg
+                    v-if="isPlaying"
+                    aria-hidden="true"
+                    class="w-5 h-5 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 10 16"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path
+                        clip-rule="evenodd"
+                        d="M0 .8C0 .358.32 0 .714 0h1.429c.394 0 .714.358.714.8v14.4c0 .442-.32.8-.714.8H.714a.678.678 0 0 1-.505-.234A.851.851 0 0 1 0 15.2V.8Zm7.143 0c0-.442.32-.8.714-.8h1.429c.19 0 .37.084.505.234.134.15.209.354.209.566v14.4c0 .442-.32.8-.714.8H7.857c-.394 0-.714-.358-.714-.8V.8Z"
+                        fill-rule="evenodd"
+                    />
+                </svg>
             </button>
             <button
-                class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
-                @click="pause"
-            >
-                Pause
-            </button>
-            <button
-                class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                class="text-white p-1 bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                 @click="seek(0)"
             >
-                Stop
+                <svg
+                    aria-hidden="true"
+                    class="w-5 h-5 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 16 16"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <rect height="100" width="100"></rect>
+                </svg>
             </button>
 
             <div v-if="feedback && showSubmitButton" class="w-full flex justify-end">
