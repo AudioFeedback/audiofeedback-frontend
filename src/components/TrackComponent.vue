@@ -136,7 +136,7 @@ const seek = (seconds: number) => {
 };
 
 onKeyStroke(" ", (e) => {
-    if (selectedpercentageleft.value && selectedpercentageleft.value > 0) {
+    if (selectedpercentageleft.value && selectedpercentageleft.value > 0 && props.feedback) {
         return;
     }
 
