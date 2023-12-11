@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { getAllLabels, getLabelById } from "@/services/label.service";
 import { getReviewers } from "@/services/users.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
@@ -12,7 +13,7 @@ let uploadedtrackid = ref<number>(0);
 const name = ref<string>("");
 const genre = ref<string>("");
 const audiofile = ref<File | null>(null);
-const labelid = ref<number>(-1);
+const selectedLabel = ref<Components.Schemas.GetLabelDto | null>(null);
 const reviewers = ref<Components.Schemas.GetUserDto | "noreviewers">("noreviewers"); //change
 const allreviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
 const possiblereviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
@@ -23,43 +24,7 @@ const componentKey = ref(0);
 const uploadstatus = ref<number>(0);
 const uploadtolabelstep = ref<number>(0);
 
-const labels = [
-    {
-        id: 0,
-        name: "Foo recordings",
-        websiteUrl: "https://foo.bar/foo",
-        description: "Foo recordings is a house record label.",
-        genre: "House",
-        profilePicture: "https://cdn.dribbble.com/users/196077/screenshots/1642569/foo_dribble.png"
-    },
-    {
-        id: 1,
-        name: "Bar recordings",
-        websiteUrl: "https://foo.bar/bar",
-        description: "Bar recordings is a drum & bass record label.",
-        genre: "Drum and Bass",
-        profilePicture:
-            "https://www.shutterstock.com/image-vector/bar-lettering-illustration-label-badge-600nw-1034296870.jpg"
-    },
-    {
-        id: 2,
-        name: "Lorem recordings",
-        websiteUrl: "https://foo.bar/lorem",
-        description: "Lorem recordings is a garage record label.",
-        genre: "Drum and Bass",
-        profilePicture:
-            "https://img.freepik.com/premium-vector/logo-lorem-ipsum-slogan-design-art-template_642953-154.jpg"
-    },
-    {
-        id: 3,
-        name: "Ipsum recordings",
-        websiteUrl: "https://foo.bar/ipsum",
-        description: "Ipsum recordings is a t*chno record label.",
-        genre: "Drum and Bass",
-        profilePicture:
-            "https://img.freepik.com/premium-vector/logo-lorem-ipsum-slogan-design-art-template_642953-154.jpg"
-    }
-];
+const labels = ref<Array<Components.Schemas.GetLabelDto>>([]);
 
 const forceRerender = () => {
     componentKey.value += 1;
@@ -80,9 +45,10 @@ const handleFileChange = (event: Event) => {
     }
 };
 
-const selectLabel = (labelId: number) => {
-    labelid.value = labelId;
+const selectLabel = async (labelId: number) => {
     allreviewers.value = [];
+    const response = await getLabelById(labelId);
+    selectedLabel.value = response.data;
     NextStep(2);
 };
 
@@ -114,9 +80,14 @@ const getReviewer = async () => {
     forceRerender();
 };
 
+const getLabels = async () => {
+    const response = await getAllLabels();
+    labels.value = response.data;
+};
+
 const submitData = async () => {
     try {
-        if (labelid.value === -1 && allreviewers.value.length === 0) {
+        if (!selectedLabel.value && allreviewers.value.length === 0) {
             return;
         }
 
@@ -125,11 +96,11 @@ const submitData = async () => {
         body.set("genre", genre.value);
         body.set("file", audiofile.value!);
 
-        if (labelid.value !== -1 && allreviewers.value.length === 0) {
-            body.set("labelId", labelid.value.toString());
+        if (selectedLabel.value && allreviewers.value.length === 0) {
+            body.set("labelId", selectedLabel.value.id.toString());
         }
 
-        if (labelid.value === -1 && allreviewers.value.length > 0) {
+        if (!selectedLabel.value && allreviewers.value.length > 0) {
             body.set("reviewerIds", allreviewers.value.map((reviewer) => reviewer.id).join(","));
         }
 
@@ -170,7 +141,7 @@ const NextStep = (step: number) => {
     }
 
     if (step == 2) {
-        if (allreviewers.value.length === 0 && labelid.value === -1) {
+        if (allreviewers.value.length === 0 && !selectedLabel.value) {
             alert("Please enter an label or select a reviewer");
             return;
         }
@@ -187,13 +158,13 @@ const NextStep = (step: number) => {
 
 const selectReviewerType = (step: number) => {
     if (step === 0) {
-        labelid.value = -1;
+        selectedLabel.value = null;
         allreviewers.value = [];
         uploadtolabelstep.value = 0;
     }
 
     if (step === 1) {
-        labelid.value = -1;
+        selectedLabel.value = null;
         uploadtolabelstep.value = 1;
     }
 
@@ -205,6 +176,7 @@ const selectReviewerType = (step: number) => {
 
 onMounted(() => {
     getReviewer();
+    getLabels();
 });
 </script>
 
@@ -835,22 +807,22 @@ onMounted(() => {
                         </li>
                     </ul>
                 </div>
-                <div v-if="labelid !== -1" class="w-full">
+                <div v-if="selectedLabel" class="w-full">
                     <div
                         class="w-1/2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
                     >
                         <div class="flex flex-col items-center p-10">
                             <img
-                                :src="labels[labelid].profilePicture"
+                                :src="selectedLabel.profilePicture"
                                 alt="Label image"
                                 class="w-24 h-24 mb-3 rounded-full shadow-lg"
                             />
                             <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">
-                                {{ labels[labelid].name }}
+                                {{ selectedLabel.name }}
                             </h5>
-                            <span class="text-sm text-gray-600 dark:text-gray-300">{{ labels[labelid].genre }}</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-300">{{ selectedLabel.genre }}</span>
                             <span class="text-sm text-gray-500 dark:text-gray-400">{{
-                                labels[labelid].description.slice(0, 100)
+                                selectedLabel.description.slice(0, 100)
                             }}</span>
                         </div>
                     </div>

@@ -113,14 +113,6 @@ declare namespace Components {
             fullUrl: string;
             duration: number;
         }
-        export interface GetTrackWithAuthorAndReviewersDto {
-            id: number;
-            title: string;
-            genre: string;
-            trackversions: GetTrackVersionDto[];
-            author: GetUserDto;
-            reviewers: GetUserDto[];
-        }
         export interface GetTrackWithAuthorDto {
             id: number;
             title: string;
@@ -224,9 +216,36 @@ declare namespace Paths {
             }
         }
     }
+    namespace LabelsControllerGetAllTracksForLabel {
+        namespace Parameters {
+            export type Id = number;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
+        namespace Responses {
+            export type $200 = Components.Schemas.GetTrackDto[];
+        }
+    }
     namespace LabelsControllerGetInvites {
         namespace Responses {
             export type $200 = Components.Schemas.GetLabelMemberWithLabelDto[];
+        }
+    }
+    namespace LabelsControllerGetLabelById {
+        namespace Parameters {
+            export type Id = number;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
+        namespace Responses {
+            export type $200 = Components.Schemas.GetLabelDto;
+        }
+    }
+    namespace LabelsControllerGetLabels {
+        namespace Responses {
+            export type $200 = Components.Schemas.GetLabelDto[];
         }
     }
     namespace TracksControllerAudio {
@@ -246,10 +265,12 @@ declare namespace Paths {
             title?: string;
             genre?: string;
             reviewerIds?: number[];
+            labelId?: number;
             file?: string; // binary
         }
         namespace Responses {
-            export type $201 = Components.Schemas.GetTrackWithAuthorAndReviewersDto;
+            export interface $201 {
+            }
         }
     }
     namespace TracksControllerCreateNewVersion {
@@ -489,6 +510,30 @@ export interface OperationMethods {
     data?: any,
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.LabelsControllerGetInvites.Responses.$200>
+  /**
+   * LabelsController_getLabels
+   */
+  'LabelsController_getLabels'(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: any,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.LabelsControllerGetLabels.Responses.$200>
+  /**
+   * LabelsController_getLabelById
+   */
+  'LabelsController_getLabelById'(
+    parameters?: Parameters<Paths.LabelsControllerGetLabelById.PathParameters> | null,
+    data?: any,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.LabelsControllerGetLabelById.Responses.$200>
+  /**
+   * LabelsController_getAllTracksForLabel
+   */
+  'LabelsController_getAllTracksForLabel'(
+    parameters?: Parameters<Paths.LabelsControllerGetAllTracksForLabel.PathParameters> | null,
+    data?: any,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.LabelsControllerGetAllTracksForLabel.Responses.$200>
 }
 
 export interface PathsDictionary {
@@ -675,6 +720,36 @@ export interface PathsDictionary {
       data?: any,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.LabelsControllerGetInvites.Responses.$200>
+  }
+  ['/labels']: {
+    /**
+     * LabelsController_getLabels
+     */
+    'get'(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: any,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.LabelsControllerGetLabels.Responses.$200>
+  }
+  ['/labels/{id}']: {
+    /**
+     * LabelsController_getLabelById
+     */
+    'get'(
+      parameters?: Parameters<Paths.LabelsControllerGetLabelById.PathParameters> | null,
+      data?: any,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.LabelsControllerGetLabelById.Responses.$200>
+  }
+  ['/labels/{id}/tracks']: {
+    /**
+     * LabelsController_getAllTracksForLabel
+     */
+    'get'(
+      parameters?: Parameters<Paths.LabelsControllerGetAllTracksForLabel.PathParameters> | null,
+      data?: any,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.LabelsControllerGetAllTracksForLabel.Responses.$200>
   }
 }
 
