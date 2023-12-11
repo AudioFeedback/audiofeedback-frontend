@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { getProfile } from "@/services/app.service";
-import { deleteUser, updateUser } from "@/services/users.service";
 import type { Components } from "@/types/openapi";
 import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
@@ -25,16 +24,16 @@ const getUserInfo = async () => {
 };
 
 const deleteAccount = async () => {
-    const response = await deleteUser(userinfo.value.id as number);
-
-    if (response.status === 200) {
-        confirmDeletion.value = false;
-        localStorage.removeItem("token");
-        window.location.href = "/";
-    } else {
-        alert("Something went wrong, please try again");
-        confirmDeletion.value = false;
-    }
+    //     const response = await deleteUser(userinfo.value.id as number);
+    //
+    //     if (response.status === 200) {
+    //         confirmDeletion.value = false;
+    //         localStorage.removeItem("token");
+    //         window.location.href = "/";
+    //     } else {
+    //         alert("Something went wrong, please try again");
+    //         confirmDeletion.value = false;
+    //     }
 };
 
 const validatePassword = async () => {
@@ -49,7 +48,7 @@ const validatePassword = async () => {
 const checkFormValid = async () => {
     try {
         if (password_match.value) {
-            editUser();
+            // editUser();
             return;
         }
     } catch (error) {
@@ -60,28 +59,28 @@ const checkFormValid = async () => {
 };
 
 const editUser = async () => {
-    try {
-        const response = await updateUser(
-            {
-                username: username.value ?? userinfo.value.username,
-                firstname: firstname.value ?? userinfo.value.firstname,
-                lastname: lastname.value ?? userinfo.value.lastname,
-                password: password.value
-            },
-            userinfo.value.id as number
-        );
-
-        if (!response) {
-            return;
-        } else {
-            alert("Account updated");
-            return;
-        }
-    } catch (error) {
-        console.log(error);
-        alert("Something went wrong, please try again");
-        return;
-    }
+    //     try {
+    //         const response = await updateUser(
+    //             {
+    //                 username: username.value ?? userinfo.value.username,
+    //                 firstname: firstname.value ?? userinfo.value.firstname,
+    //                 lastname: lastname.value ?? userinfo.value.lastname,
+    //                 password: password.value
+    //             },
+    //             userinfo.value.id as number
+    //         );
+    //
+    //         if (!response) {
+    //             return;
+    //         } else {
+    //             alert("Account updated");
+    //             return;
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         alert("Something went wrong, please try again");
+    //         return;
+    //     }
 };
 
 onMounted(() => getUserInfo());
