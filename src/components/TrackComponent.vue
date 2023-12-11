@@ -25,7 +25,7 @@ const trackdata = ref<Components.Schemas.GetTrackDeepDto | Components.Schemas.Ge
 const audioPlayer = ref<AVWaveform | null>(null);
 const trackVersion = ref<number>(0);
 
-const selectedpercentageleft = ref<any>(0);
+const selectedpercentageleft = ref<number | null>(0);
 const selectedTimeStamp = ref<number>(0);
 const closepopup = ref<boolean>(false);
 const rating = ref<boolean>(true);
@@ -91,6 +91,7 @@ const GetPointerLocation = () => {
         closepopup.value = false;
         return;
     }
+
     const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
     selectedpercentageleft.value = (audioElement.currentTime / audioElement.duration) * 100;
     selectedTimeStamp.value = audioElement.currentTime / audioElement.duration;
@@ -135,6 +136,10 @@ const seek = (seconds: number) => {
 };
 
 onKeyStroke(" ", (e) => {
+    if (selectedpercentageleft.value && selectedpercentageleft.value > 0) {
+        return;
+    }
+
     e.preventDefault();
 
     playpause();
@@ -166,7 +171,6 @@ const submitFeedback = async () => {
         rating.value = true;
         comments.value = "";
         selectedTimeStamp.value = 0;
-
         emit("refreshFeedback");
         await checkSubmitted();
     } catch (error) {

@@ -399,7 +399,7 @@ const getUserInfo = async () => {
                                     type="button"
                                     @click="changeVersion(track.versionNumber)"
                                 >
-                                    View track
+                                    View track - version {{ track.versionNumber }}
                                     <svg
                                         aria-hidden="true"
                                         class="rtl:rotate-180 w-3.5 h-3.5 ms-2"

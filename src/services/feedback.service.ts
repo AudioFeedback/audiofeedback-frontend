@@ -27,5 +27,5 @@ export async function updateFeedback(
 export async function deleteFeedback(id: Paths.FeedbackControllerRemove.Parameters.Id) {
     const client = await APIClient();
 
-    return client.UsersController_update(id);
+    return client.FeedbackController_remove(id);
 }

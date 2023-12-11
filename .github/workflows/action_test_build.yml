@@ -27,3 +27,10 @@ jobs:
 
       - name: Run build
         run: pnpm run build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: ./dist
+          retention-days: 14
