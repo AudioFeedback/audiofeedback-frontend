@@ -8,6 +8,6 @@ export function getRoles(): Array<roles> | undefined {
     if (!token) {
         return;
     }
-    
+
     return <Array<roles>>jose.decodeJwt(token).roles ?? undefined;
 }
