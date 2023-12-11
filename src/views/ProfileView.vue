@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { getProfile } from "@/services/app.service";
-import { deleteUser, updateUser } from "@/services/users.service";
 import type { Components } from "@/types/openapi";
 import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
@@ -24,19 +23,6 @@ const getUserInfo = async () => {
     initFlowbite();
 };
 
-const deleteAccount = async () => {
-    const response = await deleteUser(userinfo.value.id as number);
-
-    if (response.status === 200) {
-        confirmDeletion.value = false;
-        localStorage.removeItem("token");
-        window.location.href = "/";
-    } else {
-        alert("Something went wrong, please try again");
-        confirmDeletion.value = false;
-    }
-};
-
 const validatePassword = async () => {
     if (password.value !== confirm_password.value) {
         password_match.value = false;
@@ -49,32 +35,6 @@ const validatePassword = async () => {
 const checkFormValid = async () => {
     try {
         if (password_match.value) {
-            editUser();
-            return;
-        }
-    } catch (error) {
-        console.log(error);
-        alert("Something went wrong, please try again");
-        return;
-    }
-};
-
-const editUser = async () => {
-    try {
-        const response = await updateUser(
-            {
-                username: username.value ?? userinfo.value.username,
-                firstname: firstname.value ?? userinfo.value.firstname,
-                lastname: lastname.value ?? userinfo.value.lastname,
-                password: password.value
-            },
-            userinfo.value.id as number
-        );
-
-        if (!response) {
-            return;
-        } else {
-            alert("Account updated");
             return;
         }
     } catch (error) {
@@ -274,7 +234,6 @@ onMounted(() => getUserInfo());
                                     </h3>
                                     <button
                                         class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
-                                        @click="deleteAccount()"
                                     >
                                         Yes, I'm sure
                                     </button>
