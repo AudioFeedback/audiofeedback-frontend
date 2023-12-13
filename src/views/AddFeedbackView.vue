@@ -69,10 +69,33 @@ const submitFeedback = async () => {
 };
 
 const generalfeedback = async () => {
-    console.log("F U");
-    giveGeneralFeedback.value = true;
-    if (giveGeneralFeedback.value === true){
-        console.log("no u");
+    if(giveGeneralFeedback.value === true){
+        try {
+            if (!trackinfo.value || !trackversion.value) {
+                alert("Please fill in all required fields")
+                return;
+            }
+
+        const response = await createFeedback({
+                rating: rating.value,
+                comment: comments.value,
+                trackVersionId: trackversion.value.id,
+                timestamp: +selectedTimeStamp.value
+            });
+
+            const data = response.data;
+            console.log("data", data);
+            CloseGeneralFeedback();
+            rating.value = true;
+            comments.value = "";
+            selectedTimeStamp.value = 0;
+            getTrackData();
+            forceRerender();
+            await getTrackData();
+
+        } catch (error) {
+            console.error("API Error:", error);
+        }
     }
 };
 
@@ -111,6 +134,10 @@ const CloseFeedback = () => {
     selectedpercentageleft.value = null;
     closepopup.value = true;
     console.log("selectedpercentageleft", selectedpercentageleft.value);
+};
+
+const CloseGeneralFeedback = () => {
+    giveGeneralFeedback.value = !giveGeneralFeedback.value;
 };
 
 onMounted(() => {
@@ -357,7 +384,7 @@ const getUserInfo = async () => {
                                         type="radio"
                                     />
                                     <label
-                                        class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+                                        class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-600"
                                         for="hosting-big"
                                     >
                                         <img alt="thumbsdown" src="./../assets/down.svg" />
@@ -383,6 +410,92 @@ const getUserInfo = async () => {
                             >
                                 Add Feedback
                             </button>
+                        </form>
+                    </div>
+   
+                    <div v-if="giveGeneralFeedback"
+                        class="absolute left-1/3 bg-white rounded-lg dark:bg-gray-700 p-4 z-[99] drop-shadow-2xl min-w-[20em] w-fit"
+                        >
+                        <form name="feedbackform" v-on:submit.prevent="generalfeedback()">
+                            <div class="flex flex-col">
+                                <div class="flex flex-row align-items justify-between">
+                                <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">Rating</h3>
+                                <span class="cursor-pointer" @click.prevent="CloseGeneralFeedback()">
+                                    <svg
+                                        aria-hidden="true"
+                                        class="w-4 h-4 text-gray-800 dark:text-white"
+                                        fill="none"
+                                        viewBox="0 0 14 14"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                        />
+                                    </svg>
+                                </span>
+                            </div>
+                            <ul class="grid w-full gap-6 md:grid-cols-2">
+                                <li>
+                                    <input
+                                        id="rating-postive"
+                                        v-model="rating"
+                                        :value="true"
+                                        checked
+                                        class="hidden peer"
+                                        name="rating"
+                                        required
+                                        type="radio"
+                                    />
+                                    <label
+                                        class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-600"
+                                        for="rating-postive"
+                                    >  
+                                        <img alt="thumbsup" src="./../assets/up.svg" />
+                                    </label>
+                                </li>
+                                <li>
+                                    <input
+                                        id="hosting-big"
+                                        v-model="rating"
+                                        :value="false"
+                                        class="hidden peer"
+                                        name="rating"
+                                        required
+                                        type="radio"
+                                    />
+                                    <label
+                                        class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-600"
+                                        for="hosting-big"
+                                    >
+                                        <img alt="thumbsdown" src="./../assets/down.svg" />
+                                    </label>
+                                </li>
+                            </ul>
+                            <h3 class="mb-2 mt-5 text-lg font-medium text-gray-900 dark:text-white">Comments</h3>
+                            <div>
+                                <div class="mb-6 w-full">
+                                    <textarea
+                                        id="message"
+                                        v-model="comments"
+                                        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        placeholder="Write your thoughts here..."
+                                        required
+                                        rows="4"
+                                    ></textarea>
+                                </div>
+                            </div>
+                            <button
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                type="submit"
+                                
+                            >
+                                Submit general Feedback
+                            </button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -428,26 +541,59 @@ const getUserInfo = async () => {
                     </tr>
                 </tbody>
             </table>
-
-            <div class="flex-row w-full justify-center mt-8">
-                <button class="px-6 py-3.5 text-base font-medium text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                    @click="generalfeedback"
-                    >
-                    Add general feedback
-                </button>
-
-                <form class="max-w-sm mx-auto" v-if="giveGeneralFeedback">
-                    <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your message</label>
-                    <textarea id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write your thoughts here..."></textarea>
-                    <button
-                        class="mt-6 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                        type="submit"
-                        >
-                        Add Feedback
-                    </button>
-                </form>
-            </div>
         </div>
+
+        <div v-if="!giveGeneralFeedback" class="flex-row w-full justify-center mt-8">
+            <button class="px-6 py-3.5 text-base font-medium text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                @click="CloseGeneralFeedback"
+                >
+                Add general feedback
+            </button>
+        </div>
+
+        <article class="p-6 mb-6 text-base bg-white rounded-lg dark:bg-gray-900">
+            <footer class="flex justify-between items-center mb-2">
+                <div class="flex items-center">
+                    <p class="inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white"><img
+                        class="mr-2 w-6 h-6 rounded-full"
+                        src="https://flowbite.com/docs/images/people/profile-picture-2.jpg"
+                        alt="Feedbackgever">{{ userinfo?.firstname}} {{ userinfo?.lastname}} (@{{ userinfo?.username}})</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400"><time pubdate datetime="2022-02-08"
+                        title="February 8th, 2022">Feb. 8, 2022</time></p>
+                </div>
+                <button id="dropdownComment1Button" data-dropdown-toggle="dropdownComment1"
+                    class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:text-gray-400 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                    type="button">
+                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
+                        <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
+                    </svg>
+                    <span class="sr-only">Comment settings</span>
+                </button>
+                <!-- Dropdown menu -->
+                <div id="dropdownComment1"
+                    class="hidden z-10 w-36 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                        <ul class="py-1 text-sm text-gray-700 dark:text-gray-200"
+                            aria-labelledby="dropdownMenuIconHorizontalButton">
+                            <li>
+                                <a href="#"
+                                    class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</a>
+                            </li>
+                            <li>
+                                <a href="#"
+                                    class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Remove</a>
+                            </li>
+                            <li>
+                                <a href="#"
+                                    class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Report</a>
+                            </li>
+                        </ul>
+                </div>
+            </footer>
+            <p class="text-blue-600">Very straight-to-point article. Really worth time reading. Thank you! But tools are just the
+                instruments for the UX designers. The knowledge of the design tools are as important as the
+                creation of the design strategy.
+            </p>
+        </article>
     </main>
 </template>
 
