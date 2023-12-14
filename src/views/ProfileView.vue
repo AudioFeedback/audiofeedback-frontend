@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { getProfile } from "@/services/app.service";
+import { acceptInvite, getLabelInvites, declineInvite } from "@/services/label.service";
 import type { Components } from "@/types/openapi";
 import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
@@ -12,6 +13,8 @@ const lastname = ref<string>();
 const password = ref<string>();
 const confirm_password = ref<string>();
 const password_match = ref<boolean>(true);
+const invites = ref<any>();
+const labelmemberid = ref<number>(0);
 
 const getUserInfo = async () => {
     const response = await getProfile();
@@ -58,6 +61,40 @@ const checkFormValid = async () => {
     }
 };
 
+const getInvited = async () => {
+    const reponse = await getLabelInvites();
+    if (!reponse) {
+        return;
+    } else {
+        if(!reponse.data[0]){
+            return;
+        }
+        labelmemberid.value = reponse.data[0]?.id;
+        invites.value = reponse.data[0].label;
+    }
+}
+
+const acceptlabelInvite = async () => {
+  const response = await acceptInvite(invites.value.id, {
+    labelMemberId: Number(labelmemberid.value),
+  });
+  if (!response) {
+    return;
+  }
+  console.log('acceptinvite:',response.data);
+};
+
+
+const declinelabelInvite = async () => {
+  const response = await declineInvite(invites.value.id, {
+    labelMemberId: Number(labelmemberid.value),
+  });
+  if (!response) {
+    return;
+  }
+  console.log('acceptinvite:',response.data);
+};
+
 const editUser = async () => {
     //     try {
     //         const response = await updateUser(
@@ -83,7 +120,10 @@ const editUser = async () => {
     //     }
 };
 
-onMounted(() => getUserInfo());
+onMounted(async () => {
+    await getUserInfo();
+    await getInvited();
+});
 </script>
 
 <template>
@@ -196,6 +236,18 @@ onMounted(() => getUserInfo());
                             </p>
                         </div>
                     </div>
+
+                    <!--LABEL INVITES-->
+                    <div v-if='invites' class="inline-flex rounded-md flex flex-row items-center mb-4" role="group">
+                        <span class="mr-2">you have an new invite from the label "{{ invites.name }}"</span>
+                        <button @click='acceptlabelInvite()' type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-green-400 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+                            Accept
+                        </button>
+                        <button @click='declinelabelInvite()' type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 rounded-e-lg hover:bg-red-400 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+                            Decline
+                        </button>
+                    </div>
+
                     <div class="flex items-center space-x-4">
                         <button
                             class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"

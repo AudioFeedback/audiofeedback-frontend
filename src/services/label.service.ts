@@ -30,3 +30,15 @@ export async function getLabelTypeahead(query: Paths.LabelsControllerGetLabelTyp
 
     return client.LabelsController_getLabelTypeahead(query);
 }
+
+export async function acceptInvite (id: Paths.LabelsControllerAcceptInvite.Parameters.Id, userId: Paths.LabelsControllerAcceptInvite.Parameters.UserId) {
+    const client = await APIClient();
+
+    return client.LabelsController_acceptInvite(id, userId);
+}
+
+export async function declineInvite (id: Paths.LabelsControllerDeclineInvite.Parameters.Id, userId: Paths.LabelsControllerDeclineInvite.Parameters.UserId) {
+    const client = await APIClient();
+
+    return client.LabelsController_declineInvite(id, userId);
+}

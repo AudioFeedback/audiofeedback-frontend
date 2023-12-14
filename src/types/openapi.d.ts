@@ -143,6 +143,9 @@ declare namespace Components {
             tracks?: GetTrackDto[];
             feedback?: GetFeedbackDto[];
         }
+        export interface InviteUserDto {
+            userId: number;
+        }
         export interface LoginDto {
             access_token: string;
         }
@@ -150,6 +153,13 @@ declare namespace Components {
             rating: boolean;
             comment: string;
             timestamp: number;
+        }
+        export interface UpdateLabelMemberStatusDto {
+            labelMemberId: number;
+        }
+        export interface UpdateTrackDto {
+            title: string;
+            genre: string;
         }
         export interface UpdateTrackReviewersDto {
             reviewerIds: number[];
@@ -218,6 +228,32 @@ declare namespace Paths {
             }
         }
     }
+    namespace LabelsControllerAcceptInvite {
+        namespace Parameters {
+            export type Id = number;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
+        export type RequestBody = Components.Schemas.UpdateLabelMemberStatusDto;
+        namespace Responses {
+            export interface $200 {
+            }
+        }
+    }
+    namespace LabelsControllerDeclineInvite {
+        namespace Parameters {
+            export type Id = number;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
+        export type RequestBody = Components.Schemas.UpdateLabelMemberStatusDto;
+        namespace Responses {
+            export interface $200 {
+            }
+        }
+    }
     namespace LabelsControllerGetAllTracksForLabel {
         namespace Parameters {
             export type Id = number;
@@ -230,6 +266,12 @@ declare namespace Paths {
         }
     }
     namespace LabelsControllerGetAvailableReviewers {
+        namespace Parameters {
+            export type Id = number;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
         namespace Responses {
             export type $200 = Components.Schemas.GetUserDto[];
         }
@@ -264,6 +306,19 @@ declare namespace Paths {
     namespace LabelsControllerGetLabels {
         namespace Responses {
             export type $200 = Components.Schemas.GetLabelDto[];
+        }
+    }
+    namespace LabelsControllerInviteUser {
+        namespace Parameters {
+            export type Id = number;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
+        export type RequestBody = Components.Schemas.InviteUserDto;
+        namespace Responses {
+            export interface $201 {
+            }
         }
     }
     namespace TracksControllerAudio {
@@ -341,6 +396,42 @@ declare namespace Paths {
         }
         namespace Responses {
             export type $200 = Components.Schemas.GetReviewTrackDto;
+        }
+    }
+    namespace TracksControllerPublishFeedback {
+        namespace Parameters {
+            export type TrackversionId = string;
+        }
+        export interface PathParameters {
+            trackversionId: Parameters.TrackversionId;
+        }
+        namespace Responses {
+            export interface $200 {
+            }
+        }
+    }
+    namespace TracksControllerRemove {
+        namespace Parameters {
+            export type Id = string;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
+        namespace Responses {
+            export type $200 = Components.Schemas.GetTrackDto;
+        }
+    }
+    namespace TracksControllerUpdate {
+        namespace Parameters {
+            export type Id = string;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
+        export type RequestBody = Components.Schemas.UpdateTrackDto;
+        namespace Responses {
+            export interface $200 {
+            }
         }
     }
     namespace TracksControllerUpdateReviewers {
@@ -440,6 +531,14 @@ export interface OperationMethods {
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.TracksControllerFindOne.Responses.$200>
   /**
+   * TracksController_remove
+   */
+  'TracksController_remove'(
+    parameters?: Parameters<Paths.TracksControllerRemove.PathParameters> | null,
+    data?: any,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.TracksControllerRemove.Responses.$200>
+  /**
    * TracksController_getReviewTrack
    */
   'TracksController_getReviewTrack'(
@@ -463,6 +562,22 @@ export interface OperationMethods {
     data?: Paths.TracksControllerUpdateReviewers.RequestBody,
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.TracksControllerUpdateReviewers.Responses.$200>
+  /**
+   * TracksController_publishFeedback
+   */
+  'TracksController_publishFeedback'(
+    parameters?: Parameters<Paths.TracksControllerPublishFeedback.PathParameters> | null,
+    data?: any,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.TracksControllerPublishFeedback.Responses.$200>
+  /**
+   * TracksController_update
+   */
+  'TracksController_update'(
+    parameters?: Parameters<Paths.TracksControllerUpdate.PathParameters> | null,
+    data?: Paths.TracksControllerUpdate.RequestBody,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.TracksControllerUpdate.Responses.$200>
   /**
    * UsersController_findAll
    */
@@ -528,6 +643,30 @@ export interface OperationMethods {
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.LabelsControllerGetInvites.Responses.$200>
   /**
+   * LabelsController_inviteUser
+   */
+  'LabelsController_inviteUser'(
+    parameters?: Parameters<Paths.LabelsControllerInviteUser.PathParameters> | null,
+    data?: Paths.LabelsControllerInviteUser.RequestBody,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.LabelsControllerInviteUser.Responses.$201>
+  /**
+   * LabelsController_acceptInvite
+   */
+  'LabelsController_acceptInvite'(
+    parameters?: Parameters<Paths.LabelsControllerAcceptInvite.PathParameters> | null,
+    data?: Paths.LabelsControllerAcceptInvite.RequestBody,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.LabelsControllerAcceptInvite.Responses.$200>
+  /**
+   * LabelsController_declineInvite
+   */
+  'LabelsController_declineInvite'(
+    parameters?: Parameters<Paths.LabelsControllerDeclineInvite.PathParameters> | null,
+    data?: Paths.LabelsControllerDeclineInvite.RequestBody,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.LabelsControllerDeclineInvite.Responses.$200>
+  /**
    * LabelsController_getLabels
    */
   'LabelsController_getLabels'(
@@ -555,7 +694,7 @@ export interface OperationMethods {
    * LabelsController_getAvailableReviewers
    */
   'LabelsController_getAvailableReviewers'(
-    parameters?: Parameters<UnknownParamsObject> | null,
+    parameters?: Parameters<Paths.LabelsControllerGetAvailableReviewers.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.LabelsControllerGetAvailableReviewers.Responses.$200>
@@ -647,6 +786,14 @@ export interface PathsDictionary {
       data?: any,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.TracksControllerFindOne.Responses.$200>
+    /**
+     * TracksController_remove
+     */
+    'delete'(
+      parameters?: Parameters<Paths.TracksControllerRemove.PathParameters> | null,
+      data?: any,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.TracksControllerRemove.Responses.$200>
   }
   ['/tracks/review/{id}']: {
     /**
@@ -677,6 +824,26 @@ export interface PathsDictionary {
       data?: Paths.TracksControllerUpdateReviewers.RequestBody,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.TracksControllerUpdateReviewers.Responses.$200>
+  }
+  ['/tracks/{trackversionId}/publish']: {
+    /**
+     * TracksController_publishFeedback
+     */
+    'patch'(
+      parameters?: Parameters<Paths.TracksControllerPublishFeedback.PathParameters> | null,
+      data?: any,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.TracksControllerPublishFeedback.Responses.$200>
+  }
+  ['/tracks/{id}/update']: {
+    /**
+     * TracksController_update
+     */
+    'patch'(
+      parameters?: Parameters<Paths.TracksControllerUpdate.PathParameters> | null,
+      data?: Paths.TracksControllerUpdate.RequestBody,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.TracksControllerUpdate.Responses.$200>
   }
   ['/users']: {
     /**
@@ -754,6 +921,36 @@ export interface PathsDictionary {
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.LabelsControllerGetInvites.Responses.$200>
   }
+  ['/labels/{id}/invite']: {
+    /**
+     * LabelsController_inviteUser
+     */
+    'post'(
+      parameters?: Parameters<Paths.LabelsControllerInviteUser.PathParameters> | null,
+      data?: Paths.LabelsControllerInviteUser.RequestBody,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.LabelsControllerInviteUser.Responses.$201>
+  }
+  ['/labels/{id}/accept']: {
+    /**
+     * LabelsController_acceptInvite
+     */
+    'patch'(
+      parameters?: Parameters<Paths.LabelsControllerAcceptInvite.PathParameters> | null,
+      data?: Paths.LabelsControllerAcceptInvite.RequestBody,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.LabelsControllerAcceptInvite.Responses.$200>
+  }
+  ['/labels/{id}/decline']: {
+    /**
+     * LabelsController_declineInvite
+     */
+    'patch'(
+      parameters?: Parameters<Paths.LabelsControllerDeclineInvite.PathParameters> | null,
+      data?: Paths.LabelsControllerDeclineInvite.RequestBody,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.LabelsControllerDeclineInvite.Responses.$200>
+  }
   ['/labels']: {
     /**
      * LabelsController_getLabels
@@ -784,12 +981,12 @@ export interface PathsDictionary {
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.LabelsControllerGetAllTracksForLabel.Responses.$200>
   }
-  ['/labels/reviewers']: {
+  ['/labels/{id}/reviewers']: {
     /**
      * LabelsController_getAvailableReviewers
      */
     'get'(
-      parameters?: Parameters<UnknownParamsObject> | null,
+      parameters?: Parameters<Paths.LabelsControllerGetAvailableReviewers.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.LabelsControllerGetAvailableReviewers.Responses.$200>
