@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { getAllLabels, getLabelById } from "@/services/label.service";
+import { getAllLabels, getLabelById, getLabelTypeahead } from "@/services/label.service";
 import { getReviewers } from "@/services/users.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
@@ -19,6 +19,7 @@ const allreviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
 const possiblereviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
 const revieweralreadyadded = ref<boolean>(false);
 const sendSuccess = ref<boolean>(false);
+const labelQuery = ref<string>("");
 
 const componentKey = ref(0);
 const uploadstatus = ref<number>(0);
@@ -81,9 +82,17 @@ const getReviewer = async () => {
 };
 
 const getLabels = async () => {
-    const response = await getAllLabels();
-    labels.value = response.data;
+    if(!labelQuery.value || labelQuery.value === "") {
+        const response = await getAllLabels();
+        labels.value = response.data;
+    } else {
+        var query = labelQuery.value;
+        const reponse = await getLabelTypeahead(query)
+        labels.value = reponse.data;
+    }
 };
+
+
 
 const submitData = async () => {
     try {
@@ -683,10 +692,12 @@ onMounted(() => {
                                 </svg>
                             </div>
                             <input
+                                @input="getLabels"
                                 id="input-group-1"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full max-w-sm ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Search label"
                                 type="search"
+                                v-model="labelQuery"
                             />
                         </div>
                     </div>

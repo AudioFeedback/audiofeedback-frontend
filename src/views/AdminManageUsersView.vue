@@ -65,6 +65,9 @@ onMounted(() => {
                             <div class="flex items-center">Role</div>
                         </th>
                         <th class="px-6 py-3" scope="col">
+                            <div class="flex items-center">Status</div>
+                        </th>
+                        <th class="px-6 py-3" scope="col">
                             <span class="sr-only">Edit</span>
                         </th>
                     </tr>
@@ -93,6 +96,20 @@ onMounted(() => {
                         </th>
                         <td class="px-6 py-4">
                             {{ reviewer.roles[0] }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
+                                <span class="w-2 h-2 me-1 bg-green-500 rounded-full"></span>
+                                Accepted
+                        </span>
+                        <span class="inline-flex items-center bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">
+                            <span class="w-2 h-2 me-1 bg-yellow-500 rounded-full"></span>
+                            Invite Send
+                        </span>
+                        <span class="inline-flex items-center bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
+                            <span class="w-2 h-2 me-1 bg-red-500 rounded-full"></span>
+                            Declined
+                        </span>
                         </td>
                         <td class="px-6 py-4 text-right relative">
                             <button

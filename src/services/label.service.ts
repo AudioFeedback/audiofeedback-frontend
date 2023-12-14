@@ -24,3 +24,9 @@ export async function getAllTracksForLabel(id: Paths.LabelsControllerGetAllTrack
 
     return client.LabelsController_getAllTracksForLabel(id);
 }
+
+export async function getLabelTypeahead(query: Paths.LabelsControllerGetLabelTypeahead.Parameters.Query) {
+    const client = await APIClient();
+
+    return client.LabelsController_getLabelTypeahead(query);
+}
