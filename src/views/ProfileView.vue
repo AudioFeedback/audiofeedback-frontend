@@ -238,14 +238,32 @@ onMounted(async () => {
                     </div>
 
                     <!--LABEL INVITES-->
-                    <div v-if='invites' class="inline-flex rounded-md flex flex-row items-center mb-4" role="group">
-                        <span class="mr-2">you have an new invite from the label "{{ invites.name }}"</span>
-                        <button @click='acceptlabelInvite()' type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-green-400 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
-                            Accept
-                        </button>
-                        <button @click='declinelabelInvite()' type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 rounded-e-lg hover:bg-red-400 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
-                            Decline
-                        </button>
+                    <div v-if='invites' id="alert-additional-content-1" class="p-4 mb-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800" role="alert">
+                        <div class="flex items-center">
+                            <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                            </svg>
+                            <span class="sr-only">New invite</span>
+                            <h3 class="text-lg font-medium">You have an new invite from the label "{{ invites.name }}"</h3>
+                        </div>
+                        <div class="mt-2 ml-6 mb-6 text-sm">
+                            <span class="font-medium">Label information:</span>
+                                <ul class="mt-1.5 list-disc list-inside">
+                                    <li>label description: {{ invites.description }}</li>
+                                    <li>label website: 
+                                        <a :href="invites.websiteUrl" class="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">{{invites.websiteUrl}}</a>
+                                    </li>
+                                    <li>label genre: {{ invites.genre }}</li>
+                                </ul>
+                        </div>
+                        <div class="flex">
+                            <button @click='acceptlabelInvite()' type="button" class="text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            Accept invite
+                            </button>
+                            <button @click='declinelabelInvite()' type="button" class="text-blue-800 bg-transparent border border-blue-800 hover:bg-red-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:hover:bg-red-600 dark:border-blue-600 dark:text-blue-400 dark:hover:text-white dark:focus:ring-blue-800" data-dismiss-target="#alert-additional-content-1" aria-label="Close">
+                            Decline invite
+                            </button>
+                        </div>
                     </div>
 
                     <div class="flex items-center space-x-4">

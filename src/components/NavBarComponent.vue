@@ -172,11 +172,13 @@ onMounted(() => {
                     <li v-if="userinfo">
                         <router-link class="flex items-center space-x-4" to="/profile">
                             <div
-                                class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600"
+                                class="relative inline-flex items-center justify-center w-10 h-10  bg-primary-600 rounded-full dark:bg-primary-600"
                             >
                                 <span class="font-medium text-gray-300 dark:text-gray-300"
                                     >{{ userinfo.firstname.slice(0, 1) }}{{ userinfo.lastname.slice(0, 1) }}</span
                                 >
+                                <!--todo set on notification-->
+                                <span class="absolute z-50 top-1 left-7 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
                             </div>
                             <div class="font-medium dark:text-white">
                                 <div>{{ userinfo.firstname }} {{ userinfo.lastname }}</div>
