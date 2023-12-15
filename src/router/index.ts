@@ -20,7 +20,7 @@ const router = createRouter({
             name: "track",
             props: true,
             component: () => import("../views/TrackView.vue"),
-            meta: { role: ["MUZIEKPRODUCER"] }
+            meta: { role: ["MUZIEKPRODUCER", "ADMIN"] }
         },
         {
             path: "/upload",

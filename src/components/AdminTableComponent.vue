@@ -1,17 +1,19 @@
 <script lang="ts" setup>
-import { getTracks } from "@/services/tracks.service";
-import type { Components } from "@/types/openapi";
+import { getAllLabels, getAllTracksForLabel } from "@/services/label.service";
 import { getRoles } from "@/utils/authorisationhelper";
 import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
 
-const trackdata = ref<Array<Components.Schemas.GetTrackWithAuthorDto>>();
+const trackdata = ref<Array<any>>();
 const ShowOverlay = ref<any>();
 const ShowOverlay2 = ref<any>();
 const reviewerinfo = ref<Array<any>>();
 
+
 const gettrack = async () => {
-    const response = await getTracks();
+    const lables = await getAllLabels();
+    if(!lables) return;
+    const response = await getAllTracksForLabel(lables.data[0].id);
 
     trackdata.value = response.data;
     initFlowbite();
@@ -93,7 +95,8 @@ onMounted(() => {
                     <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">
                         <div class="flex flex-col align-left justify-center">
                             <p class="font-semibold">{{ track.title }}</p>
-                            <p class="text-gray-600 dark:text-gray-400">@{{ track.author.username }}</p>
+                            <!-- <p class="text-gray-600 dark:text-gray-400">@{{ track.author.username }}</p> -->
+                            <p class="text-gray-600 dark:text-gray-400">@Niek</p>
                         </div>
                     </th>
                     <td class="px-6 py-4">
@@ -155,7 +158,7 @@ onMounted(() => {
                             >Ready to review</span
                         >
                         <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Reviewing</span>
-                         <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Ready to Send</span>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Ready to Send</span>
                     </td>
                     <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right">
                         <router-link
@@ -167,10 +170,10 @@ onMounted(() => {
                     <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
                         Send Feedback to Artist
                     </td>
-                    <td class="px-6 py-4 text-right">Not all reviewers have given feedback</td>
+                    <!-- <td class="px-6 py-4 text-right">Not all reviewers have given feedback</td> -->
                 </tr>
                 <!--demo tablerow-->
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <!-- <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                     <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">
                         <div class="flex flex-col align-left justify-center">
                             <p class="font-semibold">The Reason</p>
@@ -244,7 +247,7 @@ onMounted(() => {
                     >
                         Send Feedback to Artist
                     </td>
-                </tr>
+                </tr> -->
             </tbody>
         </table>
     </div>

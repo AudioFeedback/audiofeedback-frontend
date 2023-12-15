@@ -71,6 +71,7 @@ const getInvited = async () => {
         }
         labelmemberid.value = reponse.data[0]?.id;
         invites.value = reponse.data[0].label;
+        getInvited();
     }
 }
 
@@ -82,6 +83,9 @@ const acceptlabelInvite = async () => {
     return;
   }
   console.log('acceptinvite:',response.data);
+  invites.value = null;
+  labelmemberid.value = 0;
+  getInvited();
 };
 
 
@@ -93,6 +97,9 @@ const declinelabelInvite = async () => {
     return;
   }
   console.log('acceptinvite:',response.data);
+  invites.value = null;
+  labelmemberid.value = 0;
+    getInvited();
 };
 
 const editUser = async () => {
@@ -260,8 +267,8 @@ onMounted(async () => {
                             <button @click='acceptlabelInvite()' type="button" class="text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                             Accept invite
                             </button>
-                            <button @click='declinelabelInvite()' type="button" class="text-blue-800 bg-transparent border border-blue-800 hover:bg-red-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:hover:bg-red-600 dark:border-blue-600 dark:text-blue-400 dark:hover:text-white dark:focus:ring-blue-800" data-dismiss-target="#alert-additional-content-1" aria-label="Close">
-                            Decline invite
+                            <button @click='declinelabelInvite()' type="button" class="text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900">
+                            Decline 
                             </button>
                         </div>
                     </div>

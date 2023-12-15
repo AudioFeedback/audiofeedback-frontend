@@ -6,7 +6,7 @@ import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
 import { onMounted, ref } from "vue";
 
-let userinfo = ref<Components.Schemas.GetUserDto>();
+let userinfo = ref<Components.Schemas.GetUserWithNotificationsDto>();
 
 const logout = () => {
     localStorage.removeItem("access_token");
@@ -22,9 +22,9 @@ const toggleSidebar = () => {
 
 const getUserInfo = async () => {
     const response = await getProfile();
-
     userinfo.value = response.data;
 };
+
 
 onMounted(() => {
     getUserInfo();
@@ -90,7 +90,7 @@ onMounted(() => {
                             <span class="ml-3">Dashboard</span>
                         </router-link>
                     </li>
-                    <li>
+                    <li v-if="getRoles()?.includes('MUZIEKPRODUCER')">
                         <router-link
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                             to="/upload"
@@ -178,7 +178,7 @@ onMounted(() => {
                                     >{{ userinfo.firstname.slice(0, 1) }}{{ userinfo.lastname.slice(0, 1) }}</span
                                 >
                                 <!--todo set on notification-->
-                                <span class="absolute z-50 top-1 left-7 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
+                                <span v-if="userinfo.notifications" class="absolute z-50 top-1 left-7 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
                             </div>
                             <div class="font-medium dark:text-white">
                                 <div>{{ userinfo.firstname }} {{ userinfo.lastname }}</div>

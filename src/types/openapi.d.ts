@@ -131,7 +131,15 @@ declare namespace Components {
                 [key: string]: any;
             }[];
         }
-        export interface GetUserWithNotifications {
+        export interface GetUserWithNotificationsDto {
+            id: number;
+            username: string;
+            firstname: string;
+            lastname: string;
+            roles: {
+                [key: string]: any;
+            }[];
+            notifications: number;
         }
         export interface GetUserWithTrackDto {
             id: number;
@@ -169,7 +177,7 @@ declare namespace Components {
 declare namespace Paths {
     namespace AppControllerGetProfile {
         namespace Responses {
-            export type $200 = Components.Schemas.GetUserWithNotifications;
+            export type $200 = Components.Schemas.GetUserWithNotificationsDto;
         }
     }
     namespace AppControllerHello {
