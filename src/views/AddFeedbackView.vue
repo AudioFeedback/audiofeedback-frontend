@@ -69,7 +69,6 @@ const submitFeedback = async () => {
 };
 
 const generalfeedback = async () => {
-    if(giveGeneralFeedback.value === true){
         try {
             if (!trackinfo.value || !trackversion.value) {
                 alert("Please fill in all required fields")
@@ -85,7 +84,7 @@ const generalfeedback = async () => {
 
             const data = response.data;
             console.log("data", data);
-            CloseGeneralFeedback();
+            GeneralFeedback();
             rating.value = true;
             comments.value = "";
             selectedTimeStamp.value = 0;
@@ -95,14 +94,8 @@ const generalfeedback = async () => {
 
         } catch (error) {
             console.error("API Error:", error);
-        }
-    }
+        }   
 };
-
-// const generalFeedbackList = async () => {
-//     v-for="(feedback, i) in trackinfo?.trackversions[0].feedback"
-//                         :key="i"
-// }
 
 const publishFeedbackToArtist = async () => {
     const versionId = trackinfo.value?.trackversions[trackinfo.value?.trackversions.length - 1].id;
@@ -126,23 +119,26 @@ const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
 };
 
 const GetPointerLocation = () => {
-    if (closepopup.value === true) {
-        closepopup.value = false;
-        return;
+    if (!giveGeneralFeedback.value) {
+        if (closepopup.value === true) {
+            closepopup.value = false;
+            return;
+        }
+        const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
+        selectedpercentageleft.value = (audioElement.currentTime / audioElement.duration) * 100;
+        selectedTimeStamp.value = audioElement.currentTime / audioElement.duration;
     }
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    selectedpercentageleft.value = (audioElement.currentTime / audioElement.duration) * 100;
-    selectedTimeStamp.value = audioElement.currentTime / audioElement.duration;
 };
 
 const CloseFeedback = () => {
     selectedpercentageleft.value = null;
     closepopup.value = true;
-    console.log("selectedpercentageleft", selectedpercentageleft.value);
 };
 
-const CloseGeneralFeedback = () => {
+const GeneralFeedback = () => {
     giveGeneralFeedback.value = !giveGeneralFeedback.value;
+    seek(0);
+    selectedTimeStamp.value = 0;
 };
 
 onMounted(() => {
@@ -321,7 +317,7 @@ const getUserInfo = async () => {
                 ></AVWaveform>
                 <div class="relative -top-5">
                     <div
-                        v-if="selectedpercentageleft"
+                        v-if="selectedpercentageleft && !giveGeneralFeedback"
                         :style="{ left: `${selectedpercentageleft - 1.5}%` }"
                         class="absolute"
                     >
@@ -334,7 +330,7 @@ const getUserInfo = async () => {
                         </div>
                     </div>
                     <div
-                        v-if="selectedpercentageleft"
+                        v-if="selectedpercentageleft && !giveGeneralFeedback"
                         :style="{ left: `${selectedpercentageleft + 4}%` }"
                         class="absolute bg-white rounded-lg dark:bg-gray-700 p-4 z-[99] drop-shadow-2xl min-w-[20em]"
                     >
@@ -424,8 +420,8 @@ const getUserInfo = async () => {
                         <form name="feedbackform" v-on:submit.prevent="generalfeedback()">
                             <div class="flex flex-col">
                                 <div class="flex flex-row align-items justify-between">
-                                <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">Rating</h3>
-                                <span class="cursor-pointer" @click.prevent="CloseGeneralFeedback()">
+                                <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">General rating</h3>
+                                <span class="cursor-pointer" @click.prevent="GeneralFeedback()">
                                     <svg
                                         aria-hidden="true"
                                         class="w-4 h-4 text-gray-800 dark:text-white"
@@ -547,15 +543,16 @@ const getUserInfo = async () => {
             </table>
         </div>
 
-        <div v-if="!giveGeneralFeedback" class="flex-row w-full justify-center mt-8">
-            <button class="px-6 py-3.5 text-base font-medium text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                @click="CloseGeneralFeedback"
-                >
-                Add general feedback
-            </button>
+        <div class="flex-row w-full justify-center mt-8">
+                <button v-if="!giveGeneralFeedback" class="px-6 py-3 text-base font-medium text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    @click="GeneralFeedback"
+                    >
+                    Add general feedback
+                </button>
+                <button v-if="giveGeneralFeedback" class="px-6 py-6"></button>
         </div>
 
-        <article class="p-6 !px-0 mb-6 text-base bg-white rounded-lg dark:bg-gray-900">
+        <article class="p-6 !px-0 mb-6 text-base  rounded-lg dark:bg-gray-900">
             <footer class="flex justify-between items-center mb-2">
                 <div class="flex items-center">
                     <p class="inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white"><img
