@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 import router from "@/router";
 import { getProfile } from "@/services/app.service";
+import { getAllLabels } from "@/services/label.service";
 import { checkMode, darkmode, toggleMode } from "@/stores/darkmodeStore";
 import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
 import { onMounted, ref } from "vue";
 
-let userinfo = ref<Components.Schemas.GetUserDto>();
+let userinfo = ref<Components.Schemas.GetUserWithNotificationsDto>();
+let labelinfo = ref<any>();
 
 const logout = () => {
     localStorage.removeItem("access_token");
@@ -22,13 +24,19 @@ const toggleSidebar = () => {
 
 const getUserInfo = async () => {
     const response = await getProfile();
-
     userinfo.value = response.data;
 };
+
+const getLabel = async () => {
+    const response = await getAllLabels();
+    labelinfo.value = response.data;
+};
+
 
 onMounted(() => {
     getUserInfo();
     checkMode();
+    getLabel();
 });
 </script>
 
@@ -90,7 +98,7 @@ onMounted(() => {
                             <span class="ml-3">Dashboard</span>
                         </router-link>
                     </li>
-                    <li>
+                    <li v-if="getRoles()?.includes('MUZIEKPRODUCER')">
                         <router-link
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                             to="/upload"
@@ -133,6 +141,28 @@ onMounted(() => {
                     </li>
                 </ul>
                 <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700 cursor-pointer">
+                    <li v-if="labelinfo">
+
+                        <label for="labels" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your labels</label>
+                        <select id="v" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option selected>Choose a label</option>
+                        <option  v-for="(label, i) in labelinfo" :key="i" >{{label.name}}</option>
+                        </select>
+
+                        <!--<div v-for="(label, i) in labelinfo" :key="i" class="flex items-center space-x-4">
+                            <div
+                                class="relative inline-flex items-center justify-center w-10 h-10  bg-primary-600 rounded-full dark:bg-primary-600"
+                            >
+                                <span class="font-medium text-gray-300 dark:text-gray-300"
+                                    >??</span
+                                >
+                            </div>
+                            <div class="font-medium dark:text-white">
+                                <div>{{label.name}}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ label.description }}</div>
+                            </div>
+                        </div>-->
+                    </li>
                     <li @click="toggleMode()">
                         <a
                             v-if="darkmode"
@@ -172,11 +202,13 @@ onMounted(() => {
                     <li v-if="userinfo">
                         <router-link class="flex items-center space-x-4" to="/profile">
                             <div
-                                class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600"
+                                class="relative inline-flex items-center justify-center w-10 h-10  bg-primary-600 rounded-full dark:bg-primary-600"
                             >
                                 <span class="font-medium text-gray-300 dark:text-gray-300"
                                     >{{ userinfo.firstname.slice(0, 1) }}{{ userinfo.lastname.slice(0, 1) }}</span
                                 >
+                                <!--todo set on notification-->
+                                <span v-if="userinfo.notifications" class="absolute z-50 top-1 left-7 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
                             </div>
                             <div class="font-medium dark:text-white">
                                 <div>{{ userinfo.firstname }} {{ userinfo.lastname }}</div>

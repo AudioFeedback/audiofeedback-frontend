@@ -1,17 +1,21 @@
 <script lang="ts" setup>
-import { getTracks } from "@/services/tracks.service";
-import type { Components } from "@/types/openapi";
+import { getAllLabels, getAllTracksForLabel } from "@/services/label.service";
+import { publishFeedback } from "@/services/tracks.service";
 import { getRoles } from "@/utils/authorisationhelper";
 import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
+import Toasts from "@/components/Toasts-Popup.vue";
 
-const trackdata = ref<Array<Components.Schemas.GetTrackWithAuthorDto>>();
+const trackdata = ref<Array<any>>();
 const ShowOverlay = ref<any>();
 const ShowOverlay2 = ref<any>();
-const reviewerinfo = ref<Array<any>>();
+const toasttype = ref<any>();
+const toastmessage = ref<string | null>();
 
 const gettrack = async () => {
-    const response = await getTracks();
+    const lables = await getAllLabels();
+    if(!lables) return;
+    const response = await getAllTracksForLabel(lables.data[0].id);
 
     trackdata.value = response.data;
     initFlowbite();
@@ -26,35 +30,28 @@ const Showoverlay = (reviewer: any, track: any) => {
     }
     ShowOverlay.value = reviewer.id;
     ShowOverlay2.value = track;
-    reviewerinfo.value = reviewer;
 };
 
-const reviewers = [
-    {
-        id: 1,
-        name: "Jese Leos",
-        username: "@jeseleos",
-        profilePicture: "./../assets/profile-picture-5.jpg"
-    },
-    {
-        id: 2,
-        name: "Jese Leos",
-        username: "@jeseleos",
-        profilePicture: "./../assets/profile-picture-5.jpg"
-    },
-    {
-        id: 3,
-        name: "Jese Leos",
-        username: "@jeseleos",
-        profilePicture: "./../assets/profile-picture-5.jpg"
-    },
-    {
-        id: 4,
-        name: "Jese Leos",
-        username: "@jeseleos",
-        profilePicture: "./../assets/profile-picture-5.jpg"
+const sendFeedbackToArtist = async (track: any) => {
+    const response = await publishFeedback(track);
+    if (response.status == 200) {
+        gettrack();
+        toasttype.value = "succes";
+        toastmessage.value = "Feedback send";
+        setTimeout(() => {
+            toasttype.value = null;
+            toastmessage.value = null;
+        }, 5000);
+    } else {
+        toasttype.value = "error";
+        toastmessage.value = "Something went wrong";
+        setTimeout(() => {
+            toasttype.value = null;
+            toastmessage.value = null;
+        }, 5000);
     }
-];
+};
+
 
 onMounted(() => {
     gettrack();
@@ -62,7 +59,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="relative shadow-sm overflow-x-auto sm:rounded-lg">
+    <div class="relative shadow-sm sm:rounded-lg">
         <table aria-label="Admin table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
@@ -98,17 +95,18 @@ onMounted(() => {
                     </th>
                     <td class="px-6 py-4">
                         <div class="flex -space-x-1 rtl:space-x-reverse relative">
-                            <div v-for="(reviewer, i) in reviewers" :key="i">
+                            <div v-for="(reviewer, i) in track.reviewers" :key="i">
                                 <div class="relative">
-                                    <img
-                                        alt=""
-                                        class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
-                                        src="./../assets/profile-picture-5.jpg"
-                                        @click="Showoverlay(reviewer, track.id)"
-                                    />
-                                    <span
+                                    <div  @click="Showoverlay(reviewer, track.id)" class="relative mr-2 cursor-pointer inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600">
+                                        <span class="font-medium text-gray-300 dark:text-gray-300">{{ reviewer.firstname.slice(0, 1) }}{{ reviewer.lastname.slice(0, 1) }}</span>
+                                    </div>
+                                    <span v-if="!reviewer.isReviewed"
                                         class="bottom-0 left-7 absolute w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"
                                     ></span>
+                                    <span v-if="reviewer.isReviewed"
+                                        class="bottom-0 left-7 absolute w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"
+                                    ></span>
+
                                 </div>
                                 <div
                                     v-if="ShowOverlay == reviewer.id && ShowOverlay2 == track.id"
@@ -120,11 +118,9 @@ onMounted(() => {
                                 >
                                     <div class="p-3">
                                         <div class="flex items-center justify-between mb-2">
-                                            <img
-                                                alt=""
-                                                class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
-                                                src="./../assets/profile-picture-5.jpg"
-                                            />
+                                            <div class="relative mr-2 inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600">
+                                                <span class="font-medium text-gray-300 dark:text-gray-300">{{ reviewer.firstname.slice(0, 1) }}{{ reviewer.lastname.slice(0, 1) }}</span>
+                                            </div>
                                             <button
                                                 class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800"
                                                 type="button"
@@ -133,29 +129,27 @@ onMounted(() => {
                                             </button>
                                         </div>
                                         <p class="text-base font-semibold leading-none text-gray-900 dark:text-white">
-                                            Jese Leos
+                                            {{reviewer.firstname}} {{reviewer.lastname}}
                                         </p>
-                                        <p class="text-sm font-normal">@username</p>
+                                        <p class="text-sm font-normal">@{{reviewer.username}}</p>
                                     </div>
                                 </div>
                             </div>
-                            <a
+                            <!-- <a
                                 class="flex items-center z-10 justify-center w-10 h-10 text-xs font-medium text-white bg-gray-500 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800"
                                 href="#"
                                 >+</a
-                            >
+                            > -->
                         </div>
                     </td>
                     <td class="px-6 py-4">
                         {{ track.genre }}
                     </td>
                     <td class="px-6 py-4">
-                        <span
-                            class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-gray-900 dark:text-gray-300"
-                            >Ready to review</span
-                        >
-                        <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Reviewing</span>
-                         <span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Ready to Send</span>
+                        <span v-if='track.status[0] == "READY_TO_REVIEW"' class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-gray-900 dark:text-gray-300">Ready to review</span>
+                        <span v-if='track.status[0] == "REVIEW_IN_PROGRESS"' class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Reviewing</span>
+                        <span v-if='track.status[0] == "READY_TO_SEND"' class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Ready to Send</span>
+                        <span v-if='track.status[0] == "SEND"' class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Send</span>
                     </td>
                     <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right">
                         <router-link
@@ -164,88 +158,14 @@ onMounted(() => {
                             >Manage
                         </router-link>
                     </td>
-                    <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                    <td v-if="roles?.includes('ADMIN') && track.status[0] == 'READY_TO_SEND'" @click='sendFeedbackToArtist(track.id)' class="px-6 py-4 text-right cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
                         Send Feedback to Artist
                     </td>
-                    <td class="px-6 py-4 text-right">Not all reviewers have given feedback</td>
-                </tr>
-                <!--demo tablerow-->
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">
-                        <div class="flex flex-col align-left justify-center">
-                            <p class="font-semibold">The Reason</p>
-                            <p class="text-gray-600 dark:text-gray-400">@niek</p>
-                        </div>
-                    </th>
-                    <td class="px-6 py-4">
-                        <div class="flex -space-x-1 rtl:space-x-reverse relative">
-                            <div v-for="(reviewer, i) in reviewers" :key="i">
-                                <div class="relative">
-                                    <img
-                                        alt=""
-                                        class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
-                                        src="./../assets/profile-picture-5.jpg"
-                                        @click="Showoverlay(reviewer, 1)"
-                                    />
-                                    <span
-                                        class="bottom-0 left-7 absolute w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"
-                                    ></span>
-                                </div>
-                                <div
-                                    v-if="ShowOverlay == reviewer.id && ShowOverlay2 == 1"
-                                    :class="{ 'bottom-10': ShowOverlay2 > 1, 'top-10': ShowOverlay2 < 1 - 1 }"
-                                    class="absolute z-[990] inline-block w-64 text-sm text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600"
-                                >
-                                    <div class="p-3">
-                                        <div class="flex items-center justify-between mb-2">
-                                            <img
-                                                alt=""
-                                                class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
-                                                src="./../assets/profile-picture-5.jpg"
-                                            />
-                                            <button
-                                                class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800"
-                                                type="button"
-                                            >
-                                                Remove as reviewer
-                                            </button>
-                                        </div>
-                                        <p class="text-base font-semibold leading-none text-gray-900 dark:text-white">
-                                            Jese Leos
-                                        </p>
-                                        <p class="text-sm font-normal">@username</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <a
-                                class="flex items-center z-10 justify-center w-10 h-10 text-xs font-medium text-white bg-gray-500 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800"
-                                href="#"
-                                >+</a
-                            >
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">House</td>
-                    <td class="px-6 py-4">
-                        <span
-                            class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300"
-                            >Ready to Send</span
-                        >
-                    </td>
-                    <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right">
-                        <router-link
-                            :to="`/manage-track/`"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            >Manage
-                        </router-link>
-                    </td>
-                    <td
-                        v-if="roles?.includes('ADMIN')"
-                        class="px-6 py-4 text-right cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                    >
-                        Send Feedback to Artist
-                    </td>
+                    <td class="px-6 py-4 text-right" v-if='track.status[0] == "REVIEW_IN_PROGRESS" || track.status[0] == "READY_TO_REVIEW"'>Not all reviewers have given feedback</td>
                 </tr>
             </tbody>
         </table>
+        
+        <Toasts v-if="toasttype && toastmessage" :type="toasttype" :message="toastmessage" />
     </div>
 </template>

@@ -61,8 +61,6 @@ const submitFeedback = async () => {
             return;
         }
 
-        const data = response.data;
-        console.log("data", data);
         CloseFeedback();
         rating.value = true;
         comments.value = "";
@@ -88,11 +86,15 @@ const editFeedback = async (localid: number) => {
         comment: comments.value,
         timestamp: +trackinfo.value?.trackversions[0].feedback[localid].timestamp ?? trackversion.value?.feedback[localid].timestamp,
     });
-    console.log("response", reponse);
-    setEditModal(0,0);
-    setToast("Feedback edited succesfully");
-    getTrackData();
-    forceRerender();
+    
+    if(!reponse){
+        return;
+    } else {
+        setEditModal(0,0);
+        setToast("Feedback edited succesfully");
+        getTrackData();
+        forceRerender();
+    }
 }
 
 const publishFeedbackToArtist = async () => {
@@ -103,6 +105,7 @@ const publishFeedbackToArtist = async () => {
     }
 
     await publishFeedback(versionId);
+    publishFeedbackModal.value = false;
     submitted.value = true;
 };
 
@@ -152,10 +155,13 @@ const deleteModal = (id: number) => {
 
 const deleteAccount = async (id: number) => {
     const response = await deleteFeedback(id);
-    console.log("response", response);
-    setToast("Feedback deleted succesfully");
-    getTrackData();
-    forceRerender();
+    if(!response) {
+        return;
+    } else {
+        setToast("Feedback deleted succesfully");
+        getTrackData();
+        forceRerender();
+    }
 }
 
 const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
@@ -182,7 +188,6 @@ const GetPointerLocation = () => {
 const CloseFeedback = () => {
     selectedpercentageleft.value = null;
     closepopup.value = true;
-    console.log("selectedpercentageleft", selectedpercentageleft.value);
 };
 
 onMounted(() => {
