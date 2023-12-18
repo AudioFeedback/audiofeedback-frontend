@@ -553,17 +553,6 @@ const getUserInfo = async () => {
         </div>
 
         <article class="p-6 !px-0 mb-6 text-base  rounded-lg dark:bg-gray-900">
-            <footer class="flex justify-between items-center mb-2">
-                <div class="flex items-center">
-                    <p class="inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white"><img
-                        class="mr-2 w-6 h-6 rounded-full"
-                        src="https://flowbite.com/docs/images/people/profile-picture-2.jpg"
-                        alt="Feedbackgever">{{ userinfo?.firstname}} {{ userinfo?.lastname}} (@{{ userinfo?.username}})</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400"><time pubdate datetime="2022-02-08"
-                        title="February 8th, 2022">Feb. 8, 2022</time></p>
-                </div>
-            </footer>
-            
             <tbody>
                 <template v-for="(feedback, i) in trackinfo?.trackversions[0].feedback" :key="i">
                     <tr v-if="feedback.timestamp == null" class="text-gray-400">

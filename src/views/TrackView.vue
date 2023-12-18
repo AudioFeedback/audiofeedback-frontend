@@ -340,36 +340,53 @@ const changeVersion = (version: number) => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr
-                            v-for="(feedback, i) in trackinfo?.trackversions[trackVersion].feedback"
-                            :key="i"
-                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-                        >
-                            <th
-                                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white cursor-pointer"
-                                scope="row"
-                                @click="seek(trackinfo!.trackversions[trackVersion].duration * feedback.timestamp)"
-                            >
-                                @{{ feedback.user.username }} ({{ feedback.user.firstname }}
-                                {{ feedback.user.lastname }})
-                            </th>
-                            <td
-                                class="px-6 py-4 cursor-pointer"
-                                @click="seek(trackinfo!.trackversions[trackVersion].duration * feedback.timestamp)"
-                            >
-                                {{
-                                    getTimeInMinutesAndSeconds(
-                                        trackinfo!.trackversions[trackVersion].duration * feedback.timestamp
-                                    )
-                                }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ feedback.comment }}
-                            </td>
-                            <td class="px-6 py-4">file attachment</td>
-                        </tr>
+                        <template v-for="(feedback, i) in trackinfo?.trackversions[0].feedback" :key="i">
+                            <tr v-if="feedback.timestamp !== null" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 text-gray-400">
+                                <th
+                                    class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white cursor-pointer"
+                                    scope="row"
+                                    @click="seek(trackinfo!.trackversions[trackVersion].duration * feedback.timestamp)"
+                                >
+                                    @{{ feedback.user.username }} ({{ feedback.user.firstname }}
+                                    {{ feedback.user.lastname }})
+                                </th>
+                                <td
+                                    class="px-6 py-4 cursor-pointer"
+                                    @click="seek(trackinfo!.trackversions[trackVersion].duration * feedback.timestamp)"
+                                >
+                                    {{
+                                        getTimeInMinutesAndSeconds(
+                                            trackinfo!.trackversions[trackVersion].duration * feedback.timestamp
+                                        )
+                                    }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ feedback.comment }}
+                                </td>
+                                <td class="px-6 py-4">file attachment</td>
+                            </tr>
+                        </template>
                     </tbody>
                 </table>
+            </div>
+
+            <div>
+                <article class="p-6 !px-0 mb-6 text-base  rounded-lg dark:bg-gray-900">
+                        <template v-for="(feedback, i) in trackinfo?.trackversions[0].feedback" :key="i">
+                            <tr v-if="feedback.timestamp == null" class="text-gray-400">
+                                <td class="px-6 py-4 text-blue-500">
+                                    {{ feedback.user?.firstname }} {{ feedback.user?.lastname }} (@{{ feedback.user?.username }})
+                                </td>
+                                <td class="px-6 py-4">
+                                    <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
+                                    <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ feedback.comment }}
+                                </td>
+                            </tr>
+                        </template>
+                </article>
             </div>
         </div>
         <div v-if="activeTab === 2">
