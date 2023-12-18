@@ -31,13 +31,13 @@ export async function getLabelTypeahead(query: Paths.LabelsControllerGetLabelTyp
     return client.LabelsController_getLabelTypeahead(query);
 }
 
-export async function acceptInvite (id: Paths.LabelsControllerAcceptInvite.Parameters.Id, userId: Paths.LabelsControllerAcceptInvite.Parameters.UserId) {
+export async function acceptInvite (id: Paths.LabelsControllerAcceptInvite.Parameters.Id, userId: Paths.LabelsControllerAcceptInvite.RequestBody) {
     const client = await APIClient();
 
     return client.LabelsController_acceptInvite(id, userId);
 }
 
-export async function declineInvite (id: Paths.LabelsControllerDeclineInvite.Parameters.Id, userId: Paths.LabelsControllerDeclineInvite.Parameters.UserId) {
+export async function declineInvite (id: Paths.LabelsControllerDeclineInvite.Parameters.Id, userId: Paths.LabelsControllerDeclineInvite.RequestBody) {
     const client = await APIClient();
 
     return client.LabelsController_declineInvite(id, userId);
@@ -49,7 +49,7 @@ export async function getAvailableReviewers(id: Paths.LabelsControllerGetAvailab
     return client.LabelsController_getAvailableReviewers(id);
 }
 
-export async function inviteNewReviewer(id: Paths.LabelsControllerInviteUser.Parameters.Id, userId: Paths.LabelsControllerInviteUser.Parameters.UserId) {
+export async function inviteNewReviewer(id: Paths.LabelsControllerInviteUser.Parameters.Id, userId:  Paths.LabelsControllerInviteUser.RequestBody) {
     const client = await APIClient();
 
     return client.LabelsController_inviteUser(id, userId);

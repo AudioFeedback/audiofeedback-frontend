@@ -117,7 +117,7 @@ const getReviewers = async () => {
 }
 
 const addReviewertoTrack = async () => {
-    const response = await addReviewers(trackinfo.value?.id as unknown as number, {
+    const response = await addReviewers(String(trackinfo.value?.id), {
         reviewerIds: [selectedreviewer.value]
     });
     if(!response) {
@@ -820,7 +820,7 @@ const getUserInfo = async () => {
         </div>
         <div v-if="activeTab === 3 && getRoles()?.includes('ADMIN')">
             <div class="relative shadow-sm sm:rounded-lg">
-                <table v-if="trackinfo?.reviewers.length > 0"
+                <table v-if="trackinfo && trackinfo.reviewers && trackinfo.reviewers.length > 0"
                     aria-label="Manage reviewer table"
                     class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
                 >
