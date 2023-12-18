@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 import router from "@/router";
 import { getProfile } from "@/services/app.service";
+import { getAllLabels } from "@/services/label.service";
 import { checkMode, darkmode, toggleMode } from "@/stores/darkmodeStore";
 import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
 import { onMounted, ref } from "vue";
 
 let userinfo = ref<Components.Schemas.GetUserWithNotificationsDto>();
+let labelinfo = ref<any>();
 
 const logout = () => {
     localStorage.removeItem("access_token");
@@ -25,10 +27,16 @@ const getUserInfo = async () => {
     userinfo.value = response.data;
 };
 
+const getLabel = async () => {
+    const response = await getAllLabels();
+    labelinfo.value = response.data;
+};
+
 
 onMounted(() => {
     getUserInfo();
     checkMode();
+    getLabel();
 });
 </script>
 
@@ -133,6 +141,28 @@ onMounted(() => {
                     </li>
                 </ul>
                 <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700 cursor-pointer">
+                    <li v-if="labelinfo">
+
+                        <label for="labels" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your labels</label>
+                        <select id="v" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option selected>Choose a label</option>
+                        <option  v-for="(label, i) in labelinfo" :key="i" >{{label.name}}</option>
+                        </select>
+
+                        <!--<div v-for="(label, i) in labelinfo" :key="i" class="flex items-center space-x-4">
+                            <div
+                                class="relative inline-flex items-center justify-center w-10 h-10  bg-primary-600 rounded-full dark:bg-primary-600"
+                            >
+                                <span class="font-medium text-gray-300 dark:text-gray-300"
+                                    >??</span
+                                >
+                            </div>
+                            <div class="font-medium dark:text-white">
+                                <div>{{label.name}}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ label.description }}</div>
+                            </div>
+                        </div>-->
+                    </li>
                     <li @click="toggleMode()">
                         <a
                             v-if="darkmode"

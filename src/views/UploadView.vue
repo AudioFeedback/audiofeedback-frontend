@@ -127,7 +127,6 @@ const submitData = async () => {
             return;
         }
 
-        console.log("API Response:", response);
         const data = await response.json();
         uploadedfileTitle.value = data.title;
         uploadedfileGenre.value = data.genre;

@@ -70,10 +70,8 @@ onMounted(() => gettrack());
                         {{ track.genre }}
                     </td>
                     <td class="px-6 py-4">
-                        <span
-                            class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300"
-                            >Review in Progress</span
-                        >
+                        <span v-if='track.status[0] == "READY_TO_REVIEW"' class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-gray-900 dark:text-gray-300">Ready to review</span>
+                        <span v-if='track.status[0] == "REVIEWED"' class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Reviewed</span>
                     </td>
                     <td v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-4 text-right">
                         <router-link

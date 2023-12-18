@@ -50,6 +50,12 @@ declare namespace Components {
             genre: string;
             profilePicture: string;
         }
+        export interface GetLabelMemberDto {
+            id: number;
+            status: {
+                [key: string]: any;
+            };
+        }
         export interface GetLabelMemberWithLabelDto {
             id: number;
             status: {
@@ -75,6 +81,16 @@ declare namespace Components {
             fullUrl: string;
             duration: number;
             feedback: GetFeedbackDto[];
+        }
+        export interface GetReviewerDto {
+            id: number;
+            username: string;
+            firstname: string;
+            lastname: string;
+            roles: {
+                [key: string]: any;
+            }[];
+            isReviewed: boolean;
         }
         export interface GetTrackDeepDto {
             id: number;
@@ -122,6 +138,15 @@ declare namespace Components {
         }
         export interface GetTrackWithLabelOrReviewersAndAuthor {
         }
+        export interface GetTrackWithReviewersDto {
+            id: number;
+            title: string;
+            genre: string;
+            author: GetUserDto;
+            reviewers: GetReviewerDto[];
+            status: ("PENDING_REVIEW" | "READY_TO_REVIEW" | "REVIEWED" | "REVIEW_IN_PROGRESS" | "READY_TO_SEND" | "SEND")[];
+            trackversions: GetTrackVersionDto[];
+        }
         export interface GetUserDto {
             id: number;
             username: string;
@@ -130,6 +155,15 @@ declare namespace Components {
             roles: {
                 [key: string]: any;
             }[];
+        }
+        export interface GetUserWithLabelMemberDto {
+            id: number;
+            firstname: string;
+            lastname: string;
+            roles: {
+                [key: string]: any;
+            }[];
+            labelMember: GetLabelMemberDto[];
         }
         export interface GetUserWithNotificationsDto {
             id: number;
@@ -270,7 +304,18 @@ declare namespace Paths {
             id: Parameters.Id;
         }
         namespace Responses {
-            export type $200 = Components.Schemas.GetTrackDto[];
+            export type $200 = Components.Schemas.GetTrackWithReviewersDto[];
+        }
+    }
+    namespace LabelsControllerGetAssignedReviewers {
+        namespace Parameters {
+            export type Id = number;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
+        namespace Responses {
+            export type $200 = Components.Schemas.GetUserWithLabelMemberDto[];
         }
     }
     namespace LabelsControllerGetAvailableReviewers {
@@ -707,6 +752,14 @@ export interface OperationMethods {
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.LabelsControllerGetAvailableReviewers.Responses.$200>
   /**
+   * LabelsController_getAssignedReviewers
+   */
+  'LabelsController_getAssignedReviewers'(
+    parameters?: Parameters<Paths.LabelsControllerGetAssignedReviewers.PathParameters> | null,
+    data?: any,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.LabelsControllerGetAssignedReviewers.Responses.$200>
+  /**
    * LabelsController_getLabelTypeahead
    */
   'LabelsController_getLabelTypeahead'(
@@ -998,6 +1051,16 @@ export interface PathsDictionary {
       data?: any,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.LabelsControllerGetAvailableReviewers.Responses.$200>
+  }
+  ['/labels/{id}/assigned-reviewers']: {
+    /**
+     * LabelsController_getAssignedReviewers
+     */
+    'get'(
+      parameters?: Parameters<Paths.LabelsControllerGetAssignedReviewers.PathParameters> | null,
+      data?: any,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.LabelsControllerGetAssignedReviewers.Responses.$200>
   }
   ['/labels/typeahead/{query}']: {
     /**

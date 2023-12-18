@@ -42,3 +42,21 @@ export async function declineInvite (id: Paths.LabelsControllerDeclineInvite.Par
 
     return client.LabelsController_declineInvite(id, userId);
 }
+
+export async function getAvailableReviewers(id: Paths.LabelsControllerGetAvailableReviewers.Parameters.Id) {
+    const client = await APIClient();
+
+    return client.LabelsController_getAvailableReviewers(id);
+}
+
+export async function inviteNewReviewer(id: Paths.LabelsControllerInviteUser.Parameters.Id, userId: Paths.LabelsControllerInviteUser.Parameters.UserId) {
+    const client = await APIClient();
+
+    return client.LabelsController_inviteUser(id, userId);
+}
+
+export async function getAssignedReviewers(id: Paths.LabelsControllerGetAssignedReviewers.Parameters.Id) {
+    const client = await APIClient();
+
+    return client.LabelsController_getAssignedReviewers(id);
+}

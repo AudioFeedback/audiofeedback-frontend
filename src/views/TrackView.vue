@@ -1,12 +1,15 @@
 <script lang="ts" setup>
 import { getProfile } from "@/services/app.service";
-import { getTrack } from "@/services/tracks.service";
+import { deleteFeedback } from "@/services/feedback.service";
+import { getAllLabels, getAssignedReviewers } from "@/services/label.service";
+import { addReviewers, getTrack } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
 import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 import { useRoute } from "vue-router";
+import Toasts from "@/components/Toasts.vue";
 
 const route = useRoute();
 const componentKey = ref(0);
@@ -21,6 +24,14 @@ const audiofile = ref<File | null>(null);
 const ShowOverlay = ref<any>();
 const userinfo = ref<Components.Schemas.GetUserDto>();
 const trackVersion = ref<number>(0);
+const confirmDeletion = ref<boolean>(false);
+const deleteID = ref<number>(0);
+const feedbackId = ref<number>(0);
+const ShowAddModal = ref<boolean>(false);
+const reviewersoflabel = ref<Array<any>>([]);
+const selectedreviewer = ref<number>(0);
+const toasttype = ref<any>();
+const toastmessage = ref<string | null>();
 
 const setTab = (tab: number) => {
     activeTab.value = tab;
@@ -34,10 +45,7 @@ const getTrackInfo = async () => {
     const response = await getTrack(route.params.id as unknown as number);
 
     const data = response.data;
-    console.log("data", data);
     trackinfo.value = data;
-
-    console.log(data);
 
     trackVersion.value = data.trackversions.length - 1;
     uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
@@ -74,8 +82,7 @@ const submitData = async () => {
         if (!response) {
             return;
         }
-
-        console.log("API Response:", response);
+        
         showModal.value = false;
         forceRerender();
         await getTrackInfo();
@@ -102,12 +109,70 @@ const Showoverlay = (reviewer: any) => {
     ShowOverlay.value = reviewer.id;
 };
 
+const getReviewers = async () => {
+    const label = await getAllLabels();
+    const reviewers = await getAssignedReviewers(label.data[0].id);
+    console.log(reviewers)
+    reviewersoflabel.value = reviewers.data;
+}
+
+const addReviewertoTrack = async () => {
+    const response = await addReviewers(trackinfo.value?.id as unknown as number, {
+        reviewerIds: [selectedreviewer.value]
+    });
+    if(!response) {
+        return;
+    } else {
+        toasttype.value = "succes";
+        toastmessage.value = "Reviewer added succesfully";
+        setTimeout(() => {
+            toasttype.value = null;
+            toastmessage.value = null;
+        }, 5000);
+        getTrackInfo();
+        forceRerender();
+        ShowAddModal.value = false;
+    }
+}
+
 onMounted(() => {
     getTrackInfo();
     initFlowbite();
     getUserInfo();
+    getReviewers();
     window.addEventListener("resize", forceRerender);
 });
+
+const deleteModal = (id: number) => {
+    if(confirmDeletion.value === true) {
+        confirmDeletion.value = false;
+        deleteID.value = id;
+        return;
+    } else {
+        confirmDeletion.value = true;
+        feedbackId.value = id;
+        deleteID.value = id;
+        return;
+    }
+};
+
+
+const delFeedback = async (id: number) => {
+    const response = await deleteFeedback(id);
+    if(!response) {
+        return;
+    } else {
+        toasttype.value = "succes";
+        toastmessage.value = "Feedback deleted succesfully";
+        setTimeout(() => {
+            toasttype.value = null;
+            toastmessage.value = null;
+        }, 5000);
+        getTrackInfo();
+        forceRerender();
+        confirmDeletion.value = false;
+    }
+}
 
 const play = () => {
     if (!audioPlayer.value) {
@@ -456,9 +521,73 @@ const getUserInfo = async () => {
                                 {{ feedback.comment }}
                             </td>
                             <td class="px-6 py-4">file attachment</td>
+                            <td  class="flex items-center px-6 py-4">
+                                <button @click="deleteModal(feedback.id)" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
+                <!--delete feedback modal-->
+                <div v-if="confirmDeletion" class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                            <div class="relative p-4 w-full max-w-md max-h-full">
+                                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                                    <button
+                                        class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        type="button"
+                                        @click="confirmDeletion = !confirmDeletion"
+                                    >
+                                        <svg
+                                            aria-hidden="true"
+                                            class="w-3 h-3"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                    <div class="p-4 md:p-5 text-center">
+                                        <svg
+                                            aria-hidden="true"
+                                            class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+                                            fill="none"
+                                            viewBox="0 0 20 20"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                            />
+                                        </svg>
+                                        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                                            Are you sure you want to delete this feedback? This action is permanent
+                                        </h3>
+                                        <button
+                                            class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
+                                            @click="delFeedback(deleteID)"
+                                        >
+                                            Yes, I'm sure
+                                        </button>
+                                        <button
+                                            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                            @click="confirmDeletion = !confirmDeletion"
+                                        >
+                                            No, cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                </div>
             </div>
         </div>
         <div v-if="activeTab === 2">
@@ -691,7 +820,7 @@ const getUserInfo = async () => {
         </div>
         <div v-if="activeTab === 3 && getRoles()?.includes('ADMIN')">
             <div class="relative shadow-sm sm:rounded-lg">
-                <table
+                <table v-if="trackinfo?.reviewers.length > 0"
                     aria-label="Manage reviewer table"
                     class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
                 >
@@ -800,6 +929,42 @@ const getUserInfo = async () => {
                         </tr>
                     </tbody>
                 </table>
+                <p v-if="trackinfo?.reviewers.length === 0">no reviewers found</p>
+                <button @click="ShowAddModal = !ShowAddModal"
+                    class="text-white w-full mt-4 bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 ml-auto font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">
+                    Add reviewers
+                </button>
+                <!-- Show add modal -->
+                <div v-if='ShowAddModal' class="h-full w-full flex flex-col items-center justify-center bg-gray-200/[.7] fixed top-0 right-0 left-0 z-50 justify-center items-center md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                    <div class="relative p-4 w-full max-w-md max-h-full">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                                    Add reviewer to {{ trackinfo?.title  }}
+                                </h3>
+                                <button type="button" @click="ShowAddModal = !ShowAddModal" class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="authentication-modal">
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+                            <div class="p-4 md:p-5">
+                                <form class="space-y-4" v-on:submit.prevent="addReviewertoTrack()">
+                                    <div>
+                                        <label for="reviewers" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an reviewer</label>
+                                        <select v-model='selectedreviewer' id="reviewers" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                            <option selected>Choose a reviewer</option>
+                                            <option v-for="(newreviewer, i) in reviewersoflabel" :key="i"  :value="newreviewer.id">{{ newreviewer.firstname }} {{ newreviewer.lastname }}</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add reviewer</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+                <Toasts v-if="toasttype && toastmessage" :type="toasttype" :message="toastmessage" />
             </div>
         </div>
     </main>
