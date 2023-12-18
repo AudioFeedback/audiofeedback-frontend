@@ -30,3 +30,9 @@ export async function addReviewers(id: Paths.TracksControllerUpdateReviewers.Par
 
     return client.TracksController_updateReviewers(id, reviewerIds);
 }
+
+export async function deleteTrack(id: Paths.TracksControllerRemove.Parameters.Id) {
+    const client = await APIClient();
+
+    return client.TracksController_remove(id);
+}
