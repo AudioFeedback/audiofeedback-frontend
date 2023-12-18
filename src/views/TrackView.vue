@@ -9,7 +9,7 @@ import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 import { useRoute } from "vue-router";
-import Toasts from "@/components/Toasts.vue";
+import Toasts from "@/components/Toasts-Popup.vue";
 
 const route = useRoute();
 const componentKey = ref(0);
