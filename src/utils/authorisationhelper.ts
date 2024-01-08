@@ -9,5 +9,6 @@ export function getRoles(): Array<roles> | undefined {
         return;
     }
     
+    // return ["MUZIEKPRODUCER", "FEEDBACKGEVER", "ADMIN"]
     return <Array<roles>>jose.decodeJwt(token).roles ?? undefined;
 }

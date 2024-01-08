@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import router from "@/router";
 import { getAllLabels, getLabelById, getLabelTypeahead } from "@/services/label.service";
 import { getReviewers } from "@/services/users.service";
 import type { Components } from "@/types/openapi";
@@ -132,6 +133,7 @@ const submitData = async () => {
         uploadedfileUrl.value = `https://${data.full_url}`;
         sendSuccess.value = true;
         forceRerender();
+        router.push("/track/" + uploadedtrackid.value);
     } catch (error) {
         console.error("API Error:", error);
         sendSuccess.value = false;

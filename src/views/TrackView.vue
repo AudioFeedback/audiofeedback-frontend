@@ -32,6 +32,11 @@ const reviewersoflabel = ref<Array<any>>([]);
 const selectedreviewer = ref<number>(0);
 const toasttype = ref<any>();
 const toastmessage = ref<string | null>();
+const currentLabel = ref<any>();
+
+const getCurrentLabel = async () => {
+    currentLabel.value = JSON.parse(localStorage.getItem("currentLabel") || "{}");
+};
 
 const setTab = (tab: number) => {
     activeTab.value = tab;
@@ -110,9 +115,7 @@ const Showoverlay = (reviewer: any) => {
 };
 
 const getReviewers = async () => {
-    const label = await getAllLabels();
-    const reviewers = await getAssignedReviewers(label.data[0].id);
-    console.log(reviewers);
+    const reviewers = await getAssignedReviewers(currentLabel.value.id);
     reviewersoflabel.value = reviewers.data;
 };
 
@@ -140,6 +143,7 @@ onMounted(() => {
     initFlowbite();
     getUserInfo();
     getReviewers();
+    getCurrentLabel();
     window.addEventListener("resize", forceRerender);
 });
 
