@@ -4,7 +4,7 @@ import { getReviewers } from "@/services/users.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 
-const apiUrl = `http://${import.meta.env.VITE_API_URL}/tracks`;
+const apiUrl = `https://${import.meta.env.VITE_API_URL}/tracks`;
 let uploadedfileUrl = ref<string>("");
 let uploadedfileTitle = ref<string>("");
 let uploadedfileGenre = ref<string>("");
@@ -82,17 +82,15 @@ const getReviewer = async () => {
 };
 
 const getLabels = async () => {
-    if(!labelQuery.value || labelQuery.value === "") {
+    if (!labelQuery.value || labelQuery.value === "") {
         const response = await getAllLabels();
         labels.value = response.data;
     } else {
         var query = labelQuery.value;
-        const reponse = await getLabelTypeahead(query)
+        const reponse = await getLabelTypeahead(query);
         labels.value = reponse.data;
     }
 };
-
-
 
 const submitData = async () => {
     try {
@@ -131,7 +129,7 @@ const submitData = async () => {
         uploadedfileTitle.value = data.title;
         uploadedfileGenre.value = data.genre;
         uploadedtrackid.value = data.id;
-        uploadedfileUrl.value = `http://${data.full_url}`;
+        uploadedfileUrl.value = `https://${data.full_url}`;
         sendSuccess.value = true;
         forceRerender();
     } catch (error) {
@@ -691,12 +689,12 @@ onMounted(() => {
                                 </svg>
                             </div>
                             <input
-                                @input="getLabels"
                                 id="input-group-1"
+                                v-model="labelQuery"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full max-w-sm ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Search label"
                                 type="search"
-                                v-model="labelQuery"
+                                @input="getLabels"
                             />
                         </div>
                     </div>

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import Toasts from "@/components/Toasts-Popup.vue";
 import { getProfile } from "@/services/app.service";
 import { deleteFeedback } from "@/services/feedback.service";
 import { getAllLabels, getAssignedReviewers } from "@/services/label.service";
@@ -9,7 +10,6 @@ import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
 import { AVWaveform } from "vue-audio-visual";
 import { useRoute } from "vue-router";
-import Toasts from "@/components/Toasts-Popup.vue";
 
 const route = useRoute();
 const componentKey = ref(0);
@@ -48,7 +48,7 @@ const getTrackInfo = async () => {
     trackinfo.value = data;
 
     trackVersion.value = data.trackversions.length - 1;
-    uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
+    uploadedfileUrl.value = `https://${data.trackversions[0].fullUrl}`;
     forceRerender();
 };
 
@@ -64,7 +64,7 @@ const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
 };
 
 const submitData = async () => {
-    const apiUrl = `http://${import.meta.env.VITE_API_URL}/tracks/${trackinfo?.value?.id}`;
+    const apiUrl = `https://${import.meta.env.VITE_API_URL}/tracks/${trackinfo?.value?.id}`;
     try {
         const body = new FormData();
         body.set("file", audiofile.value!);
@@ -82,7 +82,7 @@ const submitData = async () => {
         if (!response) {
             return;
         }
-        
+
         showModal.value = false;
         forceRerender();
         await getTrackInfo();
@@ -112,15 +112,15 @@ const Showoverlay = (reviewer: any) => {
 const getReviewers = async () => {
     const label = await getAllLabels();
     const reviewers = await getAssignedReviewers(label.data[0].id);
-    console.log(reviewers)
+    console.log(reviewers);
     reviewersoflabel.value = reviewers.data;
-}
+};
 
 const addReviewertoTrack = async () => {
     const response = await addReviewers(String(trackinfo.value?.id), {
         reviewerIds: [selectedreviewer.value]
     });
-    if(!response) {
+    if (!response) {
         return;
     } else {
         toasttype.value = "succes";
@@ -133,7 +133,7 @@ const addReviewertoTrack = async () => {
         forceRerender();
         ShowAddModal.value = false;
     }
-}
+};
 
 onMounted(() => {
     getTrackInfo();
@@ -144,7 +144,7 @@ onMounted(() => {
 });
 
 const deleteModal = (id: number) => {
-    if(confirmDeletion.value === true) {
+    if (confirmDeletion.value === true) {
         confirmDeletion.value = false;
         deleteID.value = id;
         return;
@@ -156,10 +156,9 @@ const deleteModal = (id: number) => {
     }
 };
 
-
 const delFeedback = async (id: number) => {
     const response = await deleteFeedback(id);
-    if(!response) {
+    if (!response) {
         return;
     } else {
         toasttype.value = "succes";
@@ -172,7 +171,7 @@ const delFeedback = async (id: number) => {
         forceRerender();
         confirmDeletion.value = false;
     }
-}
+};
 
 const play = () => {
     if (!audioPlayer.value) {
@@ -477,7 +476,10 @@ const getUserInfo = async () => {
                 </div>
             </div>
             <div v-if="trackinfo?.trackversions[trackVersion].feedback.length === 0">No feedback yet</div>
-            <div v-if="trackinfo && trackinfo.trackversions[trackVersion]?.feedback.length > 0"  class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12">
+            <div
+                v-if="trackinfo && trackinfo.trackversions[trackVersion]?.feedback.length > 0"
+                class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12"
+            >
                 <table aria-label="Feedback table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-600 dark:text-gray-400">
                         <tr>
@@ -521,72 +523,80 @@ const getUserInfo = async () => {
                                 {{ feedback.comment }}
                             </td>
                             <td class="px-6 py-4">file attachment</td>
-                            <td  class="flex items-center px-6 py-4">
-                                <button @click="deleteModal(feedback.id)" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</button>
+                            <td class="flex items-center px-6 py-4">
+                                <button
+                                    class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3"
+                                    @click="deleteModal(feedback.id)"
+                                >
+                                    Remove
+                                </button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
                 <!--delete feedback modal-->
-                <div v-if="confirmDeletion" class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-                            <div class="relative p-4 w-full max-w-md max-h-full">
-                                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                                    <button
-                                        class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                        type="button"
-                                        @click="confirmDeletion = !confirmDeletion"
-                                    >
-                                        <svg
-                                            aria-hidden="true"
-                                            class="w-3 h-3"
-                                            fill="none"
-                                            viewBox="0 0 14 14"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                                stroke="currentColor"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                        <span class="sr-only">Close modal</span>
-                                    </button>
-                                    <div class="p-4 md:p-5 text-center">
-                                        <svg
-                                            aria-hidden="true"
-                                            class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
-                                            fill="none"
-                                            viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                                stroke="currentColor"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                                            Are you sure you want to delete this feedback? This action is permanent
-                                        </h3>
-                                        <button
-                                            class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
-                                            @click="delFeedback(deleteID)"
-                                        >
-                                            Yes, I'm sure
-                                        </button>
-                                        <button
-                                            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                                            @click="confirmDeletion = !confirmDeletion"
-                                        >
-                                            No, cancel
-                                        </button>
-                                    </div>
-                                </div>
+                <div
+                    v-if="confirmDeletion"
+                    class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="relative p-4 w-full max-w-md max-h-full">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                            <button
+                                class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                type="button"
+                                @click="confirmDeletion = !confirmDeletion"
+                            >
+                                <svg
+                                    aria-hidden="true"
+                                    class="w-3 h-3"
+                                    fill="none"
+                                    viewBox="0 0 14 14"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                        stroke="currentColor"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                    />
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                            <div class="p-4 md:p-5 text-center">
+                                <svg
+                                    aria-hidden="true"
+                                    class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+                                    fill="none"
+                                    viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                        stroke="currentColor"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                    />
+                                </svg>
+                                <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                                    Are you sure you want to delete this feedback? This action is permanent
+                                </h3>
+                                <button
+                                    class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
+                                    @click="delFeedback(deleteID)"
+                                >
+                                    Yes, I'm sure
+                                </button>
+                                <button
+                                    class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                    @click="confirmDeletion = !confirmDeletion"
+                                >
+                                    No, cancel
+                                </button>
                             </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -684,7 +694,8 @@ const getUserInfo = async () => {
                     </li>
                 </ol>
             </div>
-            <button v-if="getRoles()?.includes('MUZIEKPRODUCER')"
+            <button
+                v-if="getRoles()?.includes('MUZIEKPRODUCER')"
                 class="text-white w-full bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 ml-auto font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                 @click="showModal = !showModal"
             >
@@ -820,7 +831,8 @@ const getUserInfo = async () => {
         </div>
         <div v-if="activeTab === 3 && getRoles()?.includes('ADMIN')">
             <div class="relative shadow-sm sm:rounded-lg">
-                <table v-if="trackinfo && trackinfo.reviewers && trackinfo.reviewers.length > 0"
+                <table
+                    v-if="trackinfo && trackinfo.reviewers && trackinfo.reviewers.length > 0"
                     aria-label="Manage reviewer table"
                     class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
                 >
@@ -930,21 +942,45 @@ const getUserInfo = async () => {
                     </tbody>
                 </table>
                 <p v-if="trackinfo?.reviewers.length === 0">no reviewers found</p>
-                <button @click="ShowAddModal = !ShowAddModal"
-                    class="text-white w-full mt-4 bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 ml-auto font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">
+                <button
+                    class="text-white w-full mt-4 bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 ml-auto font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+                    @click="ShowAddModal = !ShowAddModal"
+                >
                     Add reviewers
                 </button>
                 <!-- Show add modal -->
-                <div v-if='ShowAddModal' class="h-full w-full flex flex-col items-center justify-center bg-gray-200/[.7] fixed top-0 right-0 left-0 z-50 justify-center items-center md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div
+                    v-if="ShowAddModal"
+                    class="h-full w-full flex flex-col items-center justify-center bg-gray-200/[.7] fixed top-0 right-0 left-0 z-50 justify-center items-center md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
                     <div class="relative p-4 w-full max-w-md max-h-full">
                         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                            <div
+                                class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600"
+                            >
                                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                                    Add reviewer to {{ trackinfo?.title  }}
+                                    Add reviewer to {{ trackinfo?.title }}
                                 </h3>
-                                <button type="button" @click="ShowAddModal = !ShowAddModal" class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="authentication-modal">
-                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                <button
+                                    class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                    data-modal-hide="authentication-modal"
+                                    type="button"
+                                    @click="ShowAddModal = !ShowAddModal"
+                                >
+                                    <svg
+                                        aria-hidden="true"
+                                        class="w-3 h-3"
+                                        fill="none"
+                                        viewBox="0 0 14 14"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                        />
                                     </svg>
                                     <span class="sr-only">Close modal</span>
                                 </button>
@@ -952,19 +988,39 @@ const getUserInfo = async () => {
                             <div class="p-4 md:p-5">
                                 <form class="space-y-4" v-on:submit.prevent="addReviewertoTrack()">
                                     <div>
-                                        <label for="reviewers" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an reviewer</label>
-                                        <select v-model='selectedreviewer' id="reviewers" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                        <label
+                                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                            for="reviewers"
+                                            >Select an reviewer</label
+                                        >
+                                        <select
+                                            id="reviewers"
+                                            v-model="selectedreviewer"
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        >
                                             <option selected>Choose a reviewer</option>
-                                            <option v-for="(newreviewer, i) in reviewersoflabel" :key="i"  :value="newreviewer.id">{{ newreviewer.firstname }} {{ newreviewer.lastname }}</option>
+                                            <option
+                                                v-for="(newreviewer, i) in reviewersoflabel"
+                                                :key="i"
+                                                :value="newreviewer.id"
+                                            >
+                                                {{ newreviewer.firstname }}
+                                                {{ newreviewer.lastname }}
+                                            </option>
                                         </select>
                                     </div>
-                                    <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add reviewer</button>
+                                    <button
+                                        class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                        type="submit"
+                                    >
+                                        Add reviewer
+                                    </button>
                                 </form>
                             </div>
                         </div>
                     </div>
-                </div> 
-                <Toasts v-if="toasttype && toastmessage" :type="toasttype" :message="toastmessage" />
+                </div>
+                <Toasts v-if="toasttype && toastmessage" :message="toastmessage" :type="toasttype" />
             </div>
         </div>
     </main>
