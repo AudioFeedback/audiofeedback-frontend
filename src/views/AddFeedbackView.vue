@@ -39,7 +39,7 @@ const getTrackData = async () => {
     const data = response.data;
     trackinfo.value = data;
     trackversion.value = data.trackversions[0];
-    uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
+    uploadedfileUrl.value = `https://${data.trackversions[0].fullUrl}`;
     forceRerender();
 };
 
@@ -75,27 +75,34 @@ const submitFeedback = async () => {
 };
 
 const editFeedback = async (localid: number) => {
-    if(rating.value=== trackinfo.value?.trackversions[0].feedback[localid].rating && comments.value === trackinfo.value?.trackversions[0].feedback[localid].comment) {
+    if (
+        rating.value === trackinfo.value?.trackversions[0].feedback[localid].rating &&
+        comments.value === trackinfo.value?.trackversions[0].feedback[localid].comment
+    ) {
         alert("Please change something");
         return;
     }
-    if(!trackinfo.value?.trackversions[0].feedback[localid].timestamp) return;
+    if (!trackinfo.value?.trackversions[0].feedback[localid].timestamp) {
+        return;
+    }
 
     const reponse = await updateFeedback(feedbackId.value, {
         rating: rating.value,
         comment: comments.value,
-        timestamp: +trackinfo.value?.trackversions[0].feedback[localid].timestamp ?? trackversion.value?.feedback[localid].timestamp,
+        timestamp:
+            +trackinfo.value?.trackversions[0].feedback[localid].timestamp ??
+            trackversion.value?.feedback[localid].timestamp
     });
-    
-    if(!reponse){
+
+    if (!reponse) {
         return;
     } else {
-        setEditModal(0,0);
+        setEditModal(0, 0);
         setToast("Feedback edited succesfully");
         getTrackData();
         forceRerender();
     }
-}
+};
 
 const publishFeedbackToArtist = async () => {
     const versionId = trackinfo.value?.trackversions[trackinfo.value?.trackversions.length - 1].id;
@@ -110,20 +117,22 @@ const publishFeedbackToArtist = async () => {
 };
 
 const setToast = (message: string) => {
-    if(message.length > 0) {
+    if (message.length > 0) {
         succesmessage.value = message;
         setTimeout(() => {
-            succesmessage.value = null
+            succesmessage.value = null;
         }, 3000);
     } else {
-        succesmessage.value = null
+        succesmessage.value = null;
     }
 };
 
 const setEditModal = (id: number, localid: number) => {
-    if(!trackinfo.value?.trackversions[0].feedback[localid]) return;
+    if (!trackinfo.value?.trackversions[0].feedback[localid]) {
+        return;
+    }
 
-    if(showEditModal.value === true) {
+    if (showEditModal.value === true) {
         showEditModal.value = false;
         feedbackId.value = id;
         localfeedbackId.value = localid;
@@ -141,7 +150,7 @@ const setEditModal = (id: number, localid: number) => {
 };
 
 const deleteModal = (id: number) => {
-    if(confirmDeletion.value === true) {
+    if (confirmDeletion.value === true) {
         confirmDeletion.value = false;
         deleteID.value = id;
         return;
@@ -155,14 +164,14 @@ const deleteModal = (id: number) => {
 
 const deleteAccount = async (id: number) => {
     const response = await deleteFeedback(id);
-    if(!response) {
+    if (!response) {
         return;
     } else {
         setToast("Feedback deleted succesfully");
         getTrackData();
         forceRerender();
     }
-}
+};
 
 const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
     if (!timeInSeconds || timeInSeconds <= 0) {
@@ -474,7 +483,10 @@ const getUserInfo = async () => {
             </div>
         </div>
         <div v-if="trackinfo?.trackversions[0].feedback.length === 0">Feedback will appear here</div>
-        <div v-if="trackinfo && trackinfo.trackversions[0]?.feedback.length > 0"  class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12">
+        <div
+            v-if="trackinfo && trackinfo.trackversions[0]?.feedback.length > 0"
+            class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12"
+        >
             <table aria-label="Feedback table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
@@ -515,14 +527,27 @@ const getUserInfo = async () => {
                         </td>
                         <td class="px-6 py-4">file attachment</td>
                         <td v-if="!trackversion?.feedback[0]?.isPublished" class="flex items-center px-6 py-4">
-                            <button @click='setEditModal(feedback.id, i)' class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</button>
-                            <button @click="deleteModal(feedback.id)" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</button>
+                            <button
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                @click="setEditModal(feedback.id, i)"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3"
+                                @click="deleteModal(feedback.id)"
+                            >
+                                Remove
+                            </button>
                         </td>
                     </tr>
                 </tbody>
             </table>
             <!--edit feedback modal-->
-            <div v-if="showEditModal" class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div
+                v-if="showEditModal"
+                class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
                 <div class="relative p-4 w-full max-w-md max-h-full">
                     <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
                         <div
@@ -532,7 +557,7 @@ const getUserInfo = async () => {
                             <button
                                 class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
                                 type="button"
-                                @click='setEditModal(feedbackId, localfeedbackId)'
+                                @click="setEditModal(feedbackId, localfeedbackId)"
                             >
                                 <svg
                                     aria-hidden="true"
@@ -552,8 +577,20 @@ const getUserInfo = async () => {
                                 <span class="sr-only">Close modal</span>
                             </button>
                         </div>
-                        <form class='p-4 md:p-5' name="feedbackform" v-on:submit.prevent="editFeedback(localfeedbackId)">
-                            <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">Timestamp: {{ getTimeInMinutesAndSeconds(trackinfo?.trackversions[0].feedback[localfeedbackId].timestamp * trackinfo!.trackversions[0].duration) }}</h3>
+                        <form
+                            class="p-4 md:p-5"
+                            name="feedbackform"
+                            v-on:submit.prevent="editFeedback(localfeedbackId)"
+                        >
+                            <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">
+                                Timestamp:
+                                {{
+                                    getTimeInMinutesAndSeconds(
+                                        trackinfo?.trackversions[0].feedback[localfeedbackId].timestamp *
+                                            trackinfo!.trackversions[0].duration
+                                    )
+                                }}
+                            </h3>
                             <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">Rating</h3>
                             <ul class="grid w-full gap-6 md:grid-cols-2">
                                 <li>
@@ -617,130 +654,182 @@ const getUserInfo = async () => {
             </div>
 
             <!--delete feedback modal-->
-            <div v-if="confirmDeletion" class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-                        <div class="relative p-4 w-full max-w-md max-h-full">
-                            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                                <button
-                                    class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                    type="button"
-                                    @click="confirmDeletion = !confirmDeletion"
-                                >
-                                    <svg
-                                        aria-hidden="true"
-                                        class="w-3 h-3"
-                                        fill="none"
-                                        viewBox="0 0 14 14"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                            stroke="currentColor"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                        />
-                                    </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
-                                <div class="p-4 md:p-5 text-center">
-                                    <svg
-                                        aria-hidden="true"
-                                        class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
-                                        fill="none"
-                                        viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                            stroke="currentColor"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                        />
-                                    </svg>
-                                    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                                        Are you sure you want to delete this feedback? This action is permanent
-                                    </h3>
-                                    <button
-                                        class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
-                                        @click="deleteAccount(deleteID)"
-                                    >
-                                        Yes, I'm sure
-                                    </button>
-                                    <button
-                                        class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                                        @click="confirmDeletion = !confirmDeletion"
-                                    >
-                                        No, cancel
-                                    </button>
-                                </div>
-                            </div>
+            <div
+                v-if="confirmDeletion"
+                class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
+                <div class="relative p-4 w-full max-w-md max-h-full">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <button
+                            class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                            type="button"
+                            @click="confirmDeletion = !confirmDeletion"
+                        >
+                            <svg
+                                aria-hidden="true"
+                                class="w-3 h-3"
+                                fill="none"
+                                viewBox="0 0 14 14"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                />
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                        <div class="p-4 md:p-5 text-center">
+                            <svg
+                                aria-hidden="true"
+                                class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+                                fill="none"
+                                viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                />
+                            </svg>
+                            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                                Are you sure you want to delete this feedback? This action is permanent
+                            </h3>
+                            <button
+                                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
+                                @click="deleteAccount(deleteID)"
+                            >
+                                Yes, I'm sure
+                            </button>
+                            <button
+                                class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                @click="confirmDeletion = !confirmDeletion"
+                            >
+                                No, cancel
+                            </button>
                         </div>
+                    </div>
+                </div>
             </div>
 
             <!--publish feedback modal-->
-            <div v-if="publishFeedbackModal" class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div
+                v-if="publishFeedbackModal"
+                class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
                 <div class="relative p-4 w-full max-w-md max-h-full">
-                            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                                <button
-                                    class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                    type="button"
-                                    @click="publishFeedbackModal = !publishFeedbackModal"
-                                >
-                                    <svg
-                                        aria-hidden="true"
-                                        class="w-3 h-3"
-                                        fill="none"
-                                        viewBox="0 0 14 14"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                            stroke="currentColor"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                        />
-                                    </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
-                                <div class="p-4 md:p-5 text-center">
-                                    <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 10 2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                    </svg>
-                                    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                                        Are you sure you want to publish this feedback? After you publish this feedback you can't edit or add feedback.
-                                    </h3>
-                                    <button
-                                        class="text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 dark:focus:ring-primary-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
-                                        @click="publishFeedbackToArtist()"
-                                    >
-                                        Yes, I'm sure
-                                    </button>
-                                    <button
-                                        class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                                        @click="publishFeedbackModal = !publishFeedbackModal"
-                                    >
-                                        No, cancel
-                                    </button>
-                                </div>
-                            </div>
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <button
+                            class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                            type="button"
+                            @click="publishFeedbackModal = !publishFeedbackModal"
+                        >
+                            <svg
+                                aria-hidden="true"
+                                class="w-3 h-3"
+                                fill="none"
+                                viewBox="0 0 14 14"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                />
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                        <div class="p-4 md:p-5 text-center">
+                            <svg
+                                aria-hidden="true"
+                                class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+                                fill="none"
+                                viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="m7 10 2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                />
+                            </svg>
+                            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                                Are you sure you want to publish this feedback? After you publish this feedback you
+                                can't edit or add feedback.
+                            </h3>
+                            <button
+                                class="text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 dark:focus:ring-primary-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
+                                @click="publishFeedbackToArtist()"
+                            >
+                                Yes, I'm sure
+                            </button>
+                            <button
+                                class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                @click="publishFeedbackModal = !publishFeedbackModal"
+                            >
+                                No, cancel
+                            </button>
                         </div>
+                    </div>
+                </div>
             </div>
 
             <!--succes toast-->
-            <div v-if='succesmessage' id="toast-success" class="fixed top-10 right-4 flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
-                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
-                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+            <div
+                v-if="succesmessage"
+                id="toast-success"
+                class="fixed top-10 right-4 flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800"
+                role="alert"
+            >
+                <div
+                    class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200"
+                >
+                    <svg
+                        aria-hidden="true"
+                        class="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
+                        />
                     </svg>
                     <span class="sr-only">Check icon</span>
                 </div>
                 <div class="ms-3 text-sm font-normal">{{ succesmessage }}</div>
-                <button @click='setToast("")' type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" data-dismiss-target="#toast-success" aria-label="Close">
+                <button
+                    aria-label="Close"
+                    class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+                    data-dismiss-target="#toast-success"
+                    type="button"
+                    @click="setToast('')"
+                >
                     <span class="sr-only">Close</span>
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    <svg
+                        aria-hidden="true"
+                        class="w-3 h-3"
+                        fill="none"
+                        viewBox="0 0 14 14"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                        />
                     </svg>
                 </button>
             </div>
