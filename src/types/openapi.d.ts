@@ -160,6 +160,7 @@ declare namespace Components {
             id: number;
             firstname: string;
             lastname: string;
+            username: string;
             roles: {
                 [key: string]: any;
             }[];
@@ -205,6 +206,13 @@ declare namespace Components {
         }
         export interface UpdateTrackReviewersDto {
             reviewerIds: number[];
+        }
+        export interface UpdateUserDto {
+            firstname: string;
+            lastname: string;
+        }
+        export interface UpdateUserPasswordDto {
+            password: string;
         }
     }
 }
@@ -453,7 +461,7 @@ declare namespace Paths {
     }
     namespace TracksControllerPublishFeedback {
         namespace Parameters {
-            export type TrackversionId = string;
+            export type TrackversionId = number;
         }
         export interface PathParameters {
             trackversionId: Parameters.TrackversionId;
@@ -514,6 +522,20 @@ declare namespace Paths {
     namespace UsersControllerGetReviewers {
         namespace Responses {
             export type $200 = Components.Schemas.GetUserDto[];
+        }
+    }
+    namespace UsersControllerUpdate {
+        export type RequestBody = Components.Schemas.UpdateUserDto;
+        namespace Responses {
+            export interface $200 {
+            }
+        }
+    }
+    namespace UsersControllerUpdatePassword {
+        export type RequestBody = Components.Schemas.UpdateUserPasswordDto;
+        namespace Responses {
+            export interface $200 {
+            }
         }
     }
 }
@@ -647,6 +669,22 @@ export interface OperationMethods {
     data?: Paths.UsersControllerCreate.RequestBody,
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.UsersControllerCreate.Responses.$201>
+  /**
+   * UsersController_update
+   */
+  'UsersController_update'(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: Paths.UsersControllerUpdate.RequestBody,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.UsersControllerUpdate.Responses.$200>
+  /**
+   * UsersController_updatePassword
+   */
+  'UsersController_updatePassword'(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: Paths.UsersControllerUpdatePassword.RequestBody,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.UsersControllerUpdatePassword.Responses.$200>
   /**
    * UsersController_getReviewers
    */
@@ -923,6 +961,24 @@ export interface PathsDictionary {
       data?: any,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.UsersControllerFindAll.Responses.$200>
+    /**
+     * UsersController_update
+     */
+    'patch'(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: Paths.UsersControllerUpdate.RequestBody,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.UsersControllerUpdate.Responses.$200>
+  }
+  ['/users/Password']: {
+    /**
+     * UsersController_updatePassword
+     */
+    'patch'(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: Paths.UsersControllerUpdatePassword.RequestBody,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.UsersControllerUpdatePassword.Responses.$200>
   }
   ['/users/reviewers']: {
     /**

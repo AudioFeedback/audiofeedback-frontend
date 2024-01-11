@@ -189,9 +189,12 @@ const GetPointerLocation = () => {
         closepopup.value = false;
         return;
     }
+
+    if (!trackinfo.value) return;
+
     const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    selectedpercentageleft.value = (audioElement.currentTime / audioElement.duration) * 100;
-    selectedTimeStamp.value = audioElement.currentTime / audioElement.duration;
+    selectedpercentageleft.value = (audioElement.currentTime / trackinfo.value?.trackversions[0].duration) * 100;
+    selectedTimeStamp.value = audioElement.currentTime / trackinfo.value?.trackversions[0].duration;
 };
 
 const CloseFeedback = () => {
@@ -214,6 +217,7 @@ const play = () => {
     }
 
     const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
+    console.log(audioElement.duration)
     audioElement.play();
 };
 
@@ -384,7 +388,7 @@ const getUserInfo = async () => {
                 <div class="relative -top-5">
                     <div
                         v-if="selectedpercentageleft"
-                        :style="{ left: `${selectedpercentageleft - 1.5}%` }"
+                        :style="{ left: `${selectedpercentageleft - 2.5}%` }"
                         class="absolute"
                     >
                         <div
@@ -397,8 +401,8 @@ const getUserInfo = async () => {
                     </div>
                     <div
                         v-if="selectedpercentageleft"
-                        :style="{ left: `${selectedpercentageleft + 4}%` }"
-                        class="absolute bg-white rounded-lg dark:bg-gray-700 p-4 z-[99] drop-shadow-2xl min-w-[20em]"
+                        :style="{ position: 'absolute', [selectedpercentageleft < 80 ? 'left' : 'right']: `${selectedpercentageleft < 80 ? selectedpercentageleft + 4 : 100 - selectedpercentageleft + 4}%` }"
+                        class="bg-white rounded-lg dark:bg-gray-700 p-4 z-[99] drop-shadow-2xl min-w-[20em]"
                     >
                         <form name="feedbackform" v-on:submit.prevent="submitFeedback()">
                             <div class="flex flex-row align-items justify-between">

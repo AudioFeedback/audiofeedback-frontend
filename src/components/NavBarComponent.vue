@@ -157,7 +157,7 @@ onMounted(() => {
                     <li class="relative">
                         <button @click="dropdownuser = !dropdownuser" class="text-white w-full bg-blue-700 justify-between hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
                             <div v-if='currentLabel' class="flex flex-row items-center">
-                                <img class="w-8 h-8 me-2 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="user photo">
+                                <img class="w-8 h-8 me-2 rounded-full" :src="currentLabel.profilePicture" :alt="currentLabel.name">
                                 {{ currentLabel.name }}
                             </div>
                             <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
@@ -169,7 +169,7 @@ onMounted(() => {
                             <ul class=" py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
                                 <li v-for="(label, i) in labelinfo" :key="i" :value="label" @click="setSelectedLabel(label)">
                                     <div class="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                        <img class="w-6 h-6 me-2 rounded-full" src="/docs/images/people/profile-picture-1.jpg" alt="Jese image">
+                                        <img class="w-6 h-6 me-2 rounded-full" :src="currentLabel.profilePicture" :alt="label.name">
                                         {{label.name}}
                                     </div>
                                 </li>

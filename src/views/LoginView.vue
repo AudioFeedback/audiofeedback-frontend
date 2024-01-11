@@ -6,7 +6,6 @@ import { onMounted, ref } from "vue";
 
 const username = ref<string>("");
 const password = ref<string>("");
-const remember = ref<boolean>(true);
 const incorrect = ref<boolean>(false);
 
 if (localStorage.getItem("access_token")) {
@@ -25,16 +24,10 @@ const submitData = async () => {
 
         localStorage.removeItem("access_token");
         if (response.status == 200 || response.status == 201) {
-            if (remember.value == true) {
                 localStorage.setItem("access_token", data.access_token);
                 await router.push("/");
                 router.go(0);
                 return router.go(0);
-            } else {
-                await router.push("/");
-                router.go(0);
-                return router.go(0);
-            }
         } else {
             incorrect.value = true;
             return;
@@ -98,23 +91,6 @@ onMounted(() => checkMode());
                             Username and/or password is incorrect
                         </p>
                         <div class="flex items-center justify-between">
-                            <div class="flex items-start">
-                                <div class="flex items-center h-5">
-                                    <input
-                                        id="remember"
-                                        v-model="remember"
-                                        aria-describedby="remember"
-                                        checked
-                                        class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
-                                        type="checkbox"
-                                    />
-                                </div>
-                                <div class="ml-3 text-sm">
-                                    <label class="text-sm font-light text-gray-500 dark:text-gray-400" for="remember"
-                                        >Remember me</label
-                                    >
-                                </div>
-                            </div>
                             <a
                                 class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500"
                                 href="#"
