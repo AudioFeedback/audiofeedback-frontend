@@ -2,10 +2,12 @@
 import AdminTableComponent from "@/components/AdminTableComponent.vue";
 import TableComponent from "@/components/TableComponent.vue";
 import { getRoles } from "@/utils/authorisationhelper";
+import LoadingView from "./LoadingView.vue";
 </script>
 
 <template>
     <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
+        <LoadingView></LoadingView>
         <h2 class="text-4xl mb-4 font-bold dark:text-white">Manage tracks</h2>
         <div v-if="getRoles()?.includes('MUZIEKPRODUCER') || getRoles()?.includes('FEEDBACKGEVER')">
             <TableComponent></TableComponent>
