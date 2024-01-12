@@ -125,39 +125,6 @@ const NextStep = (step: number) => {
     uploadstatus.value = step;
 };
 
-const audioPlayer = ref<AVWaveform | null>(null);
-
-const play = () => {
-    if (!audioPlayer.value) {
-        return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    audioElement.play();
-};
-
-const pause = () => {
-    if (!audioPlayer.value) {
-        return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    audioElement.pause();
-};
-
-const seek = (seconds: number) => {
-    if (!audioPlayer.value) {
-        return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-
-    audioElement.currentTime = seconds;
-    if (!audioElement.paused) {
-        audioElement.pause();
-    }
-};
-
 onMounted(() => {
     getReviewer();
 });
