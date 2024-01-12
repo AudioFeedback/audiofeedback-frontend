@@ -13,15 +13,15 @@ export async function createUser(body: Paths.UsersControllerCreate.RequestBody) 
     return client.UsersController_create(null, body);
 }
 
-// export async function updateUser(body: Paths.UsersControllerUpdate.RequestBody, id: number) {
-//     const client = await APIClient();
-//
-//     return client.UsersController_update(id, body);
-// }
-//
+export async function updateUser(body: Paths.UsersControllerUpdate.RequestBody) {
+    const client = await APIClient();
+
+    return client.UsersController_update(null, body);
+}
+
 // export async function deleteUser(id: number) {
 //     const client = await APIClient();
-//
+
 //     return client.UsersController_remove(id);
 // }
 

@@ -4,6 +4,9 @@ import { acceptInvite, getLabelInvites, declineInvite } from "@/services/label.s
 import type { Components } from "@/types/openapi";
 import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
+import { updateUser } from "@/services/users.service";
+import { getRoles } from "@/utils/authorisationhelper";
+import Toasts from "@/components/Toasts-Popup.vue";
 
 const userinfo = ref<Components.Schemas.GetUserDto>({ id: 0, username: "", firstname: "", lastname: "", roles: [] });
 const confirmDeletion = ref<boolean>();
@@ -15,6 +18,11 @@ const confirm_password = ref<string>();
 const password_match = ref<boolean>(true);
 const invites = ref<any>();
 const labelmemberid = ref<number>(0);
+const toasttype = ref<any>();
+const toastmessage = ref<string | null>();
+
+const roles = getRoles();
+
 
 const getUserInfo = async () => {
     const response = await getProfile();
@@ -25,6 +33,7 @@ const getUserInfo = async () => {
     lastname.value = response.data.lastname;
     initFlowbite();
 };
+
 
 const deleteAccount = async () => {
     //     const response = await deleteUser(userinfo.value.id as number);
@@ -61,6 +70,9 @@ const checkFormValid = async () => {
 };
 
 const getInvited = async () => {
+    if(roles?.includes('ADMIN')){
+        return;
+    }
     const reponse = await getLabelInvites();
     if (!reponse) {
         return;
@@ -99,27 +111,37 @@ const declinelabelInvite = async (id: number) => {
 };
 
 const editUser = async () => {
-    //     try {
-    //         const response = await updateUser(
-    //             {
-    //                 username: username.value ?? userinfo.value.username,
-    //                 firstname: firstname.value ?? userinfo.value.firstname,
-    //                 lastname: lastname.value ?? userinfo.value.lastname,
-    //                 password: password.value
-    //             },
-    //             userinfo.value.id as number
-    //         );
-    //
-    //         if (!response) {
-    //             return;
-    //         } else {
-    //             alert("Account updated");
-    //             return;
-    //         }
-    //     } catch (error) {
-    //         alert("Something went wrong, please try again");
-    //         return;
-    //     }
+        try {
+            const response = await updateUser(
+                {
+                    firstname: firstname.value ?? userinfo.value.firstname,
+                    lastname: lastname.value ?? userinfo.value.lastname,
+                },
+            );
+    
+            if (!response) {
+                return;
+            } else {
+                toasttype.value = "succes";
+                toastmessage.value = "Account updated";
+                setTimeout(() => {
+                    toasttype.value = null;
+                    toastmessage.value = null;
+                }, 5000);
+                
+                window.location.href = "/profile";
+                return;
+            }
+        } catch (error) {
+           
+            toasttype.value = "error";
+                toastmessage.value = "Something went wrong, please try again";
+                setTimeout(() => {
+                    toasttype.value = null;
+                    toastmessage.value = null;
+                }, 5000);
+            return;
+        }
 };
 
 onMounted(async () => {
@@ -240,6 +262,7 @@ onMounted(async () => {
                     </div>
                     <div class="flex items-center space-x-4">
                         <button
+                            @click="editUser()"
                             class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                             type="submit"
                         >
@@ -267,7 +290,7 @@ onMounted(async () => {
                     </div>
 
                     <!--LABEL INVITES-->
-                    <div class="flex flex-col items-center w-full">
+                    <div v-if="roles?.includes('ADMIN')" class="flex flex-col items-center w-full">
                         <div v-for="(invite, i) in invites" :key="i">
                             <div v-if='invite.status != "DECLINED"' id="alert-additional-content-1" class="p-4 mb-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800" role="alert">
                                 <div class="flex items-center">
@@ -365,6 +388,7 @@ onMounted(async () => {
                 </form>
             </div>
         </section>
+        <Toasts v-if="toasttype && toastmessage" :type="toasttype" :message="toastmessage" />
     </main>
 </template>
 

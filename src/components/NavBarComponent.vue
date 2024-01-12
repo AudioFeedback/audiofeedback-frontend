@@ -7,6 +7,7 @@ import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
 import { onMounted, ref } from "vue";
 
+
 let userinfo = ref<Components.Schemas.GetUserWithNotificationsDto>();
 let labelinfo = ref<any>();
 let currentLabel = ref<any>();
