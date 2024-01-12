@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { getReviewers } from "@/services/users.service";
 import { onMounted, ref } from "vue";
-import { AVWaveform } from "vue-audio-visual";
 
 const apiUrl = `http://${import.meta.env.VITE_API_URL}/tracks`;
 let uploadedfileUrl = ref<string>("");
@@ -480,8 +479,8 @@ onMounted(() => {
                         for="reviewers"
                     >
                         Add Reviewers</label
-
-                    ><p
+                    >
+                    <p
                         v-if="labelreviewer.length > 0"
                         id="label-reviewer-explanation"
                         class="mt-2 text-sm text-gray-500 dark:text-gray-400"
