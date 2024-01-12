@@ -304,7 +304,6 @@ const getUserInfo = async () => {
             <TrackComponent
                 :id="route.params.id as unknown as number"
                 ref="trackComponent"
-                :canvas-div="canvasDiv!"
                 :version="trackVersion"
             ></TrackComponent>
 

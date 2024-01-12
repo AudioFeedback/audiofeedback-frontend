@@ -1,15 +1,15 @@
 <script lang="ts" setup>
+import "1llest-waveform-vue/lib/style.css";
 import { getProfile } from "@/services/app.service";
 import { createFeedback, publishFeedback } from "@/services/feedback.service";
 import { getTrack, getTrackReviewer } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { onKeyStroke } from "@vueuse/core";
-import { onBeforeMount, ref } from "vue";
-import { AVWaveform } from "vue-audio-visual";
+import { onBeforeMount, onMounted, reactive, ref, watchEffect } from "vue";
+import { IllestWaveform, type IllestWaveformProps } from "../utils/1llest-waveform";
 
 interface Props {
     id: number;
-    canvasDiv: HTMLElement;
     version: number;
     feedback?: boolean;
 }
@@ -20,9 +20,9 @@ const props = withDefaults(defineProps<Props>(), {
 
 const componentKey = ref(0);
 const uploadedfileUrl = ref<string>("");
-const track = ref<Components.Schemas.GetTrackDeepDto | Components.Schemas.GetReviewTrackVersionDto>();
+const track = ref<Components.Schemas.GetTrackVersionDeepDto | Components.Schemas.GetReviewTrackVersionDto>();
 const trackdata = ref<Components.Schemas.GetTrackDeepDto | Components.Schemas.GetReviewTrackDto>();
-const audioPlayer = ref<AVWaveform | null>(null);
+
 const trackVersion = ref<number>(0);
 
 const selectedpercentageleft = ref<number | null>(0);
@@ -35,7 +35,54 @@ const userinfo = ref<Components.Schemas.GetUserDto>();
 const submitted = ref<boolean>(false);
 const showSubmitButton = ref<boolean>(false);
 
-const isPlaying = ref<boolean>(false);
+const trackDuration = ref<number>(-1);
+
+const waveOptions = reactive<IllestWaveformProps>({
+    url: uploadedfileUrl.value,
+    lineColor: "#1C64F2",
+    maskColor: "#1849a8",
+    cursorWidth: 3,
+    cursorColor: "#ff6200",
+    skeleton: true,
+    skeletonColor: "000000",
+    fade: false
+});
+
+const waveformRef = ref<typeof IllestWaveform | null>(null);
+
+onMounted(() => {
+    getCurrentTime();
+});
+
+const init = ref(false);
+const fetched = ref(false);
+const playing = ref(false);
+const ready = ref(false);
+const currentTime = ref(-1);
+const durationTime = ref(-1);
+
+const initHandler = (v: boolean) => {
+    init.value = v;
+};
+
+const fetchedHandler = (v: boolean) => {
+    fetched.value = v;
+};
+
+const readyHandler = (v: boolean) => {
+    ready.value = v;
+    getDuration();
+};
+
+const getCurrentTime = () => {
+    watchEffect(() => {
+        currentTime.value = waveformRef.value!.getCurrentTime();
+    });
+};
+
+const getDuration = () => {
+    durationTime.value = waveformRef.value!.getDuration();
+};
 
 const checkSubmitted = async () => {
     const response = await getTrackReviewer(props.id);
@@ -63,11 +110,13 @@ const getTrackInfo = async () => {
 
         const data = response.data;
 
-        track.value = data;
+        track.value = data.trackversions[0];
         trackdata.value = data;
 
         trackVersion.value = props.version + 1;
-        uploadedfileUrl.value = `http://${data.trackversions[props.version].fullUrl}`;
+        uploadedfileUrl.value = `https://${data.trackversions[props.version].fullUrl}`;
+        waveOptions.url = uploadedfileUrl.value;
+        trackDuration.value = track.value.duration;
         forceRerender();
     }
 
@@ -80,9 +129,12 @@ const getTrackInfo = async () => {
         trackVersion.value = data.trackversions[0].versionNumber;
 
         track.value = data.trackversions[0];
-        uploadedfileUrl.value = `http://${data.trackversions[0].fullUrl}`;
-        forceRerender();
+
+        uploadedfileUrl.value = `https://${data.trackversions[0].fullUrl}`;
+        waveOptions.url = uploadedfileUrl.value;
+        trackDuration.value = track.value.duration;
         await checkSubmitted();
+        forceRerender();
     }
 };
 
@@ -92,46 +144,34 @@ const GetPointerLocation = () => {
         return;
     }
 
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    selectedpercentageleft.value = (audioElement.currentTime / audioElement.duration) * 100;
-    selectedTimeStamp.value = audioElement.currentTime / audioElement.duration;
+    if (!trackdata.value || !trackDuration.value) {
+        return;
+    }
+
+    selectedpercentageleft.value = (currentTime.value / trackDuration.value) * 100;
+    selectedTimeStamp.value = currentTime.value / trackDuration.value;
 };
 
 onBeforeMount(() => {
     getTrackInfo();
     if (props.feedback) {
         getUserInfo();
-        checkSubmitted();
     }
     window.addEventListener("resize", forceRerender);
 });
 
 const playpause = () => {
-    if (!audioPlayer.value) {
+    if (!waveformRef.value) {
+        return;
+    }
+    if (!playing.value) {
+        waveformRef.value.play();
         return;
     }
 
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-
-    if (audioElement.paused) {
-        audioElement.play();
-        return (isPlaying.value = true);
-    }
-
-    audioElement.pause();
-    return (isPlaying.value = false);
-};
-
-const seek = (seconds: number) => {
-    if (!audioPlayer.value) {
+    if (playing.value) {
+        waveformRef.value.pause();
         return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-
-    audioElement.currentTime = seconds;
-    if (!audioElement.paused) {
-        playpause();
     }
 };
 
@@ -201,6 +241,15 @@ const publishFeedbackToArtist = async () => {
     submitted.value = true;
 };
 
+const seek = (to: number) => {
+    if (!waveformRef.value) {
+        return;
+    }
+
+    waveformRef.value.seek(to);
+    playing.value = false;
+};
+
 defineExpose({ seek });
 </script>
 
@@ -224,7 +273,7 @@ defineExpose({ seek });
                 @click="playpause"
             >
                 <svg
-                    v-if="!isPlaying"
+                    v-if="!playing"
                     aria-hidden="true"
                     class="w-5 h-5 text-white"
                     fill="currentColor"
@@ -236,7 +285,7 @@ defineExpose({ seek });
                     />
                 </svg>
                 <svg
-                    v-if="isPlaying"
+                    v-if="playing"
                     aria-hidden="true"
                     class="w-5 h-5 text-white"
                     fill="currentColor"
@@ -283,22 +332,18 @@ defineExpose({ seek });
                 </div>
             </div>
         </div>
-        <div class="w-full" @click="GetPointerLocation()">
-            <AVWaveform
+        <div class="w-full h-48" @click="GetPointerLocation()">
+            <IllestWaveform
                 :key="componentKey"
-                ref="audioPlayer"
-                :audio-controls="false"
-                :canv-height="200"
-                :canv-width="canvasDiv?.clientWidth"
-                :ftt-size="2048"
-                :noplayed-line-color="'#4F46E5'"
-                :played-line-color="'#4f46e5'"
-                :playtime="false"
-                :playtime-slider-color="'#d5540f'"
-                :playtime-slider-width="5"
-                :src="`${uploadedfileUrl}`"
-                cors-anonym
-            ></AVWaveform>
+                ref="waveformRef"
+                v-bind="waveOptions"
+                @click="GetPointerLocation()"
+                @on-init="initHandler"
+                @on-fetched="fetchedHandler"
+                @on-ready="readyHandler"
+                @on-play="(v: boolean) => (playing = v)"
+                @on-pause="(v: boolean) => (playing = v)"
+            />
 
             <div v-if="!feedback" class="relative -top-5">
                 <div

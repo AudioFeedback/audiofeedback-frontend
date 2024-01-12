@@ -5,7 +5,6 @@ import { deleteFeedback, publishFeedback, updateFeedback } from "@/services/feed
 import { getTrackReviewer } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { onBeforeMount, ref } from "vue";
-import { AVWaveform } from "vue-audio-visual";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -13,7 +12,7 @@ const componentKey = ref(0);
 const uploadedfileUrl = ref<string>("");
 const trackinfo = ref<Components.Schemas.GetReviewTrackDto>();
 const trackversion = ref<Components.Schemas.GetReviewTrackVersionDto>();
-const audioPlayer = ref<AVWaveform | null>(null);
+
 const canvasDiv = ref<HTMLElement | null>(null);
 
 const rating = ref<boolean>(true);
@@ -156,17 +155,6 @@ onBeforeMount(() => {
 });
 
 const seek = (seconds: number) => {
-    if (!audioPlayer.value) {
-        return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-
-    audioElement.currentTime = seconds;
-    if (!audioElement.paused) {
-        audioElement.pause();
-    }
-
     trackComponent.value.seek(seconds);
 };
 
@@ -253,7 +241,6 @@ const getUserInfo = async () => {
         <TrackComponent
             :id="route.params.id as unknown as number"
             ref="trackComponent"
-            :canvas-div="canvasDiv!"
             :version="trackversion?.versionNumber"
             feedback
             @refresh-feedback="getTrackData()"
