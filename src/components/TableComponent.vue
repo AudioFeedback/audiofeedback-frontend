@@ -103,7 +103,10 @@ onMounted(() => gettrack());
                             >View
                         </router-link>
                     </td>
-                    <td v-if="roles?.includes('FEEDBACKGEVER')" class="px-6 py-4 text-right">
+                    <td v-if="roles?.includes('FEEDBACKGEVER') && track.status[0] == 'REVIEWED'" class="px-6 py-4 text-right">
+                        <p class="font-medium text-gray-600 dark:text-gray-500">You have already reviewed this track</p>
+                    </td>
+                    <td v-if="roles?.includes('FEEDBACKGEVER') && !(track.status[0] == 'REVIEWED')" class="px-6 py-4 text-right">
                         <router-link
                             :to="`/feedback/${track.id}`"
                             class="font-medium text-blue-600 dark:text-blue-500 hover:underline"

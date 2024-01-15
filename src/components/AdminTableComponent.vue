@@ -11,12 +11,17 @@ const ShowOverlay = ref<any>();
 const ShowOverlay2 = ref<any>();
 const toasttype = ref<any>();
 const toastmessage = ref<string | null>();
+const currentLabel = ref<any>();
+
+const getCurrentLabel = async () => {
+    currentLabel.value = JSON.parse(localStorage.getItem("currentLabel") || "{}");
+};
+
 
 const gettrack = async () => {
     const lables = await getAllLabels();
     if(!lables) return;
-    const response = await getAllTracksForLabel(lables.data[0].id);
-
+    const response = await getAllTracksForLabel(currentLabel.value.id);
     trackdata.value = response.data;
     initFlowbite();
 };
@@ -55,6 +60,7 @@ const sendFeedbackToArtist = async (track: any) => {
 
 onMounted(() => {
     gettrack();
+    getCurrentLabel();
 });
 </script>
 

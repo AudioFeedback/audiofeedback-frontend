@@ -9,12 +9,18 @@ const ShowOverlay = ref<any>();
 const ShowAddModal = ref<any>();
 const selectedReviewer = ref<any>();
 const availableReviewers = ref<any>();
-const labelinfo = ref<any>();
+const currentLabel = ref<any>();
+
+const getCurrentLabel = async () => {
+    currentLabel.value = JSON.parse(localStorage.getItem("currentLabel") || "{}");
+};
+
 
 const getReviewers = async () => {
-    const lables = await getAllLabels();
-    if(!lables) return;
-    const response = await getAssignedReviewers(lables.data[0].id);
+    await getAllLabels();
+    await getCurrentLabel();
+    if(!currentLabel.value) return;
+    const response = await getAssignedReviewers(currentLabel.value.id);
     reviewers.value = response.data;
 };
 
@@ -27,18 +33,14 @@ const Showoverlay = (reviewer: any) => {
 };
 
 const getAvailable = async () => {
-    const lables = await getAllLabels();
-    if(!lables){
-        return;
-    } else {
-        labelinfo.value = lables.data[0];
-        const response = await getAvailableReviewers(labelinfo.value.id);
-        availableReviewers.value = response.data;
-    }
+    await getCurrentLabel();
+    const response = await getAvailableReviewers(currentLabel.value.id);
+    availableReviewers.value = response.data;
 };
 
 const inviteReviewer = async () => {
-    const response = await inviteNewReviewer(labelinfo.value.id, {
+    if(!currentLabel.value) return;
+    const response = await inviteNewReviewer(currentLabel.value.id, {
         userId: Number(selectedReviewer.value),
     });
     if (!response) {
@@ -53,13 +55,15 @@ const inviteReviewer = async () => {
 onMounted(() => {
     getAvailable();
     getReviewers();
+    getCurrentLabel();
+
 });
 </script>
 
 <template class="flex flex-row">
     <Navbar />
     <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-x-hidden">
-        <h2 class="text-4xl mb-4 font-bold dark:text-white">Manage Reviewers</h2>
+        <h2 class="text-4xl mb-4 font-bold dark:text-white">Manage Reviewers <span v-if="currentLabel">for {{currentLabel.name}}</span></h2>
         <div class="relative shadow-sm sm:rounded-lg">
             <table aria-label="Manage reviewer table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -172,7 +176,7 @@ onMounted(() => {
                     <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
                         <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                             <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                                Add reviewer to {{ labelinfo.name  }}
+                                Add reviewer to {{ currentLabel.name  }}
                             </h3>
                             <button type="button" @click="ShowAddModal = !ShowAddModal" class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="authentication-modal">
                                 <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -184,8 +188,8 @@ onMounted(() => {
                         <div class="p-4 md:p-5">
                             <form class="space-y-4" v-on:submit.prevent="inviteReviewer()">
                                 <div>
-                                    <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an reviewer</label>
-                                    <select v-model='selectedReviewer' v-for="(newreviewer, i) in availableReviewers" :key="i" id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                    <label  for="reviewers" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an reviewer</label>
+                                    <select v-model='selectedReviewer' v-for="(newreviewer, i) in availableReviewers" :key="i" id="coureviewersntries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                         <option selected>Choose a reviewer</option>
                                         <option :value="newreviewer.id">{{ newreviewer.username }}</option>
                                     </select>

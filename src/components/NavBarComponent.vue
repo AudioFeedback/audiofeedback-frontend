@@ -7,8 +7,11 @@ import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
 import { onMounted, ref } from "vue";
 
+
 let userinfo = ref<Components.Schemas.GetUserWithNotificationsDto>();
 let labelinfo = ref<any>();
+let currentLabel = ref<any>();
+let dropdownuser = ref<boolean>(false);
 
 const logout = () => {
     localStorage.removeItem("access_token");
@@ -32,11 +35,22 @@ const getLabel = async () => {
     labelinfo.value = response.data;
 };
 
+const loadlabel = async () => {
+    localStorage.getItem("currentLabel");
+    currentLabel.value = JSON.parse(localStorage.getItem("currentLabel") || "{}");
+};
+
+const setSelectedLabel = (label: any) => {
+    currentLabel.value = label;
+    localStorage.setItem("currentLabel", JSON.stringify(currentLabel.value));
+    dropdownuser.value = false;
+};
 
 onMounted(() => {
     getUserInfo();
     checkMode();
     getLabel();
+    loadlabel();
 });
 </script>
 
@@ -141,28 +155,41 @@ onMounted(() => {
                     </li>
                 </ul>
                 <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700 cursor-pointer">
-                    <li v-if="labelinfo">
-
-                        <label for="labels" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your labels</label>
-                        <select id="v" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        <option selected>Choose a label</option>
-                        <option  v-for="(label, i) in labelinfo" :key="i" >{{label.name}}</option>
-                        </select>
-
-                        <!--<div v-for="(label, i) in labelinfo" :key="i" class="flex items-center space-x-4">
-                            <div
-                                class="relative inline-flex items-center justify-center w-10 h-10  bg-primary-600 rounded-full dark:bg-primary-600"
-                            >
-                                <span class="font-medium text-gray-300 dark:text-gray-300"
-                                    >??</span
-                                >
+                    <li class="relative">
+                        <button @click="dropdownuser = !dropdownuser" class="text-white w-full bg-blue-700 justify-between hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+                            <div v-if='currentLabel' class="flex flex-row items-center">
+                                <img class="w-8 h-8 me-2 rounded-full" :src="currentLabel.profilePicture" :alt="currentLabel.name">
+                                {{ currentLabel.name }}
                             </div>
-                            <div class="font-medium dark:text-white">
-                                <div>{{label.name}}</div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ label.description }}</div>
-                            </div>
-                        </div>-->
+                            <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                            </svg>
+                        </button>
+
+                        <div v-if="dropdownuser" class="z-10 bottom-0 mb-14 absolute bg-white rounded-lg shadow w-60 dark:bg-gray-700">
+                            <ul class=" py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                                <li v-for="(label, i) in labelinfo" :key="i" :value="label" @click="setSelectedLabel(label)">
+                                    <div class="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                        <img class="w-6 h-6 me-2 rounded-full" :src="currentLabel.profilePicture" :alt="label.name">
+                                        {{label.name}}
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
+
+
+
+
+                    <!-- <li v-if="labelinfo && getRoles()?.includes('ADMIN')">
+                        <p v-if="currentLabel">Current label: {{ currentLabel.name}}</p>
+                        <label for="labels" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your labels</label>
+                        <select v-model='selectedLabel' v-on:change='changeLabel()' class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option selected value="nolabel">Choose a label</option>
+                            <option v-for="(label, i) in labelinfo" :key="i" :value="label">{{label.name}}</option>
+                        </select>
+                    </li> -->
+
                     <li @click="toggleMode()">
                         <a
                             v-if="darkmode"

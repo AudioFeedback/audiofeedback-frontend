@@ -4,6 +4,9 @@ import { acceptInvite, getLabelInvites, declineInvite } from "@/services/label.s
 import type { Components } from "@/types/openapi";
 import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
+import { updateUser } from "@/services/users.service";
+import { getRoles } from "@/utils/authorisationhelper";
+import Toasts from "@/components/Toasts-Popup.vue";
 
 const userinfo = ref<Components.Schemas.GetUserDto>({ id: 0, username: "", firstname: "", lastname: "", roles: [] });
 const confirmDeletion = ref<boolean>();
@@ -15,6 +18,11 @@ const confirm_password = ref<string>();
 const password_match = ref<boolean>(true);
 const invites = ref<any>();
 const labelmemberid = ref<number>(0);
+const toasttype = ref<any>();
+const toastmessage = ref<string | null>();
+
+const roles = getRoles();
+
 
 const getUserInfo = async () => {
     const response = await getProfile();
@@ -25,6 +33,7 @@ const getUserInfo = async () => {
     lastname.value = response.data.lastname;
     initFlowbite();
 };
+
 
 const deleteAccount = async () => {
     //     const response = await deleteUser(userinfo.value.id as number);
@@ -61,6 +70,9 @@ const checkFormValid = async () => {
 };
 
 const getInvited = async () => {
+    if(roles?.includes('ADMIN')){
+        return;
+    }
     const reponse = await getLabelInvites();
     if (!reponse) {
         return;
@@ -99,27 +111,37 @@ const declinelabelInvite = async (id: number) => {
 };
 
 const editUser = async () => {
-    //     try {
-    //         const response = await updateUser(
-    //             {
-    //                 username: username.value ?? userinfo.value.username,
-    //                 firstname: firstname.value ?? userinfo.value.firstname,
-    //                 lastname: lastname.value ?? userinfo.value.lastname,
-    //                 password: password.value
-    //             },
-    //             userinfo.value.id as number
-    //         );
-    //
-    //         if (!response) {
-    //             return;
-    //         } else {
-    //             alert("Account updated");
-    //             return;
-    //         }
-    //     } catch (error) {
-    //         alert("Something went wrong, please try again");
-    //         return;
-    //     }
+        try {
+            const response = await updateUser(
+                {
+                    firstname: firstname.value ?? userinfo.value.firstname,
+                    lastname: lastname.value ?? userinfo.value.lastname,
+                },
+            );
+    
+            if (!response) {
+                return;
+            } else {
+                toasttype.value = "succes";
+                toastmessage.value = "Account updated";
+                setTimeout(() => {
+                    toasttype.value = null;
+                    toastmessage.value = null;
+                }, 5000);
+                
+                window.location.href = "/profile";
+                return;
+            }
+        } catch (error) {
+           
+            toasttype.value = "error";
+                toastmessage.value = "Something went wrong, please try again";
+                setTimeout(() => {
+                    toasttype.value = null;
+                    toastmessage.value = null;
+                }, 5000);
+            return;
+        }
 };
 
 onMounted(async () => {
@@ -238,40 +260,9 @@ onMounted(async () => {
                             </p>
                         </div>
                     </div>
-
-                    <!--LABEL INVITES-->
-                    <div v-for="(invite, i) in invites" :key="i">
-                        <div v-if='invite.status != "DECLINED"' id="alert-additional-content-1" class="p-4 mb-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800" role="alert">
-                            <div class="flex items-center">
-                                <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-                                </svg>
-                                <span class="sr-only">New invite</span>
-                                <h3 class="text-lg font-medium">You have an new invite from the label "{{ invite.label.name }}"</h3>
-                            </div>
-                            <div class="mt-2 ml-6 mb-6 text-sm">
-                                <span class="font-medium">Label information:</span>
-                                    <ul class="mt-1.5 list-disc list-inside">
-                                        <li>label description: {{ invite.label.description }}</li>
-                                        <li>label website: 
-                                            <a :href="invite.websiteUrl" class="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">{{invite.label.websiteUrl}}</a>
-                                        </li>
-                                        <li>label genre: {{ invite.label.genre }}</li>
-                                    </ul>
-                            </div>
-                            <div class="flex">
-                                <button @click='acceptlabelInvite(invite.label.id)' type="button" class="text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                Accept invite
-                                </button>
-                                <button @click='declinelabelInvite(invite.label.id)' type="button" class="text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900">
-                                Decline 
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="flex items-center space-x-4">
                         <button
+                            @click="editUser()"
                             class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                             type="submit"
                         >
@@ -296,6 +287,39 @@ onMounted(async () => {
                             </svg>
                             Delete account
                         </button>
+                    </div>
+
+                    <!--LABEL INVITES-->
+                    <div v-if="roles?.includes('ADMIN')" class="flex flex-col items-center w-full">
+                        <div v-for="(invite, i) in invites" :key="i">
+                            <div v-if='invite.status != "DECLINED"' id="alert-additional-content-1" class="p-4 mb-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800" role="alert">
+                                <div class="flex items-center">
+                                    <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                                    </svg>
+                                    <span class="sr-only">New invite</span>
+                                    <h3 class="text-lg font-medium">You have an new invite from the label "{{ invite.label.name }}"</h3>
+                                </div>
+                                <div class="mt-2 ml-6 mb-6 text-sm">
+                                    <span class="font-medium">Label information:</span>
+                                        <ul class="mt-1.5 list-disc list-inside">
+                                            <li>label description: {{ invite.label.description }}</li>
+                                            <li>label website: 
+                                                <a :href="invite.websiteUrl" class="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">{{invite.label.websiteUrl}}</a>
+                                            </li>
+                                            <li>label genre: {{ invite.label.genre }}</li>
+                                        </ul>
+                                </div>
+                                <div class="flex">
+                                    <button @click='acceptlabelInvite(invite.label.id)' type="button" class="text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    Accept invite
+                                    </button>
+                                    <button @click='declinelabelInvite(invite.label.id)' type="button" class="text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900">
+                                    Decline 
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div
@@ -364,6 +388,7 @@ onMounted(async () => {
                 </form>
             </div>
         </section>
+        <Toasts v-if="toasttype && toastmessage" :type="toasttype" :message="toastmessage" />
     </main>
 </template>
 
