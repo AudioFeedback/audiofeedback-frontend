@@ -732,8 +732,8 @@ const getUserInfo = async () => {
 
         <div class="grid grid-cols-4">
             <template v-for="(feedback, i) in trackinfo?.trackversions[0].feedback" :key="i">
-                <tr v-if="feedback.timestamp < 0" class="text-gray-400">    
-                    <div class="flex items-start gap-2.5 pt-6">
+                <tr v-if="feedback.timestamp === -1" class="text-gray-400">    
+                    <div class="flex items-start gap-2.5 pt-6 ">
                         <div class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600">
                             <span class="font-semi text-gray-300 dark:text-gray-300">
                                 {{ userinfo?.firstname.slice(0, 1) }}{{ userinfo?.lastname.slice(0, 1) }}
@@ -744,7 +744,7 @@ const getUserInfo = async () => {
                                 <span class="px-2 py-2 inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white">
                                         {{ userinfo?.firstname }} {{ userinfo?.lastname }}</span>
                             </div>
-                            <div class="px-2 py-2">
+                            <div class="px-2 py-2 text-gray-400">
                                 {{ feedback.comment }}>
                             </div>
                             <div class="flex flex-row w-full px-2 py-2">
