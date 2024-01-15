@@ -17,6 +17,7 @@
     "client:generate": "npx openapicmd typegen http://localhost:3000/api-json > src/types/openapi.d.ts"
   },
   "dependencies": {
+    "1llest-waveform-vue": "^1.2.0",
     "@vueuse/core": "^10.5.0",
     "axios": "^1.6.2",
     "flowbite": "^2.1.1",
@@ -25,7 +26,6 @@
     "openapicmd": "^2.0.1",
     "pinia": "^2.1.7",
     "vue": "^3.3.4",
-    "vue-audio-visual": "^3.0.5",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {

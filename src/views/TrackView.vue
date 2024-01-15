@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import Toasts from "@/components/Toasts-Popup.vue";
+import TrackComponent from "@/components/TrackComponent.vue";
 import { getProfile } from "@/services/app.service";
 import { deleteFeedback } from "@/services/feedback.service";
 import { getAllLabels, getAssignedReviewers } from "@/services/label.service";
@@ -7,15 +8,13 @@ import { addReviewers, getTrack } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
 import { initFlowbite } from "flowbite";
-import { onMounted, ref } from "vue";
-import { AVWaveform } from "vue-audio-visual";
+import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
 
+const uploadedfileUrl = ref<string>("");
 const route = useRoute();
 const componentKey = ref(0);
-const uploadedfileUrl = ref<string>("");
 const trackinfo = ref<Components.Schemas.GetTrackDeepDto>();
-const audioPlayer = ref<AVWaveform | null>(null);
 const canvasDiv = ref<HTMLElement | null>(null);
 const activeTab = ref<number>(1);
 const showModal = ref<boolean>(false);
@@ -23,6 +22,9 @@ const description = ref<string>("");
 const audiofile = ref<File | null>(null);
 const ShowOverlay = ref<any>();
 const userinfo = ref<Components.Schemas.GetUserDto>();
+
+const trackComponent = ref();
+
 const trackVersion = ref<number>(0);
 const confirmDeletion = ref<boolean>(false);
 const deleteID = ref<number>(0);
@@ -135,7 +137,7 @@ const addReviewertoTrack = async () => {
     }
 };
 
-onMounted(() => {
+onBeforeMount(() => {
     getTrackInfo();
     initFlowbite();
     getUserInfo();
@@ -173,35 +175,8 @@ const delFeedback = async (id: number) => {
     }
 };
 
-const play = () => {
-    if (!audioPlayer.value) {
-        return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    audioElement.play();
-};
-
-const pause = () => {
-    if (!audioPlayer.value) {
-        return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-    audioElement.pause();
-};
-
 const seek = (seconds: number) => {
-    if (!audioPlayer.value) {
-        return;
-    }
-
-    const audioElement = audioPlayer.value.$refs.player as HTMLAudioElement;
-
-    audioElement.currentTime = seconds;
-    if (!audioElement.paused) {
-        audioElement.pause();
-    }
+    trackComponent.value.seek(seconds);
 };
 
 const changeVersion = (version: number) => {
@@ -393,93 +368,13 @@ const getUserInfo = async () => {
             </ul>
         </div>
         <div v-if="activeTab === 1">
-            <div class="mb-5 relative">
-                <h1 class="text-3xl font-bold dark:text-white mb-6">
-                    {{ trackinfo?.title }}
-                    <span
-                        class="ml-2 bg-green-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
-                    >
-                        Version {{ trackVersion + 1 }}
-                    </span>
-                    <span
-                        class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"
-                        >{{ trackinfo?.genre }}</span
-                    >
-                </h1>
-                <div class="flex flex-row gap-4 mb-6">
-                    <button
-                        class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
-                        @click="play"
-                    >
-                        Play
-                    </button>
-                    <button
-                        class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
-                        @click="pause"
-                    >
-                        Pause
-                    </button>
-                    <button
-                        class="text-white bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
-                        @click="seek(0)"
-                    >
-                        Stop
-                    </button>
-                </div>
-                <div class="w-full">
-                    <AVWaveform
-                        :key="componentKey"
-                        ref="audioPlayer"
-                        :audio-controls="false"
-                        :canv-height="200"
-                        :canv-width="canvasDiv?.clientWidth"
-                        :ftt-size="2048"
-                        :noplayed-line-color="'#4F46E5'"
-                        :played-line-color="'#4f46e5'"
-                        :playtime="false"
-                        :playtime-slider-color="'#d5540f'"
-                        :playtime-slider-width="5"
-                        :src="`${uploadedfileUrl}`"
-                        cors-anonym
-                    ></AVWaveform>
-                    <div class="relative -top-5">
-                        <!--use last version-->
-                        <div
-                            v-for="(feedback, i) in trackinfo?.trackversions[trackVersion].feedback"
-                            :key="i"
-                            :style="{ left: `${feedback.timestamp * 100 - 1.5}%` }"
-                            class="absolute"
-                        >
-                            <div
-                                class="relative inline-flex items-center cursor-pointer justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600"
-                                @click="seek(trackinfo!.trackversions[0].duration * feedback.timestamp)"
-                            >
-                                <span class="font-medium text-gray-600 dark:text-gray-300"
-                                    >{{ feedback.user.firstname.slice(0, 1)
-                                    }}{{ feedback.user.lastname.slice(0, 1) }}</span
-                                >
-                                <img
-                                    v-if="feedback.rating"
-                                    alt="thumbsup"
-                                    class="bottom-0 left-7 absolute w-5 h-5"
-                                    src="./../assets/up.svg"
-                                />
-                                <img
-                                    v-if="!feedback.rating"
-                                    alt="thumbsdown"
-                                    class="bottom-0 left-7 absolute w-5 h-5"
-                                    src="./../assets/down.svg"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div v-if="trackinfo?.trackversions[trackVersion].feedback.length === 0">No feedback yet</div>
-            <div
-                v-if="trackinfo && trackinfo.trackversions[trackVersion]?.feedback.length > 0"
-                class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12"
-            >
+            <TrackComponent
+                :id="route.params.id as unknown as number"
+                ref="trackComponent"
+                :version="trackVersion"
+            ></TrackComponent>
+
+            <div class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12">
                 <table aria-label="Feedback table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-600 dark:text-gray-400">
                         <tr>
