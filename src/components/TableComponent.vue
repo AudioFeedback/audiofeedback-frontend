@@ -5,35 +5,36 @@ import { getRoles } from "@/utils/authorisationhelper";
 import { onMounted, ref } from "vue";
 
 const trackdata = ref<Array<Components.Schemas.GetTrackWithAuthorDto>>();
-const toasttype = ref<any>();
-const toastmessage = ref<string | null>();
+const toastType = ref<any>();
+const toastMessage = ref<string | null>();
 const confirmDeletion = ref<boolean>(false);
-const delTrackId  =  ref<number>(0);
+const delTrackId = ref<number>(0);
 
-const gettrack = async () => {
+const getTrack = async () => {
     const response = await getTracks();
 
     trackdata.value = response.data;
 };
 const roles = getRoles();
 
-const delTrack = async (id: any) => {
-    const response = await deleteTrack(id);
-    if (!response) return;
+const delTrack = async (id: number) => {
+    const response = await deleteTrack(id.toString());
+    if (!response) {
+        return;
+    }
 
-    toasttype.value = "succes";
-        toastmessage.value = "Track deleted";
-        setTimeout(() => {
-            toasttype.value = null;
-            toastmessage.value = null;
-        }, 5000);
+    toastType.value = "succes";
+    toastMessage.value = "Track deleted";
+    setTimeout(() => {
+        toastType.value = null;
+        toastMessage.value = null;
+    }, 5000);
     confirmDeletion.value = false;
-    
-    gettrack();
 
+    getTrack();
 };
 
-onMounted(() => gettrack());
+onMounted(() => getTrack());
 </script>
 
 <template>
@@ -41,10 +42,29 @@ onMounted(() => gettrack());
         <table aria-label="Music table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                    <th class="px-6 py-3" scope="col">ID</th>
-                    <th class="px-6 py-3" scope="col">
+                    <th v-if="roles?.includes('FEEDBACKGEVER')" class="px-6 py-3" scope="col">Title</th>
+                    <th v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-3" scope="col">ID</th>
+                    <th v-if="roles?.includes('FEEDBACKGEVER')" class="px-6 py-3" scope="col">
                         <div class="flex items-center">
-                            Title
+                            <p>Artist</p>
+                            <a href="#">
+                                <svg
+                                    aria-hidden="true"
+                                    class="w-3 h-3 ml-1.5"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"
+                                    />
+                                </svg>
+                            </a>
+                        </div>
+                    </th>
+                    <th v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-3" scope="col">
+                        <div class="flex items-center">
+                            <p>Title</p>
                             <a href="#">
                                 <svg
                                     aria-hidden="true"
@@ -83,19 +103,43 @@ onMounted(() => gettrack());
                     :key="i"
                     class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                 >
-                    <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">
+                    <th
+                        v-if="roles?.includes('FEEDBACKGEVER')"
+                        class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                        scope="row"
+                    >
+                        {{ track.title }}
+                    </th>
+                    <td v-if="roles?.includes('FEEDBACKGEVER')" class="px-6 py-4">@{{ track.author.username }}</td>
+                    <th
+                        v-if="roles?.includes('MUZIEKPRODUCER')"
+                        class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                        scope="row"
+                    >
                         {{ track.id }}
                     </th>
-                    <td class="px-6 py-4">
+                    <td v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-4">
                         {{ track.title }}
                     </td>
                     <td class="px-6 py-4">
                         {{ track.genre }}
                     </td>
                     <td class="px-6 py-4">
-                        <span v-if='track.status[0] == "READY_TO_REVIEW"' class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-gray-900 dark:text-gray-300">Ready to review</span>
-                        <span v-if='track.status[0] == "PENDING_REVIEW"' class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Pending Review</span>
-                        <span v-if='track.status[0] == "REVIEWED"' class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Reviewed</span>
+                        <span
+                            v-if="track.status[0] == 'READY_TO_REVIEW'"
+                            class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-gray-900 dark:text-gray-300"
+                            >Ready to review</span
+                        >
+                        <span
+                            v-if="track.status[0] == 'PENDING_REVIEW'"
+                            class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300"
+                            >Pending Review</span
+                        >
+                        <span
+                            v-if="track.status[0] == 'REVIEWED'"
+                            class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300"
+                            >Reviewed</span
+                        >
                     </td>
                     <td v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-4 text-right">
                         <router-link
@@ -104,82 +148,98 @@ onMounted(() => gettrack());
                             >View
                         </router-link>
                     </td>
-                    <td v-if="roles?.includes('FEEDBACKGEVER') && track.status[0] == 'REVIEWED'" class="px-6 py-4 text-right">
+                    <td
+                        v-if="roles?.includes('FEEDBACKGEVER') && track.status[0] == 'REVIEWED'"
+                        class="px-6 py-4 text-right"
+                    >
                         <p class="font-medium text-gray-600 dark:text-gray-500">You have already reviewed this track</p>
                     </td>
-                    <td v-if="roles?.includes('FEEDBACKGEVER') && !(track.status[0] == 'REVIEWED')" class="px-6 py-4 text-right">
+                    <td
+                        v-if="roles?.includes('FEEDBACKGEVER') && !(track.status[0] == 'REVIEWED')"
+                        class="px-6 py-4 text-right"
+                    >
                         <router-link
                             :to="`/feedback/${track.id}`"
                             class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                             >Start review
                         </router-link>
                     </td>
-                    <td v-if="roles?.includes('MUZIEKPRODUCER')" @click="confirmDeletion = !confirmDeletion; delTrackId = track.id" class="px-6 py-4 text-right font-medium cursor-pointer text-red-600 dark:text-red-500 hover:underline ms-3">
-                       Delete track
+                    <td
+                        v-if="roles?.includes('MUZIEKPRODUCER')"
+                        class="px-6 py-4 text-right font-medium cursor-pointer text-red-600 dark:text-red-500 hover:underline ms-3"
+                        @click="
+                            confirmDeletion = !confirmDeletion;
+                            delTrackId = track.id;
+                        "
+                    >
+                        Delete track
                     </td>
-                    <div v-if="confirmDeletion" class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.1] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-                            <div class="relative p-4 w-full max-w-md max-h-full">
-                                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <div
+                        v-if="confirmDeletion"
+                        class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.1] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                    >
+                        <div class="relative p-4 w-full max-w-md max-h-full">
+                            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                                <button
+                                    class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                    type="button"
+                                    @click="confirmDeletion = !confirmDeletion"
+                                >
+                                    <svg
+                                        aria-hidden="true"
+                                        class="w-3 h-3"
+                                        fill="none"
+                                        viewBox="0 0 14 14"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                        />
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                                <div class="p-4 md:p-5 text-center">
+                                    <svg
+                                        aria-hidden="true"
+                                        class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+                                        fill="none"
+                                        viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                        />
+                                    </svg>
+                                    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                                        Are you sure you want to delete this feedback? This action is permanent
+                                    </h3>
                                     <button
-                                        class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                        type="button"
+                                        class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
+                                        @click="delTrack(+delTrackId)"
+                                    >
+                                        Yes, I'm sure
+                                    </button>
+                                    <button
+                                        class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
                                         @click="confirmDeletion = !confirmDeletion"
                                     >
-                                        <svg
-                                            aria-hidden="true"
-                                            class="w-3 h-3"
-                                            fill="none"
-                                            viewBox="0 0 14 14"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                                stroke="currentColor"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                        <span class="sr-only">Close modal</span>
+                                        No, cancel
                                     </button>
-                                    <div class="p-4 md:p-5 text-center">
-                                        <svg
-                                            aria-hidden="true"
-                                            class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
-                                            fill="none"
-                                            viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                                stroke="currentColor"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                            />
-                                        </svg>
-                                        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                                            Are you sure you want to delete this feedback? This action is permanent
-                                        </h3>
-                                        <button
-                                            class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
-                                            @click="delTrack(delTrackId)"
-                                        >
-                                            Yes, I'm sure
-                                        </button>
-                                        <button
-                                            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                                            @click="confirmDeletion = !confirmDeletion"
-                                        >
-                                            No, cancel
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
-                </div>
+                        </div>
+                    </div>
                 </tr>
             </tbody>
         </table>
-        <Toasts v-if="toasttype && toastmessage" :type="toasttype" :message="toastmessage" />
+        <Toasts v-if="toastType && toastMessage" :message="toastMessage" :type="toastType" />
     </div>
 </template>
