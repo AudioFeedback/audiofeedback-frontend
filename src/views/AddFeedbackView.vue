@@ -55,12 +55,12 @@ const generalfeedback = async () => {
                 rating: rating.value,
                 comment: comments.value,
                 trackVersionId: trackversion.value.id,
-                timestamp: 0
+                timestamp: -1
             });
 
             const data = response.data;
             console.log("data", data);
-            GeneralFeedback();
+            toggleGeneralFeedbackButton();
             rating.value = true;
             comments.value = "";
             getTrackData();
@@ -72,8 +72,7 @@ const generalfeedback = async () => {
         }   
 };
 
-const GeneralFeedback = () => {
-    console.log("1");
+const toggleGeneralFeedbackButton = () => {
     giveGeneralFeedback.value = !giveGeneralFeedback.value ;
 };
 
@@ -323,7 +322,7 @@ const getUserInfo = async () => {
                 </thead>
                 <tbody>
                     <template v-for="(feedback, i) in trackinfo?.trackversions[0].feedback" :key="i">
-                        <tr v-if="feedback.timestamp !== null" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 text-gray-400">
+                        <tr v-if="feedback.timestamp > 0" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 text-gray-400">
                             <td class="px-6 py-4">
                                 {{ userinfo?.firstname }} {{ userinfo?.lastname }} (@{{ userinfo?.username }})
                             </td>
@@ -644,7 +643,7 @@ const getUserInfo = async () => {
                 <div class="flex flex-col">
                     <div class="flex flex-row align-items justify-between">
                         <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">General rating</h3>
-                        <span class="cursor-pointer" @click.prevent="GeneralFeedback()">
+                        <span class="cursor-pointer" @click.prevent="toggleGeneralFeedbackButton()">
                             <svg
                                 aria-hidden="true"
                                 class="w-4 h-4 text-gray-800 dark:text-white"
@@ -724,7 +723,7 @@ const getUserInfo = async () => {
 
         <div class="flex-row w-full justify-center mt-8">
                 <button v-if="!giveGeneralFeedback" class="px-6 py-3 text-base font-medium text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                    @click="GeneralFeedback"
+                    @click="toggleGeneralFeedbackButton"
                     >
                     Add general feedback
                 </button>
@@ -733,7 +732,7 @@ const getUserInfo = async () => {
 
         <div class="grid grid-cols-4">
             <template v-for="(feedback, i) in trackinfo?.trackversions[0].feedback" :key="i">
-                <tr v-if="feedback.timestamp == null" class="text-gray-400">    
+                <tr v-if="feedback.timestamp < 0" class="text-gray-400">    
                     <div class="flex items-start gap-2.5 pt-6">
                         <div class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600">
                             <span class="font-semi text-gray-300 dark:text-gray-300">
