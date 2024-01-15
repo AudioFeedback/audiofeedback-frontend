@@ -37,6 +37,8 @@ const showSubmitButton = ref<boolean>(false);
 
 const trackDuration = ref<number>(-1);
 
+const keyPressesDisabled = ref<boolean>(false);
+
 const waveOptions = reactive<IllestWaveformProps>({
     url: uploadedFileUrl.value,
     lineColor: "#1C64F2",
@@ -150,6 +152,7 @@ const GetPointerLocation = () => {
 
     selectedPercentageLeft.value = (currentTime.value / trackDuration.value) * 100;
     selectedTimeStamp.value = currentTime.value / trackDuration.value;
+    toggleKeyPresses();
 };
 
 onBeforeMount(() => {
@@ -175,9 +178,13 @@ const playpause = () => {
     }
 };
 
+const toggleKeyPresses = (val?: boolean) => {
+    keyPressesDisabled.value = val ?? !keyPressesDisabled.value;
+};
+
 onKeyStroke(" ", (e) => {
     // TODO: Disable keypress on general input & edit
-    if (selectedPercentageLeft.value && selectedPercentageLeft.value > 0 && props.feedback) {
+    if (keyPressesDisabled.value && props.feedback) {
         return;
     }
 
@@ -223,6 +230,7 @@ const CloseFeedback = () => {
     selectedPercentageLeft.value = null;
     closePopup.value = true;
     console.log("selectedpercentageleft", selectedPercentageLeft.value);
+    toggleKeyPresses();
 };
 
 const getUserInfo = async () => {
@@ -251,7 +259,7 @@ const seek = (to: number) => {
     playing.value = false;
 };
 
-defineExpose({ seek });
+defineExpose({ seek, toggleKeyPresses });
 </script>
 
 <template>

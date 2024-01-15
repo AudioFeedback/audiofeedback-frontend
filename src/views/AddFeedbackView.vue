@@ -63,7 +63,6 @@ const generalfeedback = async () => {
         toggleGeneralFeedbackButton();
         rating.value = true;
         comments.value = "";
-        await getTrackData();
         forceRerender();
         await getTrackData();
     } catch (error) {
@@ -72,6 +71,7 @@ const generalfeedback = async () => {
 };
 
 const toggleGeneralFeedbackButton = () => {
+    trackComponent.value.toggleKeyPresses(!giveGeneralFeedback.value);
     giveGeneralFeedback.value = !giveGeneralFeedback.value;
 };
 
@@ -138,8 +138,9 @@ const setToast = (message: string) => {
 };
 
 const setEditModal = (id: number, localid: number) => {
+    trackComponent.value.toggleKeyPresses(true);
     if (!trackinfo.value?.trackversions[0].feedback[localid]) {
-        return;
+        return trackComponent.value.toggleKeyPresses(false);
     }
 
     if (showEditModal.value === true) {
@@ -148,14 +149,14 @@ const setEditModal = (id: number, localid: number) => {
         localfeedbackId.value = localid;
         rating.value = true;
         comments.value = "";
-        return;
+        return trackComponent.value.toggleKeyPresses(false);
     } else {
         showEditModal.value = true;
         feedbackId.value = id;
         localfeedbackId.value = localid;
         rating.value = trackinfo.value?.trackversions[0].feedback[localid].rating;
         comments.value = trackinfo.value?.trackversions[0].feedback[localid].comment;
-        return;
+        return trackComponent.value.toggleKeyPresses(false);
     }
 };
 
