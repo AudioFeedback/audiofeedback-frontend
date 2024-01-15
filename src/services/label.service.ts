@@ -7,6 +7,12 @@ export async function getLabelInvites() {
     return client.LabelsController_getInvites();
 }
 
+export async function getLabelAssigned() {
+    const client = await APIClient();
+
+    return client.LabelsController_getAssignedLabels();
+}
+
 export async function getAllLabels() {
     const client = await APIClient();
 

@@ -14,7 +14,7 @@ const showMessageFor5Seconds = () => {
 };
 
 const shouldShowMessage = () => {
-  return Math.random() < 0.1;
+  return Math.random() < 0.001;
 };
 
 onMounted(() => {
