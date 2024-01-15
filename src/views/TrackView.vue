@@ -394,10 +394,10 @@ const getUserInfo = async () => {
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody v-for="(feedback, i) in trackinfo?.trackversions[trackVersion].feedback"
+                            :key="i">
                         <tr
-                            v-for="(feedback, i) in trackinfo?.trackversions[trackVersion].feedback"
-                            :key="i"
+                            v-if="feedback.timestamp !== null"
                             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                         >
                             <th
@@ -498,7 +498,37 @@ const getUserInfo = async () => {
                     </div>
                 </div>
             </div>
+
+            <div class="grid grid-cols-4">
+                <template v-for="(feedback, i) in trackinfo?.trackversions[trackVersion].feedback" :key="i">
+                    <div v-if="feedback.timestamp == null" class="dark:bg-gray-800 dark:border-gray-700">
+                        <div class="flex items-start gap-2.5 pt-6">
+                            <div class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600">
+                                <span class="font-semi text-gray-300 dark:text-gray-300">
+                                    {{ userinfo?.firstname.slice(0, 1) }}{{ userinfo?.lastname.slice(0, 1) }}
+                                </span>
+                            </div>
+                            <div class="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+                                <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                    <span class="px-2 py-2 inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white">
+                                            {{ userinfo?.firstname }} {{ userinfo?.lastname }}</span>
+                                </div>
+                                <div class="px-2 py-2">
+                                    {{ feedback.comment }}>
+                                </div>
+                                <div class="flex flex-row w-full px-2 py-2">
+                                    <div class="flex w-full">
+                                        <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
+                                        <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
+                                    </div>    
+                                </div>  
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>    
         </div>
+
         <div v-if="activeTab === 2">
             <div
                 v-for="(track, i) in trackinfo?.trackversions"
