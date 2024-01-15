@@ -183,7 +183,6 @@ const toggleKeyPresses = (val?: boolean) => {
 };
 
 onKeyStroke(" ", (e) => {
-    // TODO: Disable keypress on general input & edit
     if (keyPressesDisabled.value && props.feedback) {
         return;
     }
