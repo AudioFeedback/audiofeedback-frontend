@@ -315,6 +315,11 @@ declare namespace Paths {
             export type $200 = Components.Schemas.GetTrackWithReviewersDto[];
         }
     }
+    namespace LabelsControllerGetAssignedLabels {
+        namespace Responses {
+            export type $200 = Components.Schemas.GetLabelDto[];
+        }
+    }
     namespace LabelsControllerGetAssignedReviewers {
         namespace Parameters {
             export type Id = number;
@@ -726,6 +731,22 @@ export interface OperationMethods {
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.FeedbackControllerPublishFeedback.Responses.$200>
   /**
+   * LabelsController_getLabels
+   */
+  'LabelsController_getLabels'(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: any,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.LabelsControllerGetLabels.Responses.$200>
+  /**
+   * LabelsController_getAssignedLabels
+   */
+  'LabelsController_getAssignedLabels'(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: any,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.LabelsControllerGetAssignedLabels.Responses.$200>
+  /**
    * LabelsController_getInvites
    */
   'LabelsController_getInvites'(
@@ -757,14 +778,6 @@ export interface OperationMethods {
     data?: Paths.LabelsControllerDeclineInvite.RequestBody,
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.LabelsControllerDeclineInvite.Responses.$200>
-  /**
-   * LabelsController_getLabels
-   */
-  'LabelsController_getLabels'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: any,
-    config?: AxiosRequestConfig  
-  ): OperationResponse<Paths.LabelsControllerGetLabels.Responses.$200>
   /**
    * LabelsController_getLabelById
    */
@@ -1028,6 +1041,26 @@ export interface PathsDictionary {
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.FeedbackControllerPublishFeedback.Responses.$200>
   }
+  ['/labels']: {
+    /**
+     * LabelsController_getLabels
+     */
+    'get'(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: any,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.LabelsControllerGetLabels.Responses.$200>
+  }
+  ['/labels/assigned']: {
+    /**
+     * LabelsController_getAssignedLabels
+     */
+    'get'(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: any,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.LabelsControllerGetAssignedLabels.Responses.$200>
+  }
   ['/labels/invites']: {
     /**
      * LabelsController_getInvites
@@ -1067,16 +1100,6 @@ export interface PathsDictionary {
       data?: Paths.LabelsControllerDeclineInvite.RequestBody,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.LabelsControllerDeclineInvite.Responses.$200>
-  }
-  ['/labels']: {
-    /**
-     * LabelsController_getLabels
-     */
-    'get'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: any,
-      config?: AxiosRequestConfig  
-    ): OperationResponse<Paths.LabelsControllerGetLabels.Responses.$200>
   }
   ['/labels/{id}']: {
     /**
