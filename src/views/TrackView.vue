@@ -501,7 +501,7 @@ const getUserInfo = async () => {
 
             <div class="grid grid-cols-4">
                 <template v-for="(feedback, i) in trackinfo?.trackversions[trackVersion].feedback" :key="i">
-                    <div v-if="feedback.timestamp < 0" class="dark:bg-gray-800 dark:border-gray-700">
+                    <div v-if="feedback.timestamp < 0" class="dark:border-gray-700">
                         <div class="flex items-start gap-2.5 pt-6">
                             <div class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600">
                                 <span class="font-semi text-gray-300 dark:text-gray-300">
