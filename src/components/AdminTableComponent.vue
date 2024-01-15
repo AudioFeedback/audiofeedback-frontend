@@ -4,13 +4,14 @@ import { getAllTracksForLabel } from "@/services/label.service";
 import { publishFeedback } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
+import type { ToastType } from "@/utils/types";
 import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
 
 const trackData = ref<Array<Components.Schemas.GetTrackWithReviewersDto>>();
 const ShowOverlay = ref<any>();
 const ShowOverlay2 = ref<any>();
-const toastType = ref<any>();
+const toastType = ref<ToastType>();
 const toastMessage = ref<string | null>();
 const currentLabel = ref<Components.Schemas.GetLabelDto>();
 

@@ -45,35 +45,34 @@ const getTrackData = async () => {
 };
 
 const generalfeedback = async () => {
-        try {
-            if (!trackinfo.value || !trackversion.value) {
-                alert("Please fill in all required fields")
-                return;
-            }
+    try {
+        if (!trackinfo.value || !trackversion.value) {
+            alert("Please fill in all required fields");
+            return;
+        }
 
         const response = await createFeedback({
-                rating: rating.value,
-                comment: comments.value,
-                trackVersionId: trackversion.value.id,
-                timestamp: -1
-            });
+            rating: rating.value,
+            comment: comments.value,
+            trackVersionId: trackversion.value.id,
+            timestamp: -1
+        });
 
-            const data = response.data;
-            console.log("data", data);
-            toggleGeneralFeedbackButton();
-            rating.value = true;
-            comments.value = "";
-            getTrackData();
-            forceRerender();
-            await getTrackData();
-
-        } catch (error) {
-            console.error("API Error:", error);
-        }   
+        const data = response.data;
+        console.log("data", data);
+        toggleGeneralFeedbackButton();
+        rating.value = true;
+        comments.value = "";
+        await getTrackData();
+        forceRerender();
+        await getTrackData();
+    } catch (error) {
+        console.error("API Error:", error);
+    }
 };
 
 const toggleGeneralFeedbackButton = () => {
-    giveGeneralFeedback.value = !giveGeneralFeedback.value ;
+    giveGeneralFeedback.value = !giveGeneralFeedback.value;
 };
 
 onMounted(() => {
@@ -84,8 +83,6 @@ onMounted(() => {
     }
     window.addEventListener("resize", forceRerender);
 });
-
-
 
 const editFeedback = async (localid: number) => {
     if (
@@ -112,7 +109,7 @@ const editFeedback = async (localid: number) => {
     } else {
         setEditModal(0, 0);
         setToast("Feedback edited succesfully");
-        getTrackData();
+        await getTrackData();
         forceRerender();
     }
 };
@@ -181,12 +178,12 @@ const deleteAccount = async (id: number) => {
         return;
     } else {
         setToast("Feedback deleted succesfully");
-        getTrackData();
+        await getTrackData();
         forceRerender();
     }
 };
 
-const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
+const getTimeInMinutesAndSeconds = (timeInSeconds: number): string => {
     if (!timeInSeconds || timeInSeconds <= 0) {
         return "-";
     }
@@ -298,9 +295,7 @@ const getUserInfo = async () => {
             @refresh-feedback="getTrackData()"
         ></TrackComponent>
 
-        <div
-            class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12"
-        >
+        <div class="relative overflow-x-auto shadow-sm sm:rounded-lg mt-12">
             <table aria-label="Feedback table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
@@ -322,7 +317,10 @@ const getUserInfo = async () => {
                 </thead>
                 <tbody>
                     <template v-for="(feedback, i) in trackinfo?.trackversions[0].feedback" :key="i">
-                        <tr v-if="feedback.timestamp > 0" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 text-gray-400">
+                        <tr
+                            v-if="feedback.timestamp > 0"
+                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 text-gray-400"
+                        >
                             <td class="px-6 py-4">
                                 {{ userinfo?.firstname }} {{ userinfo?.lastname }} (@{{ userinfo?.username }})
                             </td>
@@ -330,16 +328,33 @@ const getUserInfo = async () => {
                                 <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
                                 <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
                             </td>
-                            <td class="px-6 py-4" @click="seek(feedback.timestamp * trackinfo!.trackversions[0].duration)">
-                                {{ getTimeInMinutesAndSeconds(feedback.timestamp * trackinfo!.trackversions[0].duration) }}
+                            <td
+                                class="px-6 py-4"
+                                @click="seek(feedback.timestamp * trackinfo!.trackversions[0].duration)"
+                            >
+                                {{
+                                    getTimeInMinutesAndSeconds(
+                                        feedback.timestamp * trackinfo!.trackversions[0].duration
+                                    )
+                                }}
                             </td>
                             <td class="px-6 py-4">
                                 {{ feedback.comment }}
                             </td>
                             <td class="px-6 py-4">file attachment</td>
                             <td v-if="!trackversion?.feedback[0]?.isPublished" class="flex items-center px-6 py-4">
-                            <button @click='setEditModal(feedback.id, i)' class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</button>
-                            <button @click="deleteModal(feedback.id)" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</button>
+                                <button
+                                    class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                    @click="setEditModal(feedback.id, i)"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3"
+                                    @click="deleteModal(feedback.id)"
+                                >
+                                    Remove
+                                </button>
                             </td>
                         </tr>
                     </template>
@@ -638,7 +653,10 @@ const getUserInfo = async () => {
             </div>
         </div>
 
-        <div v-if="giveGeneralFeedback" class="absolute left-1/3 bg-white rounded-lg dark:bg-gray-700 p-4 z-[99] drop-shadow-2xl min-w-[20em] w-fit top-40">
+        <div
+            v-if="giveGeneralFeedback"
+            class="absolute left-1/3 bg-white rounded-lg dark:bg-gray-700 p-4 z-[99] drop-shadow-2xl min-w-[20em] w-fit top-40"
+        >
             <form name="feedbackform" v-on:submit.prevent="generalfeedback()">
                 <div class="flex flex-col">
                     <div class="flex flex-row align-items justify-between">
@@ -676,7 +694,7 @@ const getUserInfo = async () => {
                             <label
                                 class="inline-flex items-center justify-center w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-600"
                                 for="rating-postive"
-                            >  
+                            >
                                 <img alt="thumbsup" src="./../assets/up.svg" />
                             </label>
                         </li>
@@ -713,50 +731,67 @@ const getUserInfo = async () => {
                     </div>
                     <button
                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                        type="submit"                           
-                        >
-                            Submit general Feedback
+                        type="submit"
+                    >
+                        Submit general Feedback
                     </button>
                 </div>
             </form>
         </div>
 
         <div class="flex-row w-full justify-center mt-8">
-                <button v-if="!giveGeneralFeedback" class="px-6 py-3 text-base font-medium text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                    @click="toggleGeneralFeedbackButton"
-                    >
-                    Add general feedback
-                </button>
-                <button v-if="giveGeneralFeedback" class="px-6 py-6"></button>
+            <button
+                v-if="!giveGeneralFeedback"
+                class="px-6 py-3 text-base font-medium text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                @click="toggleGeneralFeedbackButton"
+            >
+                Add general feedback
+            </button>
+            <button v-if="giveGeneralFeedback" class="px-6 py-6"></button>
         </div>
 
         <div class="grid grid-cols-4">
             <template v-for="(feedback, i) in trackinfo?.trackversions[0].feedback" :key="i">
-                <tr v-if="feedback.timestamp === -1" class="text-gray-400">    
-                    <div class="flex items-start gap-2.5 pt-6 ">
-                        <div class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600">
+                <tr v-if="feedback.timestamp === -1" class="text-gray-400">
+                    <div class="flex items-start gap-2.5 pt-6">
+                        <div
+                            class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600"
+                        >
                             <span class="font-semi text-gray-300 dark:text-gray-300">
                                 {{ userinfo?.firstname.slice(0, 1) }}{{ userinfo?.lastname.slice(0, 1) }}
                             </span>
                         </div>
-                        <div class="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+                        <div
+                            class="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700"
+                        >
                             <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                                <span class="px-2 py-2 inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white">
-                                        {{ userinfo?.firstname }} {{ userinfo?.lastname }}</span>
+                                <span
+                                    class="px-2 py-2 inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white"
+                                >
+                                    {{ userinfo?.firstname }} {{ userinfo?.lastname }}</span
+                                >
                             </div>
-                            <div class="px-2 py-2 text-gray-400">
-                                {{ feedback.comment }}>
-                            </div>
+                            <div class="px-2 py-2 text-gray-400">{{ feedback.comment }}></div>
                             <div class="flex flex-row w-full px-2 py-2">
                                 <div class="flex">
                                     <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
                                     <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
                                 </div>
                                 <div v-if="!trackversion?.feedback[0]?.isPublished" class="flex w-full justify-end">
-                                    <button @click='setEditModal(feedback.id, i)' class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</button>
-                                    <button @click="deleteModal(feedback.id)" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</button>
-                                </div> 
-                            </div>  
+                                    <button
+                                        class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                                        @click="setEditModal(feedback.id, i)"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3"
+                                        @click="deleteModal(feedback.id)"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </tr>

@@ -19,18 +19,18 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const componentKey = ref(0);
-const uploadedfileUrl = ref<string>("");
+const uploadedFileUrl = ref<string>("");
 const track = ref<Components.Schemas.GetTrackVersionDeepDto | Components.Schemas.GetReviewTrackVersionDto>();
-const trackdata = ref<Components.Schemas.GetTrackDeepDto | Components.Schemas.GetReviewTrackDto>();
+const trackData = ref<Components.Schemas.GetTrackDeepDto | Components.Schemas.GetReviewTrackDto>();
 
 const trackVersion = ref<number>(0);
 
-const selectedpercentageleft = ref<number | null>(0);
+const selectedPercentageLeft = ref<number | null>(0);
 const selectedTimeStamp = ref<number>(0);
-const closepopup = ref<boolean>(false);
+const closePopup = ref<boolean>(false);
 const rating = ref<boolean>(true);
 const comments = ref<string>("");
-const userinfo = ref<Components.Schemas.GetUserDto>();
+const userInfo = ref<Components.Schemas.GetUserDto>();
 
 const submitted = ref<boolean>(false);
 const showSubmitButton = ref<boolean>(false);
@@ -38,7 +38,7 @@ const showSubmitButton = ref<boolean>(false);
 const trackDuration = ref<number>(-1);
 
 const waveOptions = reactive<IllestWaveformProps>({
-    url: uploadedfileUrl.value,
+    url: uploadedFileUrl.value,
     lineColor: "#1C64F2",
     maskColor: "#1849a8",
     cursorWidth: 3,
@@ -111,11 +111,11 @@ const getTrackInfo = async () => {
         const data = response.data;
 
         track.value = data.trackversions[0];
-        trackdata.value = data;
+        trackData.value = data;
 
         trackVersion.value = props.version + 1;
-        uploadedfileUrl.value = `https://${data.trackversions[props.version].fullUrl}`;
-        waveOptions.url = uploadedfileUrl.value;
+        uploadedFileUrl.value = `https://${data.trackversions[props.version].fullUrl}`;
+        waveOptions.url = uploadedFileUrl.value;
         trackDuration.value = track.value.duration;
         forceRerender();
     }
@@ -124,14 +124,14 @@ const getTrackInfo = async () => {
         const response = await getTrackReviewer(props.id);
 
         const data = response.data;
-        trackdata.value = data;
+        trackData.value = data;
 
         trackVersion.value = data.trackversions[0].versionNumber;
 
         track.value = data.trackversions[0];
 
-        uploadedfileUrl.value = `https://${data.trackversions[0].fullUrl}`;
-        waveOptions.url = uploadedfileUrl.value;
+        uploadedFileUrl.value = `https://${data.trackversions[0].fullUrl}`;
+        waveOptions.url = uploadedFileUrl.value;
         trackDuration.value = track.value.duration;
         await checkSubmitted();
         forceRerender();
@@ -139,16 +139,16 @@ const getTrackInfo = async () => {
 };
 
 const GetPointerLocation = () => {
-    if (closepopup.value === true) {
-        closepopup.value = false;
+    if (closePopup.value === true) {
+        closePopup.value = false;
         return;
     }
 
-    if (!trackdata.value || !trackDuration.value) {
+    if (!trackData.value || !trackDuration.value) {
         return;
     }
 
-    selectedpercentageleft.value = (currentTime.value / trackDuration.value) * 100;
+    selectedPercentageLeft.value = (currentTime.value / trackDuration.value) * 100;
     selectedTimeStamp.value = currentTime.value / trackDuration.value;
 };
 
@@ -176,7 +176,7 @@ const playpause = () => {
 };
 
 onKeyStroke(" ", (e) => {
-    if (selectedpercentageleft.value && selectedpercentageleft.value > 0 && props.feedback) {
+    if (selectedPercentageLeft.value && selectedPercentageLeft.value > 0 && props.feedback) {
         return;
     }
 
@@ -219,15 +219,15 @@ const submitFeedback = async () => {
 };
 
 const CloseFeedback = () => {
-    selectedpercentageleft.value = null;
-    closepopup.value = true;
-    console.log("selectedpercentageleft", selectedpercentageleft.value);
+    selectedPercentageLeft.value = null;
+    closePopup.value = true;
+    console.log("selectedpercentageleft", selectedPercentageLeft.value);
 };
 
 const getUserInfo = async () => {
     const response = await getProfile();
 
-    userinfo.value = response.data;
+    userInfo.value = response.data;
 };
 
 const publishFeedbackToArtist = async () => {
@@ -256,7 +256,7 @@ defineExpose({ seek });
 <template>
     <div class="mb-5 relative">
         <h1 class="text-3xl font-bold dark:text-white mb-6">
-            {{ trackdata?.title }}
+            {{ trackData?.title }}
             <span
                 class="ml-2 bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
             >
@@ -264,7 +264,7 @@ defineExpose({ seek });
             </span>
             <span
                 class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"
-                >{{ trackdata?.genre }}</span
+                >{{ trackData?.genre }}</span
             >
         </h1>
         <div class="flex flex-row gap-2 mb-6">
@@ -347,14 +347,14 @@ defineExpose({ seek });
 
             <div v-if="!feedback" class="relative -top-5">
                 <div
-                    v-for="(trackFeedback, i) in trackdata?.trackversions[trackVersion - 1].feedback"
+                    v-for="(trackFeedback, i) in trackData?.trackversions[trackVersion - 1].feedback"
                     :key="i"
                     :style="{ left: `${trackFeedback.timestamp * 100 - 1.5}%` }"
                     class="absolute"
                 >
                     <div
                         class="relative inline-flex items-center cursor-pointer justify-center w-10 h-10 bg-green-200 rounded-full dark:bg-green-600"
-                        @click="seek(trackdata!.trackversions[0].duration * trackFeedback.timestamp)"
+                        @click="seek(trackData!.trackversions[0].duration * trackFeedback.timestamp)"
                     >
                         <span v-if="'user' in trackFeedback" class="font-medium text-gray-600 dark:text-gray-300"
                             >{{ trackFeedback.user.firstname.slice(0, 1)
@@ -378,21 +378,26 @@ defineExpose({ seek });
 
             <div v-if="feedback" class="relative -top-5">
                 <div
-                    v-if="selectedpercentageleft"
-                    :style="{ left: `${selectedpercentageleft - 1.5}%` }"
+                    v-if="selectedPercentageLeft"
+                    :style="{ left: `${selectedPercentageLeft - 1.5}%` }"
                     class="absolute"
                 >
                     <div
                         class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600"
                     >
                         <span class="font-medium text-gray-300 dark:text-gray-300"
-                            >{{ userinfo?.firstname.slice(0, 1) }}{{ userinfo?.lastname.slice(0, 1) }}</span
+                            >{{ userInfo?.firstname.slice(0, 1) }}{{ userInfo?.lastname.slice(0, 1) }}</span
                         >
                     </div>
                 </div>
                 <div
-                    v-if="selectedpercentageleft"
-                    :style="{ position: 'absolute', [selectedpercentageleft < 80 ? 'left' : 'right']: `${selectedpercentageleft < 80 ? selectedpercentageleft + 4 : 100 - selectedpercentageleft + 4}%` }"
+                    v-if="selectedPercentageLeft"
+                    :style="{
+                        position: 'absolute',
+                        [selectedPercentageLeft < 80 ? 'left' : 'right']: `${
+                            selectedPercentageLeft < 80 ? selectedPercentageLeft + 4 : 100 - selectedPercentageLeft + 4
+                        }%`
+                    }"
                     class="bg-white rounded-lg dark:bg-gray-700 p-4 z-[99] drop-shadow-2xl min-w-[20em]"
                 >
                     <form name="feedbackform" v-on:submit.prevent="submitFeedback()">

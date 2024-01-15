@@ -6,25 +6,25 @@ import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 
 const apiUrl = `https://${import.meta.env.VITE_API_URL}/tracks`;
-let uploadedfileUrl = ref<string>("");
-let uploadedfileTitle = ref<string>("");
-let uploadedfileGenre = ref<string>("");
-let uploadedtrackid = ref<number>(0);
+let uploadedFileUrl = ref<string>("");
+let uploadedFileTitle = ref<string>("");
+let uploadedFileGenre = ref<string>("");
+let uploadedTrackId = ref<number>(0);
 
 const name = ref<string>("");
 const genre = ref<string>("");
-const audiofile = ref<File | null>(null);
+const audioFile = ref<File | null>(null);
 const selectedLabel = ref<Components.Schemas.GetLabelDto | null>(null);
 const reviewers = ref<Components.Schemas.GetUserDto | "noreviewers">("noreviewers"); //change
-const allreviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
-const possiblereviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
-const revieweralreadyadded = ref<boolean>(false);
+const allReviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
+const possibleReviewers = ref<Array<Components.Schemas.GetUserDto>>([]); //change
+const reviewerAlreadyadded = ref<boolean>(false);
 const sendSuccess = ref<boolean>(false);
 const labelQuery = ref<string>("");
 
 const componentKey = ref(0);
-const uploadstatus = ref<number>(0);
-const uploadtolabelstep = ref<number>(0);
+const uploadStatus = ref<number>(0);
+const uploadToLabelStep = ref<number>(0);
 
 const labels = ref<Array<Components.Schemas.GetLabelDto>>([]);
 
@@ -39,16 +39,16 @@ const handleFileChange = (event: Event) => {
 
     const target = event.target as HTMLInputElement;
 
-    audiofile.value = target.files![0];
+    audioFile.value = target.files![0];
 
     if (name.value === null || name.value === undefined || name.value === "") {
-        const value = audiofile.value.name;
+        const value = audioFile.value.name;
         name.value = value.substring(0, value.lastIndexOf("."));
     }
 };
 
 const selectLabel = async (labelId: number) => {
-    allreviewers.value = [];
+    allReviewers.value = [];
     const response = await getLabelById(labelId);
     selectedLabel.value = response.data;
     NextStep(2);
@@ -59,26 +59,26 @@ const AddReviewer = () => {
         return;
     }
 
-    for (let i = 0; i < allreviewers.value.length; i++) {
-        if (allreviewers.value[i] == reviewers.value) {
-            revieweralreadyadded.value = true;
+    for (let i = 0; i < allReviewers.value.length; i++) {
+        if (allReviewers.value[i] == reviewers.value) {
+            reviewerAlreadyadded.value = true;
             return;
         }
     }
-    revieweralreadyadded.value = false;
-    allreviewers.value.push(reviewers.value);
+    reviewerAlreadyadded.value = false;
+    allReviewers.value.push(reviewers.value);
 };
 
 const RemoveReviewer = (reviewer: Components.Schemas.GetUserDto) => {
-    const index = allreviewers.value.indexOf(reviewer);
+    const index = allReviewers.value.indexOf(reviewer);
     if (index > -1) {
-        allreviewers.value.splice(index, 1);
+        allReviewers.value.splice(index, 1);
     }
 };
 
 const getReviewer = async () => {
     const response = await getReviewers();
-    possiblereviewers.value = response.data;
+    possibleReviewers.value = response.data;
     forceRerender();
 };
 
@@ -87,29 +87,29 @@ const getLabels = async () => {
         const response = await getAllLabels();
         labels.value = response.data;
     } else {
-        var query = labelQuery.value;
-        const reponse = await getLabelTypeahead(query);
-        labels.value = reponse.data;
+        const query = labelQuery.value;
+        const response = await getLabelTypeahead(query);
+        labels.value = response.data;
     }
 };
 
 const submitData = async () => {
     try {
-        if (!selectedLabel.value && allreviewers.value.length === 0) {
+        if (!selectedLabel.value && allReviewers.value.length === 0) {
             return;
         }
 
         const body = new FormData();
         body.set("title", name.value);
         body.set("genre", genre.value);
-        body.set("file", audiofile.value!);
+        body.set("file", audioFile.value!);
 
-        if (selectedLabel.value && allreviewers.value.length === 0) {
+        if (selectedLabel.value && allReviewers.value.length === 0) {
             body.set("labelId", selectedLabel.value.id.toString());
         }
 
-        if (!selectedLabel.value && allreviewers.value.length > 0) {
-            body.set("reviewerIds", allreviewers.value.map((reviewer) => reviewer.id).join(","));
+        if (!selectedLabel.value && allReviewers.value.length > 0) {
+            body.set("reviewerIds", allReviewers.value.map((reviewer) => reviewer.id).join(","));
         }
 
         const response = await fetch(apiUrl, {
@@ -127,13 +127,13 @@ const submitData = async () => {
         }
 
         const data = await response.json();
-        uploadedfileTitle.value = data.title;
-        uploadedfileGenre.value = data.genre;
-        uploadedtrackid.value = data.id;
-        uploadedfileUrl.value = `https://${data.full_url}`;
+        uploadedFileTitle.value = data.title;
+        uploadedFileGenre.value = data.genre;
+        uploadedTrackId.value = data.id;
+        uploadedFileUrl.value = `https://${data.full_url}`;
         sendSuccess.value = true;
         forceRerender();
-        router.push("/track/" + uploadedtrackid.value);
+        await router.push("/track/" + uploadedTrackId.value);
     } catch (error) {
         console.error("API Error:", error);
         sendSuccess.value = false;
@@ -142,43 +142,43 @@ const submitData = async () => {
 
 const NextStep = (step: number) => {
     if (step == 1) {
-        if (name.value == "" || genre.value == "" || audiofile.value == null) {
+        if (name.value == "" || genre.value == "" || audioFile.value == null) {
             alert("Please fill in all fields");
             return;
         }
     }
 
     if (step == 2) {
-        if (allreviewers.value.length === 0 && !selectedLabel.value) {
+        if (allReviewers.value.length === 0 && !selectedLabel.value) {
             alert("Please enter an label or select a reviewer");
             return;
         }
     }
 
     if (step == 3) {
-        if (uploadstatus.value == 3) {
+        if (uploadStatus.value == 3) {
             return;
         }
         submitData();
     }
-    uploadstatus.value = step;
+    uploadStatus.value = step;
 };
 
 const selectReviewerType = (step: number) => {
     if (step === 0) {
         selectedLabel.value = null;
-        allreviewers.value = [];
-        uploadtolabelstep.value = 0;
+        allReviewers.value = [];
+        uploadToLabelStep.value = 0;
     }
 
     if (step === 1) {
         selectedLabel.value = null;
-        uploadtolabelstep.value = 1;
+        uploadToLabelStep.value = 1;
     }
 
     if (step === 2) {
-        allreviewers.value = [];
-        uploadtolabelstep.value = 2;
+        allReviewers.value = [];
+        uploadToLabelStep.value = 2;
     }
 };
 
@@ -197,11 +197,11 @@ onMounted(() => {
                 <div
                     :class="{
                         'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400':
-                            uploadstatus > 0,
+                            uploadStatus > 0,
                         'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400':
-                            uploadstatus === 0,
+                            uploadStatus === 0,
                         'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400':
-                            uploadstatus < 0
+                            uploadStatus < 0
                     }"
                     class="w-full p-4 border rounded-lg"
                     role="alert"
@@ -210,7 +210,7 @@ onMounted(() => {
                         <span class="sr-only">Upload track</span>
                         <h3 class="font-medium">1. Upload Track</h3>
                         <svg
-                            v-if="uploadstatus > 0"
+                            v-if="uploadStatus > 0"
                             aria-hidden="true"
                             class="w-4 h-4"
                             fill="none"
@@ -226,7 +226,7 @@ onMounted(() => {
                             />
                         </svg>
                         <svg
-                            v-if="uploadstatus == 0"
+                            v-if="uploadStatus == 0"
                             aria-hidden="true"
                             class="rtl:rotate-180 w-4 h-4"
                             fill="none"
@@ -248,11 +248,11 @@ onMounted(() => {
                 <div
                     :class="{
                         'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400':
-                            uploadstatus > 1,
+                            uploadStatus > 1,
                         'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400':
-                            uploadstatus === 1,
+                            uploadStatus === 1,
                         'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400':
-                            uploadstatus < 1
+                            uploadStatus < 1
                     }"
                     class="w-full p-4 border rounded-lg"
                     role="alert"
@@ -261,7 +261,7 @@ onMounted(() => {
                         <span class="sr-only">Assign Reviewers</span>
                         <h3 class="font-medium">2. Assign Reviewers</h3>
                         <svg
-                            v-if="uploadstatus > 1"
+                            v-if="uploadStatus > 1"
                             aria-hidden="true"
                             class="w-4 h-4"
                             fill="none"
@@ -277,7 +277,7 @@ onMounted(() => {
                             />
                         </svg>
                         <svg
-                            v-if="uploadstatus == 1"
+                            v-if="uploadStatus == 1"
                             aria-hidden="true"
                             class="rtl:rotate-180 w-4 h-4"
                             fill="none"
@@ -299,11 +299,11 @@ onMounted(() => {
                 <div
                     :class="{
                         'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400':
-                            uploadstatus > 2,
+                            uploadStatus > 2,
                         'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400':
-                            uploadstatus === 2,
+                            uploadStatus === 2,
                         'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400':
-                            uploadstatus < 2
+                            uploadStatus < 2
                     }"
                     class="w-full p-4 border rounded-lg"
                     role="alert"
@@ -312,7 +312,7 @@ onMounted(() => {
                         <span class="sr-only">Review</span>
                         <h3 class="font-medium">3. Review</h3>
                         <svg
-                            v-if="uploadstatus > 2"
+                            v-if="uploadStatus > 2"
                             aria-hidden="true"
                             class="w-4 h-4"
                             fill="none"
@@ -328,7 +328,7 @@ onMounted(() => {
                             />
                         </svg>
                         <svg
-                            v-if="uploadstatus == 2"
+                            v-if="uploadStatus == 2"
                             aria-hidden="true"
                             class="rtl:rotate-180 w-4 h-4"
                             fill="none"
@@ -350,11 +350,11 @@ onMounted(() => {
                 <div
                     :class="{
                         'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400':
-                            uploadstatus > 3,
+                            uploadStatus > 3,
                         'text-blue-700 bg-blue-100 border-blue-300 dark:bg-gray-800 dark:border-blue-800 dark:text-blue-400':
-                            uploadstatus === 3,
+                            uploadStatus === 3,
                         'text-gray-900 bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400':
-                            uploadstatus < 3
+                            uploadStatus < 3
                     }"
                     class="w-full p-4 border rounded-lg"
                     role="alert"
@@ -363,7 +363,7 @@ onMounted(() => {
                         <span class="sr-only">Confirmation</span>
                         <h3 class="font-medium">4. Confirmation</h3>
                         <svg
-                            v-if="uploadstatus > 3"
+                            v-if="uploadStatus > 3"
                             aria-hidden="true"
                             class="w-4 h-4"
                             fill="none"
@@ -379,7 +379,7 @@ onMounted(() => {
                             />
                         </svg>
                         <svg
-                            v-if="uploadstatus == 3"
+                            v-if="uploadStatus == 3"
                             aria-hidden="true"
                             class="rtl:rotate-180 w-4 h-4"
                             fill="none"
@@ -399,7 +399,7 @@ onMounted(() => {
             </li>
         </ol>
         <div class="h-full">
-            <div v-if="uploadstatus === 0" class="flex flex-col w-full">
+            <div v-if="uploadStatus === 0" class="flex flex-col w-full">
                 <h1 class="text-3xl font-bold dark:text-white mb-4">Upload a track</h1>
                 <input
                     v-model="name"
@@ -418,14 +418,14 @@ onMounted(() => {
                 <div class="flex items-center justify-center w-full">
                     <label
                         :class="[
-                            audiofile
+                            audioFile
                                 ? 'bg-green-600 border-solid border-green-600'
                                 : 'bg-grey-50 border-dashed border-gray-300'
                         ]"
                         class="px-10 flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 rounded-lg cursor-pointer"
                         for="dropzone-file"
                     >
-                        <div v-if="!audiofile" class="flex flex-col items-center justify-center pt-5 pb-6 w-[300px]">
+                        <div v-if="!audioFile" class="flex flex-col items-center justify-center pt-5 pb-6 w-[300px]">
                             <svg
                                 aria-hidden="true"
                                 class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
@@ -446,7 +446,7 @@ onMounted(() => {
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">MP3, AAC, WAV, M4A or FLAC</p>
                         </div>
-                        <div v-if="audiofile" class="flex flex-col items-center justify-center pt-5 pb-6 w-[300px]">
+                        <div v-if="audioFile" class="flex flex-col items-center justify-center pt-5 pb-6 w-[300px]">
                             <svg
                                 class="w-8 h-8 mb-4 text-gray-100"
                                 fill="none"
@@ -463,9 +463,9 @@ onMounted(() => {
                                 />
                             </svg>
                             <p class="mb-2 text-sm text-gray-100 dark:text-gray-400">
-                                <span class="font-semibold">File uploaded succesfully</span>
+                                <span class="font-semibold">File uploaded successfully</span>
                             </p>
-                            <p class="text-xs text-gray-100 dark:text-gray-400">{{ audiofile.name }}</p>
+                            <p class="text-xs text-gray-100 dark:text-gray-400">{{ audioFile.name }}</p>
                         </div>
                         <input id="dropzone-file" class="hidden" type="file" @change="handleFileChange" />
                     </label>
@@ -477,8 +477,8 @@ onMounted(() => {
                     Submit
                 </button>
             </div>
-            <div v-if="uploadstatus === 1" class="relative h-full">
-                <div v-if="uploadtolabelstep === 0" class="flex flex-col gap-4 w-1/2">
+            <div v-if="uploadStatus === 1" class="relative h-full">
+                <div v-if="uploadToLabelStep === 0" class="flex flex-col gap-4 w-1/2">
                     <h1 class="w-max text-3xl font-bold dark:text-white mb-4">Select reviewer type</h1>
 
                     <div
@@ -546,7 +546,7 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <div v-if="uploadtolabelstep === 1">
+                <div v-if="uploadToLabelStep === 1">
                     <button
                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-4 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                         type="button"
@@ -572,7 +572,7 @@ onMounted(() => {
                         >
                             <option selected value="noreviewers">Select a reviewer</option>
                             <option
-                                v-for="(reviewer, i) in possiblereviewers"
+                                v-for="(reviewer, i) in possibleReviewers"
                                 :key="i"
                                 :value="reviewer"
                                 class="cursor-pointer"
@@ -590,7 +590,7 @@ onMounted(() => {
                         >
                             Add reviewer
                         </button>
-                        <div v-if="revieweralreadyadded">
+                        <div v-if="reviewerAlreadyadded">
                             <p
                                 class="bg-red-100 !mt-2 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
                             >
@@ -599,7 +599,7 @@ onMounted(() => {
                         </div>
                         <div>
                             <ul
-                                v-for="(reviewer, i) in allreviewers"
+                                v-for="(reviewer, i) in allReviewers"
                                 :key="i"
                                 class="w-full divide-y divide-gray-200 dark:divide-gray-700"
                             >
@@ -651,9 +651,9 @@ onMounted(() => {
                     </div>
                     <button
                         :class="{
-                            'bg-gray-400 pointer-events-none': allreviewers.length === 0,
+                            'bg-gray-400 pointer-events-none': allReviewers.length === 0,
                             'bg-gray-700 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800':
-                                allreviewers.length > 0
+                                allReviewers.length > 0
                         }"
                         class="absolute bottom-0 right-0 w-full mt-2 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2"
                         @click="NextStep(2)"
@@ -662,7 +662,7 @@ onMounted(() => {
                     </button>
                 </div>
 
-                <div v-if="uploadtolabelstep === 2">
+                <div v-if="uploadToLabelStep === 2">
                     <button
                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-4 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                         type="button"
@@ -735,7 +735,7 @@ onMounted(() => {
                 </div>
             </div>
 
-            <div v-if="uploadstatus === 2" class="relative h-full">
+            <div v-if="uploadStatus === 2" class="relative h-full">
                 <h1 class="text-3xl font-bold dark:text-white mb-4">Review information</h1>
                 <div class="sm:col-span-2">
                     <label
@@ -762,13 +762,13 @@ onMounted(() => {
                     />
                 </div>
                 <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
-                <div v-if="allreviewers.length > 0" class="w-full">
+                <div v-if="allReviewers.length > 0" class="w-full">
                     <label
                         class="block mb-2 text-sm font-semibold text-gray-900 dark:text-white inline-flex items-center"
                         >Assigned reviewers</label
                     >
                     <ul
-                        v-for="(reviewer, i) in allreviewers"
+                        v-for="(reviewer, i) in allReviewers"
                         :key="i"
                         class="w-full divide-y divide-gray-200 dark:divide-gray-700"
                     >
@@ -844,7 +844,7 @@ onMounted(() => {
                     Submit Track
                 </button>
             </div>
-            <div v-if="uploadstatus === 3" class="flex flex-col items-center mt-14 w-full h-full">
+            <div v-if="uploadStatus === 3" class="flex flex-col items-center mt-14 w-full h-full">
                 <div v-if="sendSuccess" class="flex flex-col items-center justify-center mb-4">
                     <svg
                         aria-hidden="true"
@@ -861,7 +861,7 @@ onMounted(() => {
                 </div>
                 <a
                     v-if="sendSuccess"
-                    :href="`/track/${uploadedtrackid}`"
+                    :href="`/track/${uploadedTrackId}`"
                     class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                     >Go to track</a
                 >

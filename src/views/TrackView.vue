@@ -7,6 +7,7 @@ import { getAssignedReviewers } from "@/services/label.service";
 import { addReviewers, getTrack } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
+import type { ToastType } from "@/utils/types";
 import { initFlowbite } from "flowbite";
 import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -20,7 +21,7 @@ const activeTab = ref<number>(1);
 const showModal = ref<boolean>(false);
 const description = ref<string>("");
 const audioFile = ref<File | null>(null);
-const ShowOverlay = ref<any>();
+const ShowOverlay = ref<number | null>();
 const userinfo = ref<Components.Schemas.GetUserDto>();
 
 const trackComponent = ref();
@@ -32,7 +33,7 @@ const feedbackId = ref<number>(0);
 const ShowAddModal = ref<boolean>(false);
 const reviewersOfLabel = ref<Array<Components.Schemas.GetUserWithLabelMemberDto>>([]);
 const selectedReviewer = ref<number>(0);
-const toastType = ref<any>();
+const toastType = ref<ToastType>();
 const toastMessage = ref<string | null>();
 const currentLabel = ref<Components.Schemas.GetLabelDto>();
 
@@ -59,7 +60,7 @@ const getTrackInfo = async () => {
     forceRerender();
 };
 
-const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
+const getTimeInMinutesAndSeconds = (timeInSeconds: number): string => {
     if (!timeInSeconds || timeInSeconds <= 0) {
         return "-";
     }
@@ -108,7 +109,7 @@ const handleFileChange = (event: Event) => {
     audioFile.value = target.files![0];
 };
 
-const Showoverlay = (reviewer: any) => {
+const Showoverlay = (reviewer: Components.Schemas.GetUserDto) => {
     if (ShowOverlay.value == reviewer.id) {
         ShowOverlay.value = null;
         return;
@@ -125,7 +126,7 @@ const getReviewers = async () => {
     reviewersOfLabel.value = reviewers.data;
 };
 
-const addReviewertoTrack = async () => {
+const addReviewerToTrack = async () => {
     const response = await addReviewers(String(trackInfo.value?.id), {
         reviewerIds: [selectedReviewer.value]
     });
@@ -138,7 +139,7 @@ const addReviewertoTrack = async () => {
             toastType.value = null;
             toastMessage.value = null;
         }, 5000);
-        getTrackInfo();
+        await getTrackInfo();
         forceRerender();
         ShowAddModal.value = false;
     }
@@ -172,12 +173,12 @@ const delFeedback = async (id: number) => {
         return;
     } else {
         toastType.value = "succes";
-        toastMessage.value = "Feedback deleted succesfully";
+        toastMessage.value = "Feedback deleted successfully";
         setTimeout(() => {
             toastType.value = null;
             toastMessage.value = null;
         }, 5000);
-        getTrackInfo();
+        await getTrackInfo();
         forceRerender();
         confirmDeletion.value = false;
     }
@@ -925,7 +926,7 @@ const getUserInfo = async () => {
                                 </button>
                             </div>
                             <div class="p-4 md:p-5">
-                                <form class="space-y-4" v-on:submit.prevent="addReviewertoTrack()">
+                                <form class="space-y-4" v-on:submit.prevent="addReviewerToTrack()">
                                     <div>
                                         <label
                                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
