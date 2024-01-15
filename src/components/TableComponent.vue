@@ -5,36 +5,36 @@ import { getRoles } from "@/utils/authorisationhelper";
 import { onMounted, ref } from "vue";
 
 const trackdata = ref<Array<Components.Schemas.GetTrackWithAuthorDto>>();
-const toasttype = ref<any>();
-const toastmessage = ref<string | null>();
+const toastType = ref<any>();
+const toastMessage = ref<string | null>();
 const confirmDeletion = ref<boolean>(false);
 const delTrackId = ref<number>(0);
 
-const gettrack = async () => {
+const getTrack = async () => {
     const response = await getTracks();
 
     trackdata.value = response.data;
 };
 const roles = getRoles();
 
-const delTrack = async (id: any) => {
-    const response = await deleteTrack(id);
+const delTrack = async (id: number) => {
+    const response = await deleteTrack(id.toString());
     if (!response) {
         return;
     }
 
-    toasttype.value = "succes";
-    toastmessage.value = "Track deleted";
+    toastType.value = "succes";
+    toastMessage.value = "Track deleted";
     setTimeout(() => {
-        toasttype.value = null;
-        toastmessage.value = null;
+        toastType.value = null;
+        toastMessage.value = null;
     }, 5000);
     confirmDeletion.value = false;
 
-    gettrack();
+    getTrack();
 };
 
-onMounted(() => gettrack());
+onMounted(() => getTrack());
 </script>
 
 <template>
@@ -46,7 +46,7 @@ onMounted(() => gettrack());
                     <th v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-3" scope="col">ID</th>
                     <th v-if="roles?.includes('FEEDBACKGEVER')" class="px-6 py-3" scope="col">
                         <div class="flex items-center">
-                            Artist
+                            <p>Artist</p>
                             <a href="#">
                                 <svg
                                     aria-hidden="true"
@@ -64,7 +64,7 @@ onMounted(() => gettrack());
                     </th>
                     <th v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-3" scope="col">
                         <div class="flex items-center">
-                            Title
+                            <p>Title</p>
                             <a href="#">
                                 <svg
                                     aria-hidden="true"
@@ -223,7 +223,7 @@ onMounted(() => gettrack());
                                     </h3>
                                     <button
                                         class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
-                                        @click="delTrack(delTrackId)"
+                                        @click="delTrack(+delTrackId)"
                                     >
                                         Yes, I'm sure
                                     </button>
@@ -240,6 +240,6 @@ onMounted(() => gettrack());
                 </tr>
             </tbody>
         </table>
-        <Toasts v-if="toasttype && toastmessage" :message="toastmessage" :type="toasttype" />
+        <Toasts v-if="toastType && toastMessage" :message="toastMessage" :type="toastType" />
     </div>
 </template>
