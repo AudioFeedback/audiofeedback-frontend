@@ -3,7 +3,7 @@ import Toasts from "@/components/Toasts-Popup.vue";
 import TrackComponent from "@/components/TrackComponent.vue";
 import { getProfile } from "@/services/app.service";
 import { deleteFeedback } from "@/services/feedback.service";
-import { getAllLabels, getAssignedReviewers } from "@/services/label.service";
+import { getAssignedReviewers } from "@/services/label.service";
 import { addReviewers, getTrack } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
@@ -11,15 +11,15 @@ import { initFlowbite } from "flowbite";
 import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
 
-const uploadedfileUrl = ref<string>("");
+const uploadedFileUrl = ref<string>("");
 const route = useRoute();
 const componentKey = ref(0);
-const trackinfo = ref<Components.Schemas.GetTrackDeepDto>();
+const trackInfo = ref<Components.Schemas.GetTrackDeepDto>();
 const canvasDiv = ref<HTMLElement | null>(null);
 const activeTab = ref<number>(1);
 const showModal = ref<boolean>(false);
 const description = ref<string>("");
-const audiofile = ref<File | null>(null);
+const audioFile = ref<File | null>(null);
 const ShowOverlay = ref<any>();
 const userinfo = ref<Components.Schemas.GetUserDto>();
 
@@ -30,11 +30,11 @@ const confirmDeletion = ref<boolean>(false);
 const deleteID = ref<number>(0);
 const feedbackId = ref<number>(0);
 const ShowAddModal = ref<boolean>(false);
-const reviewersoflabel = ref<Array<any>>([]);
-const selectedreviewer = ref<number>(0);
-const toasttype = ref<any>();
-const toastmessage = ref<string | null>();
-const currentLabel = ref<any>();
+const reviewersOfLabel = ref<Array<Components.Schemas.GetUserWithLabelMemberDto>>([]);
+const selectedReviewer = ref<number>(0);
+const toastType = ref<any>();
+const toastMessage = ref<string | null>();
+const currentLabel = ref<Components.Schemas.GetLabelDto>();
 
 const getCurrentLabel = async () => {
     currentLabel.value = JSON.parse(localStorage.getItem("currentLabel") || "{}");
@@ -52,10 +52,10 @@ const getTrackInfo = async () => {
     const response = await getTrack(route.params.id as unknown as number);
 
     const data = response.data;
-    trackinfo.value = data;
+    trackInfo.value = data;
 
     trackVersion.value = data.trackversions.length - 1;
-    uploadedfileUrl.value = `https://${data.trackversions[0].fullUrl}`;
+    uploadedFileUrl.value = `https://${data.trackversions[0].fullUrl}`;
     forceRerender();
 };
 
@@ -71,10 +71,10 @@ const getTimeInMinutesAndSeconds = (timeInSeconds: any): string => {
 };
 
 const submitData = async () => {
-    const apiUrl = `https://${import.meta.env.VITE_API_URL}/tracks/${trackinfo?.value?.id}`;
+    const apiUrl = `https://${import.meta.env.VITE_API_URL}/tracks/${trackInfo?.value?.id}`;
     try {
         const body = new FormData();
-        body.set("file", audiofile.value!);
+        body.set("file", audioFile.value!);
         body.set("description", description.value);
 
         const response = await fetch(apiUrl, {
@@ -105,7 +105,7 @@ const handleFileChange = (event: Event) => {
 
     const target = event.target as HTMLInputElement;
 
-    audiofile.value = target.files![0];
+    audioFile.value = target.files![0];
 };
 
 const Showoverlay = (reviewer: any) => {
@@ -117,22 +117,26 @@ const Showoverlay = (reviewer: any) => {
 };
 
 const getReviewers = async () => {
+    if (!currentLabel.value) {
+        return;
+    }
+
     const reviewers = await getAssignedReviewers(currentLabel.value.id);
-    reviewersoflabel.value = reviewers.data;
+    reviewersOfLabel.value = reviewers.data;
 };
 
 const addReviewertoTrack = async () => {
-    const response = await addReviewers(String(trackinfo.value?.id), {
-        reviewerIds: [selectedreviewer.value]
+    const response = await addReviewers(String(trackInfo.value?.id), {
+        reviewerIds: [selectedReviewer.value]
     });
     if (!response) {
         return;
     } else {
-        toasttype.value = "succes";
-        toastmessage.value = "Reviewer added succesfully";
+        toastType.value = "succes";
+        toastMessage.value = "Reviewer added succesfully";
         setTimeout(() => {
-            toasttype.value = null;
-            toastmessage.value = null;
+            toastType.value = null;
+            toastMessage.value = null;
         }, 5000);
         getTrackInfo();
         forceRerender();
@@ -144,8 +148,8 @@ onBeforeMount(() => {
     getTrackInfo();
     initFlowbite();
     getUserInfo();
-    getReviewers();
     getCurrentLabel();
+    getReviewers();
     window.addEventListener("resize", forceRerender);
 });
 
@@ -167,11 +171,11 @@ const delFeedback = async (id: number) => {
     if (!response) {
         return;
     } else {
-        toasttype.value = "succes";
-        toastmessage.value = "Feedback deleted succesfully";
+        toastType.value = "succes";
+        toastMessage.value = "Feedback deleted succesfully";
         setTimeout(() => {
-            toasttype.value = null;
-            toastmessage.value = null;
+            toastType.value = null;
+            toastMessage.value = null;
         }, 5000);
         getTrackInfo();
         forceRerender();
@@ -260,7 +264,7 @@ const getUserInfo = async () => {
                             />
                         </svg>
                         <span class="ml-1 text-sm font-medium text-gray-500 sm:ml-2 dark:text-gray-400">{{
-                            trackinfo?.title
+                            trackInfo?.title
                         }}</span>
                     </div>
                 </li>
@@ -394,8 +398,7 @@ const getUserInfo = async () => {
                             </th>
                         </tr>
                     </thead>
-                    <tbody v-for="(feedback, i) in trackinfo?.trackversions[trackVersion].feedback"
-                            :key="i">
+                    <tbody v-for="(feedback, i) in trackInfo?.trackversions[trackVersion].feedback" :key="i">
                         <tr
                             v-if="feedback.timestamp > 0"
                             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
@@ -403,18 +406,18 @@ const getUserInfo = async () => {
                             <th
                                 class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white cursor-pointer"
                                 scope="row"
-                                @click="seek(trackinfo!.trackversions[trackVersion].duration * feedback.timestamp)"
+                                @click="seek(trackInfo!.trackversions[trackVersion].duration * feedback.timestamp)"
                             >
                                 @{{ feedback.user.username }} ({{ feedback.user.firstname }}
                                 {{ feedback.user.lastname }})
                             </th>
                             <td
                                 class="px-6 py-4 cursor-pointer"
-                                @click="seek(trackinfo!.trackversions[trackVersion].duration * feedback.timestamp)"
+                                @click="seek(trackInfo!.trackversions[trackVersion].duration * feedback.timestamp)"
                             >
                                 {{
                                     getTimeInMinutesAndSeconds(
-                                        trackinfo!.trackversions[trackVersion].duration * feedback.timestamp
+                                        trackInfo!.trackversions[trackVersion].duration * feedback.timestamp
                                     )
                                 }}
                             </td>
@@ -424,6 +427,7 @@ const getUserInfo = async () => {
                             <td class="px-6 py-4">file attachment</td>
                             <td class="flex items-center px-6 py-4">
                                 <button
+                                    v-if="getRoles()?.includes('FEEDBACKGEVER') || getRoles()?.includes('ADMIN')"
                                     class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3"
                                     @click="deleteModal(feedback.id)"
                                 >
@@ -500,39 +504,44 @@ const getUserInfo = async () => {
             </div>
 
             <div class="grid grid-cols-4">
-                <template v-for="(feedback, i) in trackinfo?.trackversions[trackVersion].feedback" :key="i">
+                <template v-for="(feedback, i) in trackInfo?.trackversions[trackVersion].feedback" :key="i">
                     <div v-if="feedback.timestamp < 0" class="dark:bg-gray-800 dark:border-gray-700">
                         <div class="flex items-start gap-2.5 pt-6">
-                            <div class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600">
+                            <div
+                                class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-primary-600 rounded-full dark:bg-primary-600"
+                            >
                                 <span class="font-semi text-gray-300 dark:text-gray-300">
                                     {{ feedback.user.firstname.slice(0, 1) }}{{ feedback.user.lastname.slice(0, 1) }}
                                 </span>
                             </div>
-                            <div class="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+                            <div
+                                class="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700"
+                            >
                                 <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                                    <span class="px-2 py-2 inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white">
-                                        @{{ feedback.user.username }} ({{ feedback.user.firstname }} {{ feedback.user.lastname }})
+                                    <span
+                                        class="px-2 py-2 inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white"
+                                    >
+                                        @{{ feedback.user.username }} ({{ feedback.user.firstname }}
+                                        {{ feedback.user.lastname }})
                                     </span>
                                 </div>
-                                <div class="px-2 py-2 text-gray-400">
-                                    {{ feedback.comment }}>
-                                </div>
+                                <div class="px-2 py-2 text-gray-400">{{ feedback.comment }}></div>
                                 <div class="flex flex-row w-full px-2 py-2">
                                     <div class="flex w-full">
                                         <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
                                         <img v-if="!feedback.rating" alt="thumbsdown" src="./../assets/down.svg" />
-                                    </div>    
-                                </div>  
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </template>
-            </div>    
+            </div>
         </div>
 
         <div v-if="activeTab === 2">
             <div
-                v-for="(track, i) in trackinfo?.trackversions"
+                v-for="(track, i) in trackInfo?.trackversions"
                 :key="i"
                 class="p-5 mb-4 border border-gray-100 rounded-lg bg-gray-50 dark:bg-gray-800 shadow-lg dark:border-gray-700"
             >
@@ -676,7 +685,7 @@ const getUserInfo = async () => {
                             <div class="flex items-center justify-center w-full">
                                 <label
                                     :class="[
-                                        audiofile
+                                        audioFile
                                             ? 'bg-green-600 border-solid border-green-600'
                                             : 'bg-grey-50 border-dashed border-gray-300'
                                     ]"
@@ -684,7 +693,7 @@ const getUserInfo = async () => {
                                     for="dropzone-file"
                                 >
                                     <div
-                                        v-if="!audiofile"
+                                        v-if="!audioFile"
                                         class="flex flex-col items-center justify-center pt-5 pb-6 w-[300px]"
                                     >
                                         <svg
@@ -710,7 +719,7 @@ const getUserInfo = async () => {
                                         </p>
                                     </div>
                                     <div
-                                        v-if="audiofile"
+                                        v-if="audioFile"
                                         class="flex flex-col items-center justify-center pt-5 pb-6 w-[300px]"
                                     >
                                         <svg
@@ -731,7 +740,7 @@ const getUserInfo = async () => {
                                         <p class="mb-2 text-sm text-gray-100 dark:text-gray-400">
                                             <span class="font-semibold">File uploaded succesfully</span>
                                         </p>
-                                        <p class="text-xs text-gray-100 dark:text-gray-400">{{ audiofile.name }}</p>
+                                        <p class="text-xs text-gray-100 dark:text-gray-400">{{ audioFile.name }}</p>
                                     </div>
                                     <input id="dropzone-file" class="hidden" type="file" @change="handleFileChange" />
                                 </label>
@@ -762,7 +771,7 @@ const getUserInfo = async () => {
         <div v-if="activeTab === 3 && getRoles()?.includes('ADMIN')">
             <div class="relative shadow-sm sm:rounded-lg">
                 <table
-                    v-if="trackinfo && trackinfo.reviewers && trackinfo.reviewers.length > 0"
+                    v-if="trackInfo && trackInfo.reviewers && trackInfo.reviewers.length > 0"
                     aria-label="Manage reviewer table"
                     class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
                 >
@@ -782,7 +791,7 @@ const getUserInfo = async () => {
                     </thead>
                     <tbody>
                         <tr
-                            v-for="(reviewers, i) in trackinfo?.reviewers"
+                            v-for="(reviewers, i) in trackInfo?.reviewers"
                             :key="i"
                             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                         >
@@ -871,7 +880,7 @@ const getUserInfo = async () => {
                         </tr>
                     </tbody>
                 </table>
-                <p v-if="trackinfo?.reviewers.length === 0">no reviewers found</p>
+                <p v-if="trackInfo?.reviewers.length === 0">no reviewers found</p>
                 <button
                     class="text-white w-full mt-4 bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 ml-auto font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                     @click="ShowAddModal = !ShowAddModal"
@@ -889,7 +898,7 @@ const getUserInfo = async () => {
                                 class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600"
                             >
                                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                                    Add reviewer to {{ trackinfo?.title }}
+                                    Add reviewer to {{ trackInfo?.title }}
                                 </h3>
                                 <button
                                     class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
@@ -925,12 +934,12 @@ const getUserInfo = async () => {
                                         >
                                         <select
                                             id="reviewers"
-                                            v-model="selectedreviewer"
+                                            v-model="selectedReviewer"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                         >
                                             <option selected>Choose a reviewer</option>
                                             <option
-                                                v-for="(newreviewer, i) in reviewersoflabel"
+                                                v-for="(newreviewer, i) in reviewersOfLabel"
                                                 :key="i"
                                                 :value="newreviewer.id"
                                             >
@@ -950,7 +959,7 @@ const getUserInfo = async () => {
                         </div>
                     </div>
                 </div>
-                <Toasts v-if="toasttype && toastmessage" :message="toastmessage" :type="toasttype" />
+                <Toasts v-if="toastType && toastMessage" :message="toastMessage" :type="toastType" />
             </div>
         </div>
     </main>
