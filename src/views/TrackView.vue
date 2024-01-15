@@ -515,7 +515,7 @@ const getUserInfo = async () => {
                                     </span>
                                 </div>
                                 <div class="px-2 py-2 text-gray-400">
-                                    {{ feedback.comment }}>
+                                    {{ feedback.comment }}
                                 </div>
                                 <div class="flex flex-row w-full px-2 py-2">
                                     <div class="flex w-full">
