@@ -144,6 +144,7 @@ onMounted(() => {
                                                 class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800"
                                                 type="button"
                                             >
+                                                <!--TODO: REMOVE REVIEWER FROM TRACK-->
                                                 Remove as reviewer
                                             </button>
                                         </div>

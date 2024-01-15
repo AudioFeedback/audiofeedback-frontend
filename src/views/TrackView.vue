@@ -572,7 +572,8 @@ const getUserInfo = async () => {
                             >
                                 <div>
                                     <div class="text-base font-normal">
-                                        Thomas Lean uploaded track version
+                                        <!--TODO: GET ARTIST NAME-->
+                                        TO GET ARTIST uploaded track version
                                         {{ track.versionNumber }}
                                     </div>
                                     <div class="text-sm font-normal">{{ track.description }}</div>
@@ -873,8 +874,10 @@ const getUserInfo = async () => {
                                         <a
                                             class="block px-4 py-2 text-sm text-red-700 hover:bg-red-100 dark:hover:bg-red-600 dark:text-red-200 dark:hover:text-white"
                                             href="#"
-                                            >Remove {{ reviewers.firstname }}</a
                                         >
+                                            <!--TODO: REMOVE REVIEWER FROM TRACK-->
+                                            Remove {{ reviewers.firstname }}
+                                        </a>
                                     </div>
                                 </div>
                             </td>

@@ -176,6 +176,7 @@ const playpause = () => {
 };
 
 onKeyStroke(" ", (e) => {
+    // TODO: Disable keypress on general input & edit
     if (selectedPercentageLeft.value && selectedPercentageLeft.value > 0 && props.feedback) {
         return;
     }
