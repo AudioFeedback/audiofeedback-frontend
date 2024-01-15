@@ -392,8 +392,8 @@ defineExpose({ seek });
                 </div>
                 <div
                     v-if="selectedpercentageleft"
-                    :style="{ left: `${selectedpercentageleft + 4}%` }"
-                    class="absolute bg-white rounded-lg dark:bg-gray-700 p-4 z-[99] drop-shadow-2xl min-w-[20em]"
+                    :style="{ position: 'absolute', [selectedpercentageleft < 80 ? 'left' : 'right']: `${selectedpercentageleft < 80 ? selectedpercentageleft + 4 : 100 - selectedpercentageleft + 4}%` }"
+                    class="bg-white rounded-lg dark:bg-gray-700 p-4 z-[99] drop-shadow-2xl min-w-[20em]"
                 >
                     <form name="feedbackform" v-on:submit.prevent="submitFeedback()">
                         <div class="flex flex-row align-items justify-between">
