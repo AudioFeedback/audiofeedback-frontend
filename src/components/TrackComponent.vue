@@ -152,7 +152,7 @@ const GetPointerLocation = () => {
 
     selectedPercentageLeft.value = (currentTime.value / trackDuration.value) * 100;
     selectedTimeStamp.value = currentTime.value / trackDuration.value;
-    toggleKeyPresses();
+    toggleKeyPresses(true);
 };
 
 onBeforeMount(() => {
