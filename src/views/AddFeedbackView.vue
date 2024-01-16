@@ -772,7 +772,7 @@ const getUserInfo = async () => {
                                     {{ userinfo?.firstname }} {{ userinfo?.lastname }}</span
                                 >
                             </div>
-                            <div class="px-2 py-2 text-gray-400">{{ feedback.comment }}></div>
+                            <div class="px-2 py-2 text-gray-400">{{ feedback.comment }}</div>
                             <div class="flex flex-row w-full px-2 py-2">
                                 <div class="flex">
                                     <img v-if="feedback.rating" alt="thumbsup" src="./../assets/up.svg" />
