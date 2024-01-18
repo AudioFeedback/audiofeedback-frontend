@@ -32,7 +32,7 @@ const deleteID = ref<number>(0);
 const feedbackId = ref<number>(0);
 const ShowAddModal = ref<boolean>(false);
 const reviewersOfLabel = ref<Array<Components.Schemas.GetUserWithLabelMemberDto>>([]);
-const selectedReviewer = ref<number>(0);
+const selectedReviewer = ref<number>(-1);
 const toastType = ref<ToastType>();
 const toastMessage = ref<string | null>();
 const currentLabel = ref<Components.Schemas.GetLabelDto>();
@@ -941,7 +941,7 @@ const getUserInfo = async () => {
                                             v-model="selectedReviewer"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                         >
-                                            <option selected>Choose a reviewer</option>
+                                            <option :value="-1" selected>Choose a reviewer</option>
                                             <option
                                                 v-for="(newreviewer, i) in reviewersOfLabel"
                                                 :key="i"
