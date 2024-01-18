@@ -175,6 +175,7 @@ onMounted(() => {
                                     <a
                                         class="block px-4 py-2 text-sm text-red-700 hover:bg-red-100 dark:hover:bg-red-600 dark:text-red-200 dark:hover:text-white"
                                         href="#"
+
                                         >Delete {{ reviewer.firstname }} {{ reviewer.lastname }}</a
                                     >
                                 </div>
