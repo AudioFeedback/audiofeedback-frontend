@@ -43,6 +43,7 @@ const setSelectedLabel = (label: Components.Schemas.GetLabelDto) => {
     currentLabel.value = label;
     localStorage.setItem("currentLabel", JSON.stringify(currentLabel.value));
     dropdownUser.value = false;
+    window.location.reload();
 };
 
 onMounted(() => {
