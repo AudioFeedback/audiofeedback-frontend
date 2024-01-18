@@ -9,8 +9,8 @@ import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
 
 const trackData = ref<Array<Components.Schemas.GetTrackWithReviewersDto>>();
-const ShowOverlay = ref<any>();
-const ShowOverlay2 = ref<any>();
+const ShowOverlay = ref<number | null>(null);
+const ShowOverlay2 = ref<number | null>(null);
 const toastType = ref<ToastType>();
 const toastMessage = ref<string | null>();
 const currentLabel = ref<Components.Schemas.GetLabelDto>();
@@ -29,7 +29,7 @@ const getTrack = async () => {
 };
 const roles = getRoles();
 
-const showOverlay = (reviewer: any, track: any) => {
+const showOverlay = (reviewer: Components.Schemas.GetReviewerDto, track: number) => {
     if (ShowOverlay.value == reviewer.id && ShowOverlay2.value == track) {
         ShowOverlay.value = null;
         ShowOverlay2.value = null;
