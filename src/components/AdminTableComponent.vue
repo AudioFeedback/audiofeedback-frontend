@@ -179,7 +179,7 @@ href="#"
                         <span
                             v-if="track.status[0] == 'REVIEW_IN_PROGRESS' && track.reviewers.length > 0"
                             class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300"
-                            >Reviewing</span
+                            >Review in Progress</span
                         >
                         <span
                             v-if="track.status[0] == 'READY_TO_SEND' && track.reviewers.length > 0"
