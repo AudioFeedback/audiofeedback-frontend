@@ -36,9 +36,6 @@ const props = withDefaults(defineProps<IllestWaveformProps>(), {
     fade: true
 });
 
-// Render trigger can control the render time
-// of current waveform
-const renderTrigger = ref<boolean>(false);
 const __illestWaveformRef__ = ref<HTMLElement | null>(null);
 
 onMounted(async () => {
