@@ -36,6 +36,7 @@ const selectedReviewer = ref<number>(-1);
 const toastType = ref<ToastType>();
 const toastMessage = ref<string | null>();
 const currentLabel = ref<Components.Schemas.GetLabelDto>();
+const formErrorMessages = ref<string | null>();
 
 const getCurrentLabel = async () => {
     currentLabel.value = JSON.parse(localStorage.getItem("currentLabel") || "{}");
@@ -72,6 +73,11 @@ const getTimeInMinutesAndSeconds = (timeInSeconds: number): string => {
 };
 
 const submitData = async () => {
+    if(!audioFile.value || !description.value) {
+        formErrorMessages.value = "Please fill in all fields";
+        return;
+    }
+
     const apiUrl = `https://${import.meta.env.VITE_API_URL}/tracks/${trackInfo?.value?.id}`;
     try {
         const body = new FormData();
@@ -745,8 +751,9 @@ const getUserInfo = async () => {
                                         <p class="text-xs text-gray-100 dark:text-gray-400">{{ audioFile.name }}</p>
                                     </div>
                                     <input id="dropzone-file" class="hidden" type="file" @change="handleFileChange" />
-                                </label>
+                                </label> 
                             </div>
+                            <p v-if="formErrorMessages" class="mt-4 bg-red-100 text-red-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">{{ formErrorMessages }}</p>
                             <button
                                 class="text-white mt-4 w-full inline-flex items-center justify-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                 type="submit"
