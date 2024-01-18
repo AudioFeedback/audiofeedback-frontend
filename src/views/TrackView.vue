@@ -934,7 +934,7 @@ const getUserInfo = async () => {
                                         <label
                                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                                             for="reviewers"
-                                            >Select an reviewer</label
+                                            >Select a reviewer</label
                                         >
                                         <select
                                             id="reviewers"
@@ -949,6 +949,7 @@ const getUserInfo = async () => {
                                             >
                                                 {{ newreviewer.firstname }}
                                                 {{ newreviewer.lastname }}
+                                                (@{{ newreviewer.username }})
                                             </option>
                                         </select>
                                     </div>
