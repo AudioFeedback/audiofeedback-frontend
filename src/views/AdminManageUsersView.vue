@@ -1,6 +1,12 @@
 <script lang="ts" setup>
 import Navbar from "@/components/NavBarComponent.vue";
-import { getAllLabels, getAssignedReviewers, getAvailableReviewers, inviteNewReviewer, removeReviewer } from "@/services/label.service";
+import {
+    getAllLabels,
+    getAssignedReviewers,
+    getAvailableReviewers,
+    inviteNewReviewer,
+    removeReviewer
+} from "@/services/label.service";
 import type { Components } from "@/types/openapi";
 import type { ToastType } from "@/utils/types";
 import { onMounted, ref } from "vue";
@@ -17,7 +23,6 @@ const toastType = ref<ToastType>();
 const toastMessage = ref<string | null>();
 const reviewerID = ref<number>();
 const LabelMemberID = ref<number>();
-
 
 const getCurrentLabel = async () => {
     currentLabel.value = JSON.parse(localStorage.getItem("currentLabel") || "{}");
@@ -68,8 +73,8 @@ const inviteReviewer = async () => {
     }
 };
 
-const deleteReviewers = async (reviewerId: number, LabelMemberID: number) => {
-    if (!currentLabel.value || reviewerId == undefined || LabelMemberID == undefined) {
+const deleteReviewers = async (reviewerId: number | undefined, LabelMemberID: number) => {
+    if (!currentLabel.value || !reviewerId || !LabelMemberID) {
         return;
     }
     const response = await removeReviewer(currentLabel.value.id, reviewerId, LabelMemberID);
@@ -202,9 +207,11 @@ onMounted(() => {
                                     <a
                                         class="block px-4 py-2 text-sm text-red-700 hover:bg-red-100 dark:hover:bg-red-600 dark:text-red-200 dark:hover:text-white"
                                         href="#"
-                                        @click="confirmDeletionReviewer = !confirmDeletionReviewer; reviewerID = reviewer.id; LabelMemberID = reviewer.labelMember[0].id"
-                                        
-
+                                        @click="
+                                            confirmDeletionReviewer = !confirmDeletionReviewer;
+                                            reviewerID = reviewer.id;
+                                            LabelMemberID = reviewer.labelMember[0].id;
+                                        "
                                         >Delete {{ reviewer.firstname }} {{ reviewer.lastname }}</a
                                     >
                                 </div>
@@ -289,67 +296,67 @@ onMounted(() => {
             </div>
 
             <div
-                    v-if="confirmDeletionReviewer"
-                    class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
-                >
-                    <div class="relative p-4 w-full max-w-md max-h-full">
-                        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                v-if="confirmDeletionReviewer"
+                class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
+                <div class="relative p-4 w-full max-w-md max-h-full">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <button
+                            class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                            type="button"
+                            @click="confirmDeletionReviewer = !confirmDeletionReviewer"
+                        >
+                            <svg
+                                aria-hidden="true"
+                                class="w-3 h-3"
+                                fill="none"
+                                viewBox="0 0 14 14"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                />
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                        <div class="p-4 md:p-5 text-center">
+                            <svg
+                                aria-hidden="true"
+                                class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+                                fill="none"
+                                viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                />
+                            </svg>
+                            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                                Are you sure you want to delete this reviewer from your label? This action is permanent
+                            </h3>
                             <button
-                                class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                type="button"
+                                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
+                                @click="deleteReviewers(reviewerID, LabelMemberID)"
+                            >
+                                Yes, I'm sure
+                            </button>
+                            <button
+                                class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
                                 @click="confirmDeletionReviewer = !confirmDeletionReviewer"
                             >
-                                <svg
-                                    aria-hidden="true"
-                                    class="w-3 h-3"
-                                    fill="none"
-                                    viewBox="0 0 14 14"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                        stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                    />
-                                </svg>
-                                <span class="sr-only">Close modal</span>
+                                No, cancel
                             </button>
-                            <div class="p-4 md:p-5 text-center">
-                                <svg
-                                    aria-hidden="true"
-                                    class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
-                                    fill="none"
-                                    viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                        stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                    />
-                                </svg>
-                                <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                                    Are you sure you want to delete this reviewer from your label? This action is permanent
-                                </h3>
-                                <button
-                                    class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
-                                    @click="deleteReviewers(reviewerID, LabelMemberID)"
-                                >
-                                    Yes, I'm sure
-                                </button>
-                                <button
-                                    class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                                    @click="confirmDeletionReviewer = !confirmDeletionReviewer"
-                                >
-                                    No, cancel
-                                </button>
-                            </div>
                         </div>
                     </div>
+                </div>
             </div>
             <Toasts v-if="toastType && toastMessage" :message="toastMessage" :type="toastType" />
         </div>
