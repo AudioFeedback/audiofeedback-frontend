@@ -66,3 +66,9 @@ export async function getAssignedReviewers(id: Paths.LabelsControllerGetAssigned
 
     return client.LabelsController_getAssignedReviewers(id);
 }
+
+export async function removeReviewer(id: Paths.LabelsControllerRemoveReviewers.Parameters.Id, reviewerId: Paths.LabelsControllerRemoveReviewers.Parameters.ReviewerId, labelMemberId: Paths.LabelsControllerRemoveReviewers.Parameters.LabelMemberId) {
+    const client = await APIClient();
+
+    return client.LabelsController_removeReviewers({id: id, reviewerId: reviewerId, labelMemberId: labelMemberId});
+}

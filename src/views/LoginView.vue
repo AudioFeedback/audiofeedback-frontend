@@ -24,10 +24,10 @@ const submitData = async () => {
 
         localStorage.removeItem("access_token");
         if (response.status == 200 || response.status == 201) {
-                localStorage.setItem("access_token", data.access_token);
-                await router.push("/");
-                router.go(0);
-                return router.go(0);
+            localStorage.setItem("access_token", data.access_token);
+            await router.push("/");
+            router.go(0);
+            return router.go(0);
         } else {
             incorrect.value = true;
             return;
@@ -66,7 +66,7 @@ onMounted(() => checkMode());
                                 class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 name="username"
                                 placeholder="username"
-                                required="true"
+                                required
                                 type="text"
                             />
                         </div>
@@ -80,7 +80,7 @@ onMounted(() => checkMode());
                                 class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 name="password"
                                 placeholder="••••••••"
-                                required="true"
+                                required
                                 type="password"
                             />
                         </div>

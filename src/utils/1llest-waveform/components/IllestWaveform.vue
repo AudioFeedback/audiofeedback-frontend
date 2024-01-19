@@ -36,9 +36,6 @@ const props = withDefaults(defineProps<IllestWaveformProps>(), {
     fade: true
 });
 
-// Render trigger can control the render time
-// of current waveform
-const renderTrigger = ref<boolean>(false);
 const __illestWaveformRef__ = ref<HTMLElement | null>(null);
 
 onMounted(async () => {
@@ -101,6 +98,8 @@ function drawWaveMask(): void | undefined {
     moveX.value = (currentTime.value / audioController._audioDuration) * wave._canvas.width;
 }
 
+// Allow any due to MouseEvent type not having layerX because it is a non-standard feature.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mouseMoveHandler(e: any): void {
     if (!ready.value || !props.interact) {
         return;

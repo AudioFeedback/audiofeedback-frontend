@@ -2,10 +2,11 @@
 import { deleteTrack, getTracks } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
+import type { ToastType } from "@/utils/types";
 import { onMounted, ref } from "vue";
 
-const trackdata = ref<Array<Components.Schemas.GetTrackWithAuthorDto>>();
-const toastType = ref<any>();
+const trackData = ref<Array<Components.Schemas.GetTrackWithAuthorDto>>();
+const toastType = ref<ToastType>();
 const toastMessage = ref<string | null>();
 const confirmDeletion = ref<boolean>(false);
 const delTrackId = ref<number>(0);
@@ -13,7 +14,7 @@ const delTrackId = ref<number>(0);
 const getTrack = async () => {
     const response = await getTracks();
 
-    trackdata.value = response.data;
+    trackData.value = response.data;
 };
 const roles = getRoles();
 
@@ -99,7 +100,7 @@ onMounted(() => getTrack());
             </thead>
             <tbody>
                 <tr
-                    v-for="(track, i) in trackdata"
+                    v-for="(track, i) in trackData"
                     :key="i"
                     class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                 >

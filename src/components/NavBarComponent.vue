@@ -7,11 +7,10 @@ import type { Components } from "@/types/openapi";
 import { getRoles } from "@/utils/authorisationhelper";
 import { onMounted, ref } from "vue";
 
-
-let userinfo = ref<Components.Schemas.GetUserWithNotificationsDto>();
-let labelinfo = ref<any>();
-let currentLabel = ref<any>();
-let dropdownuser = ref<boolean>(false);
+const userInfo = ref<Components.Schemas.GetUserWithNotificationsDto>();
+const labelInfo = ref<Array<Components.Schemas.GetLabelDto>>();
+const currentLabel = ref<Components.Schemas.GetLabelDto>();
+const dropdownUser = ref<boolean>(false);
 
 const logout = () => {
     localStorage.removeItem("access_token");
@@ -27,30 +26,31 @@ const toggleSidebar = () => {
 
 const getUserInfo = async () => {
     const response = await getProfile();
-    userinfo.value = response.data;
+    userInfo.value = response.data;
 };
 
 const getLabel = async () => {
     const response = await getLabelAssigned();
-    labelinfo.value = response.data;
+    labelInfo.value = response.data;
 };
 
-const loadlabel = async () => {
+const loadLabel = async () => {
     localStorage.getItem("currentLabel");
     currentLabel.value = JSON.parse(localStorage.getItem("currentLabel") || "{}");
 };
 
-const setSelectedLabel = (label: any) => {
+const setSelectedLabel = (label: Components.Schemas.GetLabelDto) => {
     currentLabel.value = label;
     localStorage.setItem("currentLabel", JSON.stringify(currentLabel.value));
-    dropdownuser.value = false;
+    dropdownUser.value = false;
+    window.location.reload();
 };
 
 onMounted(() => {
     getUserInfo();
     checkMode();
     getLabel();
-    loadlabel();
+    loadLabel();
 });
 </script>
 
@@ -154,24 +154,64 @@ onMounted(() => {
                         </router-link>
                     </li>
                 </ul>
-                <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700 cursor-pointer">
-                    <li class="relative" v-if="getRoles()?.includes('ADMIN') || getRoles()?.includes('FEEDBACKGEVER')">
-                        <button @click="dropdownuser = !dropdownuser" class="text-white w-full bg-blue-700 justify-between hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
-                            <div v-if='currentLabel' class="flex flex-row items-center">
-                                <img class="w-8 h-8 me-2 rounded-full" :src="currentLabel.profilePicture" :alt="currentLabel.name">
+                <ul
+                    class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700 cursor-pointer"
+                >
+                    <li v-if="getRoles()?.includes('ADMIN') || getRoles()?.includes('FEEDBACKGEVER')" class="relative">
+                        <button
+                            class="text-white w-full bg-blue-700 justify-between hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            type="button"
+                            @click="dropdownUser = !dropdownUser"
+                        >
+                            <div v-if="currentLabel" class="flex flex-row items-center">
+                                <img
+                                    :alt="currentLabel.name"
+                                    :src="currentLabel.profilePicture"
+                                    class="w-8 h-8 me-2 rounded-full"
+                                />
                                 {{ currentLabel.name }}
                             </div>
-                            <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                            <svg
+                                aria-hidden="true"
+                                class="w-2.5 h-2.5 ms-3"
+                                fill="none"
+                                viewBox="0 0 10 6"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="m1 1 4 4 4-4"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                />
                             </svg>
                         </button>
 
-                        <div v-if="dropdownuser" class="z-10 bottom-0 mb-14 absolute bg-white rounded-lg shadow w-60 dark:bg-gray-700">
-                            <ul class=" py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
-                                <li v-for="(label, i) in labelinfo" :key="i" :value="label" @click="setSelectedLabel(label)">
-                                    <div class="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                        <img class="w-6 h-6 me-2 rounded-full" :src="currentLabel.profilePicture" :alt="label.name">
-                                        {{label.name}}
+                        <div
+                            v-if="dropdownUser"
+                            class="z-10 bottom-0 mb-14 absolute bg-white rounded-lg shadow w-60 dark:bg-gray-700"
+                        >
+                            <ul
+                                aria-labelledby="dropdownUsersButton"
+                                class="py-2 overflow-y-auto text-gray-700 dark:text-gray-200"
+                            >
+                                <li
+                                    v-for="(label, i) in labelInfo"
+                                    :key="i"
+                                    :value="label.name"
+                                    @click="setSelectedLabel(label)"
+                                >
+                                    <div
+                                        v-if="currentLabel"
+                                        class="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                    >
+                                        <img
+                                            :alt="label.name"
+                                            :src="currentLabel.profilePicture"
+                                            class="w-6 h-6 me-2 rounded-full"
+                                        />
+                                        {{ label.name }}
                                     </div>
                                 </li>
                             </ul>
@@ -213,20 +253,23 @@ onMounted(() => {
                             <span class="ml-3">Switch to darkmode</span>
                         </a>
                     </li>
-                    <li v-if="userinfo">
+                    <li v-if="userInfo">
                         <router-link class="flex items-center space-x-4" to="/profile">
                             <div
-                                class="relative inline-flex items-center justify-center w-10 h-10  bg-primary-600 rounded-full dark:bg-primary-600"
+                                class="relative inline-flex items-center justify-center w-10 h-10 bg-primary-600 rounded-full dark:bg-primary-600"
                             >
                                 <span class="font-medium text-gray-300 dark:text-gray-300"
-                                    >{{ userinfo.firstname.slice(0, 1) }}{{ userinfo.lastname.slice(0, 1) }}</span
+                                    >{{ userInfo.firstname.slice(0, 1) }}{{ userInfo.lastname.slice(0, 1) }}</span
                                 >
                                 <!--todo set on notification-->
-                                <span v-if="userinfo.notifications" class="absolute z-50 top-1 left-7 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
+                                <span
+                                    v-if="userInfo.notifications"
+                                    class="absolute z-50 top-1 left-7 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"
+                                ></span>
                             </div>
                             <div class="font-medium dark:text-white">
-                                <div>{{ userinfo.firstname }} {{ userinfo.lastname }}</div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">@{{ userinfo.username }}</div>
+                                <div>{{ userInfo.firstname }} {{ userInfo.lastname }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">@{{ userInfo.username }}</div>
                             </div>
                         </router-link>
                     </li>
