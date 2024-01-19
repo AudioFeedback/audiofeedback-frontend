@@ -40,7 +40,6 @@ const currentLabel = ref<Components.Schemas.GetLabelDto>();
 const formErrorMessages = ref<string | null>();
 const delTrackId = ref<number>(-1);
 
-
 const getCurrentLabel = async () => {
     currentLabel.value = JSON.parse(localStorage.getItem("currentLabel") || "{}");
 };
@@ -76,7 +75,7 @@ const getTimeInMinutesAndSeconds = (timeInSeconds: number): string => {
 };
 
 const submitData = async () => {
-    if(!audioFile.value || !description.value) {
+    if (!audioFile.value || !description.value) {
         formErrorMessages.value = "Please fill in all fields";
         return;
     }
@@ -164,7 +163,9 @@ onBeforeMount(() => {
 });
 
 const removeReviewer = async (reviewer: number) => {
-    if(!trackInfo.value || !reviewer) return;
+    if (!trackInfo.value || !reviewer) {
+        return;
+    }
 
     const response = await removeReviewers(trackInfo.value.id, reviewer);
     if (!response) {
@@ -536,8 +537,7 @@ const getUserInfo = async () => {
                             >
                                 <div>
                                     <div class="text-base font-normal">
-                                        <!--TODO: GET ARTIST NAME-->
-                                        TO GET ARTIST uploaded track version
+                                        {{ userinfo?.firstname }} {{ userinfo?.lastname }} uploaded track version
                                         {{ track.versionNumber }}
                                     </div>
                                     <div class="text-sm font-normal">{{ track.description }}</div>
@@ -709,9 +709,14 @@ const getUserInfo = async () => {
                                         <p class="text-xs text-gray-100 dark:text-gray-400">{{ audioFile.name }}</p>
                                     </div>
                                     <input id="dropzone-file" class="hidden" type="file" @change="handleFileChange" />
-                                </label> 
+                                </label>
                             </div>
-                            <p v-if="formErrorMessages" class="mt-4 bg-red-100 text-red-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">{{ formErrorMessages }}</p>
+                            <p
+                                v-if="formErrorMessages"
+                                class="mt-4 bg-red-100 text-red-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
+                            >
+                                {{ formErrorMessages }}
+                            </p>
                             <button
                                 class="text-white mt-4 w-full inline-flex items-center justify-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                 type="submit"
@@ -838,8 +843,10 @@ const getUserInfo = async () => {
                                     <div class="py-2">
                                         <a
                                             class="block px-4 py-2 text-sm text-red-700 hover:bg-red-100 dark:hover:bg-red-600 dark:text-red-200 dark:hover:text-white"
-                                            
-                                            @click="confirmDeletionReviewer = !confirmDeletionReviewer; delTrackId = reviewers.id"
+                                            @click="
+                                                confirmDeletionReviewer = !confirmDeletionReviewer;
+                                                delTrackId = reviewers.id;
+                                            "
                                         >
                                             Remove {{ reviewers.firstname }}
                                         </a>
@@ -861,206 +868,204 @@ const getUserInfo = async () => {
 
         <!-- Show add modal -->
         <div
-                    v-if="ShowAddModal"
-                    class="h-full w-full flex flex-col items-center justify-center bg-gray-200/[.7] fixed top-0 right-0 left-0 z-50 justify-center items-center md:inset-0 h-[calc(100%-1rem)] max-h-full"
-                >
-                    <div class="relative p-4 w-full max-w-md max-h-full">
-                        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                            <div
-                                class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600"
+            v-if="ShowAddModal"
+            class="h-full w-full flex flex-col items-center justify-center bg-gray-200/[.7] fixed top-0 right-0 left-0 z-50 justify-center items-center md:inset-0 h-[calc(100%-1rem)] max-h-full"
+        >
+            <div class="relative p-4 w-full max-w-md max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                            Add reviewer to {{ trackInfo?.title }}
+                        </h3>
+                        <button
+                            class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                            data-modal-hide="authentication-modal"
+                            type="button"
+                            @click="ShowAddModal = !ShowAddModal"
+                        >
+                            <svg
+                                aria-hidden="true"
+                                class="w-3 h-3"
+                                fill="none"
+                                viewBox="0 0 14 14"
+                                xmlns="http://www.w3.org/2000/svg"
                             >
-                                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                                    Add reviewer to {{ trackInfo?.title }}
-                                </h3>
-                                <button
-                                    class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                    data-modal-hide="authentication-modal"
-                                    type="button"
-                                    @click="ShowAddModal = !ShowAddModal"
-                                >
-                                    <svg
-                                        aria-hidden="true"
-                                        class="w-3 h-3"
-                                        fill="none"
-                                        viewBox="0 0 14 14"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                            stroke="currentColor"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                        />
-                                    </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
-                            </div>
-                            <div class="p-4 md:p-5">
-                                <form class="space-y-4" v-on:submit.prevent="addReviewerToTrack()">
-                                    <div>
-                                        <label
-                                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                            for="reviewers"
-                                            >Select a reviewer</label
-                                        >
-                                        <select
-                                            id="reviewers"
-                                            v-model="selectedReviewer"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        >
-                                            <option :value="-1" selected>Choose a reviewer</option>
-                                            <option
-                                                v-for="(newreviewer, i) in reviewersOfLabel"
-                                                :key="i"
-                                                :value="newreviewer.id"
-                                            >
-                                                {{ newreviewer.firstname }}
-                                                {{ newreviewer.lastname }}
-                                                (@{{ newreviewer.username }})
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <button
-                                        class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        type="submit"
-                                    >
-                                        Add reviewer
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                                <path
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                />
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
                     </div>
+                    <div class="p-4 md:p-5">
+                        <form class="space-y-4" v-on:submit.prevent="addReviewerToTrack()">
+                            <div>
+                                <label
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                    for="reviewers"
+                                    >Select a reviewer</label
+                                >
+                                <select
+                                    id="reviewers"
+                                    v-model="selectedReviewer"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                >
+                                    <option :value="-1" selected>Choose a reviewer</option>
+                                    <option
+                                        v-for="(newreviewer, i) in reviewersOfLabel"
+                                        :key="i"
+                                        :value="newreviewer.id"
+                                    >
+                                        {{ newreviewer.firstname }}
+                                        {{ newreviewer.lastname }}
+                                        (@{{ newreviewer.username }})
+                                    </option>
+                                </select>
+                            </div>
+                            <button
+                                class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                type="submit"
+                            >
+                                Add reviewer
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!--delete feedback modal-->
         <div
-                    v-if="confirmDeletion"
-                    class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
-                >
-                    <div class="relative p-4 w-full max-w-md max-h-full">
-                        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                            <button
-                                class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                type="button"
-                                @click="confirmDeletion = !confirmDeletion"
-                            >
-                                <svg
-                                    aria-hidden="true"
-                                    class="w-3 h-3"
-                                    fill="none"
-                                    viewBox="0 0 14 14"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                        stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                    />
-                                </svg>
-                                <span class="sr-only">Close modal</span>
-                            </button>
-                            <div class="p-4 md:p-5 text-center">
-                                <svg
-                                    aria-hidden="true"
-                                    class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
-                                    fill="none"
-                                    viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                        stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                    />
-                                </svg>
-                                <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                                    Are you sure you want to delete this feedback? This action is permanent
-                                </h3>
-                                <button
-                                    class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
-                                    @click="delFeedback(deleteID)"
-                                >
-                                    Yes, I'm sure
-                                </button>
-                                <button
-                                    class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                                    @click="confirmDeletion = !confirmDeletion"
-                                >
-                                    No, cancel
-                                </button>
-                            </div>
-                        </div>
+            v-if="confirmDeletion"
+            class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+        >
+            <div class="relative p-4 w-full max-w-md max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <button
+                        class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        type="button"
+                        @click="confirmDeletion = !confirmDeletion"
+                    >
+                        <svg
+                            aria-hidden="true"
+                            class="w-3 h-3"
+                            fill="none"
+                            viewBox="0 0 14 14"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                    <div class="p-4 md:p-5 text-center">
+                        <svg
+                            aria-hidden="true"
+                            class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+                            fill="none"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
+                        </svg>
+                        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                            Are you sure you want to delete this feedback? This action is permanent
+                        </h3>
+                        <button
+                            class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
+                            @click="delFeedback(deleteID)"
+                        >
+                            Yes, I'm sure
+                        </button>
+                        <button
+                            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                            @click="confirmDeletion = !confirmDeletion"
+                        >
+                            No, cancel
+                        </button>
                     </div>
+                </div>
+            </div>
         </div>
 
         <!--delete reviewer modal-->
         <div
-                    v-if="confirmDeletionReviewer"
-                    class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
-                >
-                    <div class="relative p-4 w-full max-w-md max-h-full">
-                        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                            <button
-                                class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                type="button"
-                                @click="confirmDeletionReviewer = !confirmDeletionReviewer"
-                            >
-                                <svg
-                                    aria-hidden="true"
-                                    class="w-3 h-3"
-                                    fill="none"
-                                    viewBox="0 0 14 14"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                        stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                    />
-                                </svg>
-                                <span class="sr-only">Close modal</span>
-                            </button>
-                            <div class="p-4 md:p-5 text-center">
-                                <svg
-                                    aria-hidden="true"
-                                    class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
-                                    fill="none"
-                                    viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                        stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                    />
-                                </svg>
-                                <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                                    Are you sure you want to delete this feedback? This action is permanent
-                                </h3>
-                                <button
-                                    class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
-                                    @click="removeReviewer(delTrackId)"
-                                >
-                                    Yes, I'm sure
-                                </button>
-                                <button
-                                    class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                                    @click="confirmDeletionReviewer = !confirmDeletionReviewer"
-                                >
-                                    No, cancel
-                                </button>
-                            </div>
-                        </div>
+            v-if="confirmDeletionReviewer"
+            class="overflow-y-auto overflow-x-hidden flex flex-row items-center bg-gray-200/[.7] justify-center fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+        >
+            <div class="relative p-4 w-full max-w-md max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <button
+                        class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        type="button"
+                        @click="confirmDeletionReviewer = !confirmDeletionReviewer"
+                    >
+                        <svg
+                            aria-hidden="true"
+                            class="w-3 h-3"
+                            fill="none"
+                            viewBox="0 0 14 14"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                    <div class="p-4 md:p-5 text-center">
+                        <svg
+                            aria-hidden="true"
+                            class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+                            fill="none"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                            />
+                        </svg>
+                        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                            Are you sure you want to delete this feedback? This action is permanent
+                        </h3>
+                        <button
+                            class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2"
+                            @click="removeReviewer(delTrackId)"
+                        >
+                            Yes, I'm sure
+                        </button>
+                        <button
+                            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                            @click="confirmDeletionReviewer = !confirmDeletionReviewer"
+                        >
+                            No, cancel
+                        </button>
                     </div>
+                </div>
+            </div>
         </div>
         <Toasts v-if="toastType && toastMessage" :message="toastMessage" :type="toastType" />
     </main>
