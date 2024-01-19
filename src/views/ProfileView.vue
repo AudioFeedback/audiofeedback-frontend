@@ -17,7 +17,7 @@ const lastname = ref<string>();
 const password = ref<string>();
 const confirm_password = ref<string>();
 const password_match = ref<boolean>(true);
-const invites = ref<any>();
+const invites = ref<Array<Components.Schemas.GetLabelMemberWithLabelDto> | null>();
 const labelmemberid = ref<number>(0);
 const toasttype = ref<ToastType>();
 const toastmessage = ref<string | null>();
@@ -317,7 +317,7 @@ onMounted(async () => {
                                         <li>
                                             label website:
                                             <a
-                                                :href="invite.websiteUrl"
+                                                :href="invite.label.websiteUrl"
                                                 class="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline"
                                                 >{{ invite.label.websiteUrl }}</a
                                             >
