@@ -73,8 +73,8 @@ const inviteReviewer = async () => {
     }
 };
 
-const deleteReviewers = async (reviewerId: number | undefined, LabelMemberID: number) => {
-    if (!currentLabel.value || !reviewerId || !LabelMemberID) {
+const deleteReviewers = async (reviewerId: number, LabelMemberID: number) => {
+    if (!currentLabel.value) {
         return;
     }
     const response = await removeReviewer(currentLabel.value.id, reviewerId, LabelMemberID);
@@ -323,7 +323,7 @@ onMounted(() => {
                             </svg>
                             <span class="sr-only">Close modal</span>
                         </button>
-                        <div class="p-4 md:p-5 text-center">
+                        <div v-if="reviewerID && LabelMemberID" class="p-4 md:p-5 text-center">
                             <svg
                                 aria-hidden="true"
                                 class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
