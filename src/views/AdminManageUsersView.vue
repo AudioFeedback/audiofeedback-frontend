@@ -12,6 +12,7 @@ const selectedReviewer = ref<number>(-1);
 const availableReviewers = ref<Array<Components.Schemas.GetUserDto>>();
 const currentLabel = ref<Components.Schemas.GetLabelDto>();
 
+
 const getCurrentLabel = async () => {
     currentLabel.value = JSON.parse(localStorage.getItem("currentLabel") || "{}");
 };
