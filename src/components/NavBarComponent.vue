@@ -208,7 +208,7 @@ onMounted(() => {
                                     >
                                         <img
                                             :alt="label.name"
-                                            :src="currentLabel.profilePicture"
+                                            :src="label.profilePicture"
                                             class="w-6 h-6 me-2 rounded-full"
                                         />
                                         {{ label.name }}
