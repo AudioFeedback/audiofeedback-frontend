@@ -128,9 +128,18 @@ onMounted(() => getTrack());
                     <td class="px-6 py-4">
                         {{ track.genre }}
                     </td>
-                    <td v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-4 flex flex-row gap-2 items-center">
+                    <td
+                        v-if="roles?.includes('MUZIEKPRODUCER') && track.label"
+                        class="px-6 py-4 flex flex-row gap-2 items-center"
+                    >
                         <img :src="track.label.profilePicture" class="h-8 w-auto rounded-full" />
-                        {{ track.label.name ?? "None" }}
+                        {{ track.label.name }}
+                    </td>
+                    <td
+                        v-if="roles?.includes('MUZIEKPRODUCER') && !track.label"
+                        class="px-6 py-4 flex flex-row gap-2 items-center"
+                    >
+                        None
                     </td>
                     <td class="px-6 py-4">
                         <span
