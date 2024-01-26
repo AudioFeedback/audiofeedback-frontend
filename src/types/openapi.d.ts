@@ -154,6 +154,7 @@ declare namespace Components {
                 | "READY_TO_SEND"
                 | "SEND"
             )[];
+            label: GetLabelDto;
         }
 
         export interface GetTrackWithLabelOrReviewersAndAuthor {
