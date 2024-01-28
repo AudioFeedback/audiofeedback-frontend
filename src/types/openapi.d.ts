@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import type { roles } from "@/utils/authorisationhelper";
 import type {
     AxiosRequestConfig,
     OpenAPIClient,
@@ -22,9 +23,7 @@ declare namespace Components {
             firstname: string;
             password: string;
             lastname: string;
-            roles: {
-                [key: string]: any;
-            }[];
+            roles: Array<roles>;
         }
 
         export interface GetFeedbackDto {
