@@ -462,9 +462,11 @@ const getUserInfo = async () => {
                                 {{ feedback.comment }}
                             </td>
                             <td class="px-6 py-4">file attachment</td>
-                            <td class="flex items-center px-6 py-4">
+                            <td
+                                v-if="getRoles()?.includes('FEEDBACKGEVER') || getRoles()?.includes('ADMIN')"
+                                class="flex items-center px-6 py-4"
+                            >
                                 <button
-                                    v-if="getRoles()?.includes('FEEDBACKGEVER') || getRoles()?.includes('ADMIN')"
                                     class="font-medium text-red-600 dark:text-red-500 hover:underline"
                                     @click="deleteModal(feedback.id)"
                                 >
