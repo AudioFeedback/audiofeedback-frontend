@@ -1,15 +1,18 @@
 <script lang="ts" setup>
-import router from "@/router";
 import { login } from "@/services/app.service";
 import { checkMode } from "@/stores/darkmodeStore";
 import { onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+const router = useRouter();
+const route = useRoute();
 
 const username = ref<string>("");
 const password = ref<string>("");
 const incorrect = ref<boolean>(false);
 
 if (localStorage.getItem("access_token")) {
-    router.push("/");
+    router.push((route.query.redirect as string) || "/");
 }
 
 const submitData = async () => {
@@ -25,7 +28,7 @@ const submitData = async () => {
         localStorage.removeItem("access_token");
         if (response.status == 200 || response.status == 201) {
             localStorage.setItem("access_token", data.access_token);
-            await router.push("/");
+            await router.push((route.query.redirect as string) || "/");
             router.go(0);
             return router.go(0);
         } else {
