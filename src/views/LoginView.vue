@@ -3,7 +3,7 @@ import { login } from "@/services/app.service";
 import { createUser } from "@/services/users.service";
 import { checkMode } from "@/stores/darkmodeStore";
 import type { roles } from "@/utils/authorisationhelper";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
@@ -34,7 +34,12 @@ if (localStorage.getItem("access_token")) {
     router.push((route.query.redirect as string) || "/");
 }
 
+watch(username, () => (incorrect.value = false));
+watch(password, () => (incorrect.value = false));
+watch(signUp, () => (incorrect.value = false));
+
 const submitData = async () => {
+    incorrect.value = false;
     if (!signUp.value) {
         try {
             const response = await login({ username: username.value, password: password.value });
@@ -57,6 +62,7 @@ const submitData = async () => {
             }
         } catch (error) {
             console.error("API Error:", error);
+            incorrect.value = true;
         }
     } else {
         try {
@@ -95,6 +101,7 @@ const submitData = async () => {
             }
         } catch (e) {
             console.error(e);
+            incorrect.value = true;
         }
     }
 };
@@ -265,15 +272,8 @@ onMounted(() => checkMode());
                             v-if="incorrect"
                             class="bg-red-100 !mt-2 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
                         >
-                            Username and/or password is incorrect
+                            Username already exists
                         </p>
-                        <div class="flex items-center justify-between">
-                            <a
-                                class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500"
-                                href="#"
-                                >Forgot password?</a
-                            >
-                        </div>
                         <button
                             class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                             type="submit"
