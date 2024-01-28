@@ -426,6 +426,13 @@ const getUserInfo = async () => {
                             <th class="px-6 py-3" scope="col">
                                 <div class="flex items-center">Attachments</div>
                             </th>
+                            <th
+                                v-if="getRoles()?.includes('FEEDBACKGEVER') || getRoles()?.includes('ADMIN')"
+                                class="px-6 py-3"
+                                scope="col"
+                            >
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody v-for="(feedback, i) in trackInfo?.trackversions[trackVersion].feedback" :key="i">
@@ -458,7 +465,7 @@ const getUserInfo = async () => {
                             <td class="flex items-center px-6 py-4">
                                 <button
                                     v-if="getRoles()?.includes('FEEDBACKGEVER') || getRoles()?.includes('ADMIN')"
-                                    class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3"
+                                    class="font-medium text-red-600 dark:text-red-500 hover:underline"
                                     @click="deleteModal(feedback.id)"
                                 >
                                     Remove
