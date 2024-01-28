@@ -40,6 +40,7 @@ const trackDuration = ref<number>(-1);
 const keyPressesDisabled = ref<boolean>(false);
 
 const waveOptions = reactive<IllestWaveformProps>({
+    res: null,
     url: uploadedFileUrl.value,
     lineColor: "#1C64F2",
     maskColor: "#1849a8",
@@ -106,6 +107,14 @@ const forceRerender = () => {
     componentKey.value += 1;
 };
 
+function debounce<T extends (...args: Parameters<T>) => void>(this: ThisParameterType<T>, fn: T, delay = 300) {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    return (...args: Parameters<T>) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
 const getTrackInfo = async () => {
     if (!props.feedback) {
         const response = await getTrack(props.id);
@@ -119,6 +128,8 @@ const getTrackInfo = async () => {
         uploadedFileUrl.value = `https://${data.trackversions[props.version].fullUrl}`;
         waveOptions.url = uploadedFileUrl.value;
         trackDuration.value = track.value.duration;
+
+        waveOptions.res = await fetch(uploadedFileUrl.value);
         forceRerender();
     }
 
@@ -135,6 +146,8 @@ const getTrackInfo = async () => {
         uploadedFileUrl.value = `https://${data.trackversions[0].fullUrl}`;
         waveOptions.url = uploadedFileUrl.value;
         trackDuration.value = track.value.duration;
+
+        waveOptions.res = await fetch(uploadedFileUrl.value);
         await checkSubmitted();
         forceRerender();
     }
@@ -160,7 +173,7 @@ onBeforeMount(() => {
     if (props.feedback) {
         getUserInfo();
     }
-    window.addEventListener("resize", forceRerender);
+    window.addEventListener("resize", debounce(forceRerender));
 });
 
 const playpause = () => {
