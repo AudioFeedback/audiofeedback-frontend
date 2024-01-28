@@ -69,9 +69,6 @@ const checkFormValid = async () => {
 };
 
 const getInvited = async () => {
-    if (roles?.includes("ADMIN")) {
-        return;
-    }
     const response = await getLabelInvites();
     if (!response) {
         return;
@@ -150,64 +147,63 @@ onMounted(async () => {
         <section>
             <div class="max-w-2xl">
                 <div class="flex flex-col items-center w-full">
-                        <div class='w-full' v-for="(invite, i) in invites" :key="i">
-                            <div
-                                v-if="(invite as any).status === 'INVITED'"
-                                id="alert-additional-content-1"
-                                class="p-4 w-full mb-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800"
-                                role="alert"
-                            >
-                                <p>{{ invite }}</p>
-                                <div class="flex items-center">
-                                    <svg
-                                        aria-hidden="true"
-                                        class="flex-shrink-0 w-4 h-4 me-2"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-                                        />
-                                    </svg>
-                                    <span class="sr-only">New invite</span>
-                                    <h3 class="text-lg font-medium">
-                                        You have an new invite from the label "{{ invite.label.name }}"
-                                    </h3>
-                                </div>
-                                <div class="mt-2 ml-6 mb-6 text-sm">
-                                    <span class="font-medium">Label information:</span>
-                                    <ul class="mt-1.5 list-disc list-inside">
-                                        <li>label description: {{ invite.label.description }}</li>
-                                        <li>
-                                            label website:
-                                            <a
-                                                :href="invite.label.websiteUrl"
-                                                class="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline"
-                                                >{{ invite.label.websiteUrl }}</a
-                                            >
-                                        </li>
-                                        <li>label genre: {{ invite.label.genre }}</li>
-                                    </ul>
-                                </div>
-                                <div class="flex">
-                                    <button
-                                        class="text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        type="button"
-                                        @click="acceptLabelInvite(invite.label.id)"
-                                    >
-                                        Accept invite
-                                    </button>
-                                    <button
-                                        class="text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
-                                        type="button"
-                                        @click="declineLabelInvite(invite.label.id)"
-                                    >
-                                        Decline
-                                    </button>
-                                </div>
+                    <div v-for="(invite, i) in invites" :key="i" class="w-full">
+                        <div
+                            v-if="(invite as any).status === 'INVITED'"
+                            id="alert-additional-content-1"
+                            class="p-4 w-full mb-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800"
+                            role="alert"
+                        >
+                            <div class="flex items-center">
+                                <svg
+                                    aria-hidden="true"
+                                    class="flex-shrink-0 w-4 h-4 me-2"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+                                    />
+                                </svg>
+                                <span class="sr-only">New invite</span>
+                                <h3 class="text-lg font-medium">
+                                    You have a new invite from the label "{{ invite.label.name }}"
+                                </h3>
+                            </div>
+                            <div class="mt-2 ml-6 mb-6 text-sm">
+                                <span class="font-medium">Label information:</span>
+                                <ul class="mt-1.5 list-disc list-inside">
+                                    <li>label description: {{ invite.label.description }}</li>
+                                    <li>
+                                        label website:
+                                        <a
+                                            :href="invite.label.websiteUrl"
+                                            class="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline"
+                                            >{{ invite.label.websiteUrl }}</a
+                                        >
+                                    </li>
+                                    <li>label genre: {{ invite.label.genre }}</li>
+                                </ul>
+                            </div>
+                            <div class="flex">
+                                <button
+                                    class="text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    type="button"
+                                    @click="acceptLabelInvite(invite.label.id)"
+                                >
+                                    Accept invite
+                                </button>
+                                <button
+                                    class="text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+                                    type="button"
+                                    @click="declineLabelInvite(invite.label.id)"
+                                >
+                                    Decline
+                                </button>
                             </div>
                         </div>
+                    </div>
                 </div>
                 <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Update account</h2>
                 <form v-on:submit.prevent="checkFormValid()">

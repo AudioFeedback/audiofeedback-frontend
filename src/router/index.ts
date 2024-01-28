@@ -29,6 +29,12 @@ const router = createRouter({
             meta: { role: ["MUZIEKPRODUCER"] }
         },
         {
+            path: "/upload/:id",
+            name: "uploadId",
+            component: () => import("../views/UploadView.vue"),
+            meta: { role: ["MUZIEKPRODUCER"] }
+        },
+        {
             path: "/profile",
             name: "profile",
             component: () => import("../views/ProfileView.vue")
@@ -53,7 +59,7 @@ router.beforeEach((to, _, next) => {
 
     if (to.name !== "login" && !roles) {
         {
-            return next({ name: "login" });
+            return next({ name: "login", query: { redirect: to.fullPath } });
         }
     }
 

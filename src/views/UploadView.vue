@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import router from "@/router";
 import { getAllLabels, getLabelById, getLabelTypeahead } from "@/services/label.service";
 import { getReviewers } from "@/services/users.service";
 import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const apiUrl = `https://${import.meta.env.VITE_API_URL}/tracks`;
 let uploadedFileUrl = ref<string>("");
@@ -25,6 +25,9 @@ const labelQuery = ref<string>("");
 const componentKey = ref(0);
 const uploadStatus = ref<number>(0);
 const uploadToLabelStep = ref<number>(0);
+
+const router = useRouter();
+const route = useRoute();
 
 const labels = ref<Array<Components.Schemas.GetLabelDto>>([]);
 
@@ -51,6 +54,9 @@ const selectLabel = async (labelId: number) => {
     allReviewers.value = [];
     const response = await getLabelById(labelId);
     selectedLabel.value = response.data;
+    if (route.params.id) {
+        return;
+    }
     NextStep(2);
 };
 
@@ -146,6 +152,10 @@ const NextStep = (step: number) => {
             alert("Please fill in all fields");
             return;
         }
+
+        if (route.params.id) {
+            return (uploadStatus.value = 2);
+        }
     }
 
     if (step == 2) {
@@ -185,6 +195,10 @@ const selectReviewerType = (step: number) => {
 onMounted(() => {
     getReviewer();
     getLabels();
+
+    if (route.params.id) {
+        selectLabel(+route.params.id);
+    }
 });
 </script>
 
@@ -244,7 +258,7 @@ onMounted(() => {
                     </div>
                 </div>
             </li>
-            <li class="cursor-pointer" @click="NextStep(1)">
+            <li v-if="!route.params.id" class="cursor-pointer" @click="NextStep(1)">
                 <div
                     :class="{
                         'text-green-700 border-green-300 bg-green-50 dark:bg-gray-800 dark:border-green-800 dark:text-green-400':
@@ -310,7 +324,7 @@ onMounted(() => {
                 >
                     <div class="flex items-center justify-between">
                         <span class="sr-only">Review</span>
-                        <h3 class="font-medium">3. Review</h3>
+                        <h3 class="font-medium">{{ route.params.id ? 2 : 3 }} Review</h3>
                         <svg
                             v-if="uploadStatus > 2"
                             aria-hidden="true"
@@ -361,7 +375,7 @@ onMounted(() => {
                 >
                     <div class="flex items-center justify-between">
                         <span class="sr-only">Confirmation</span>
-                        <h3 class="font-medium">4. Confirmation</h3>
+                        <h3 class="font-medium">{{ route.params.id ? 3 : 4 }} Confirmation</h3>
                         <svg
                             v-if="uploadStatus > 3"
                             aria-hidden="true"
