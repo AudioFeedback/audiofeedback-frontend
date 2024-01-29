@@ -2,8 +2,8 @@
 import Toasts from "@/components/Toasts-Popup.vue";
 import { getAllTracksForLabel } from "@/services/label.service";
 import { publishFeedback } from "@/services/tracks.service";
+import { selectedRole } from "@/stores/activeRoleStore";
 import type { Components } from "@/types/openapi";
-import { getRoles } from "@/utils/authorisationhelper";
 import type { ToastType } from "@/utils/types";
 import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
@@ -27,7 +27,6 @@ const getTrack = async () => {
     trackData.value = response.data;
     initFlowbite();
 };
-const roles = getRoles();
 
 const showOverlay = (reviewer: Components.Schemas.GetReviewerDto, track: number) => {
     if (ShowOverlay.value == reviewer.id && ShowOverlay2.value == track) {
@@ -192,7 +191,7 @@ href="#"
                             >Sent</span
                         >
                     </td>
-                    <td v-if="roles?.includes('ADMIN')" class="px-6 py-4 text-right">
+                    <td v-if="selectedRole === 'ADMIN'" class="px-6 py-4 text-right">
                         <router-link
                             :to="`/track/${track.id}`"
                             class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
@@ -201,7 +200,7 @@ href="#"
                     </td>
                     <td
                         v-if="
-                            roles?.includes('ADMIN') && track.status[0] == 'READY_TO_SEND' && track.reviewers.length > 0
+                            selectedRole === 'ADMIN' && track.status[0] == 'READY_TO_SEND' && track.reviewers.length > 0
                         "
                         class="px-6 py-4 text-right cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline"
                         @click="sendFeedbackToArtist(track)"

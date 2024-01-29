@@ -527,6 +527,16 @@ declare namespace Paths {
             export type $200 = Components.Schemas.GetTrackWithAuthorDto[];
         }
     }
+    namespace TracksControllerFindAllForProducer {
+        namespace Responses {
+            export type $200 = Components.Schemas.GetTrackWithAuthorDto[];
+        }
+    }
+    namespace TracksControllerFindAllForReviewer {
+        namespace Responses {
+            export type $200 = Components.Schemas.GetTrackWithAuthorDto[];
+        }
+    }
     namespace TracksControllerFindOne {
         namespace Parameters {
             export type Id = number;
@@ -732,6 +742,24 @@ export interface OperationMethods {
         data?: Paths.TracksControllerCreateNewVersion.RequestBody,
         config?: AxiosRequestConfig
     ): OperationResponse<Paths.TracksControllerCreateNewVersion.Responses.$201>;
+
+    /**
+     * TracksController_findAllForProducer
+     */
+    "TracksController_findAllForProducer"(
+        parameters?: Parameters<UnknownParamsObject> | null,
+        data?: any,
+        config?: AxiosRequestConfig
+    ): OperationResponse<Paths.TracksControllerFindAllForProducer.Responses.$200>;
+
+    /**
+     * TracksController_findAllForReviewer
+     */
+    "TracksController_findAllForReviewer"(
+        parameters?: Parameters<UnknownParamsObject> | null,
+        data?: any,
+        config?: AxiosRequestConfig
+    ): OperationResponse<Paths.TracksControllerFindAllForReviewer.Responses.$200>;
 
     /**
      * TracksController_audio
@@ -1080,6 +1108,26 @@ export interface PathsDictionary {
             data?: Paths.TracksControllerCreateNewVersion.RequestBody,
             config?: AxiosRequestConfig
         ): OperationResponse<Paths.TracksControllerCreateNewVersion.Responses.$201>;
+    };
+    ["/tracks/producer"]: {
+        /**
+         * TracksController_findAllForProducer
+         */
+        "get"(
+            parameters?: Parameters<UnknownParamsObject> | null,
+            data?: any,
+            config?: AxiosRequestConfig
+        ): OperationResponse<Paths.TracksControllerFindAllForProducer.Responses.$200>;
+    };
+    ["/tracks/reviewer"]: {
+        /**
+         * TracksController_findAllForReviewer
+         */
+        "get"(
+            parameters?: Parameters<UnknownParamsObject> | null,
+            data?: any,
+            config?: AxiosRequestConfig
+        ): OperationResponse<Paths.TracksControllerFindAllForReviewer.Responses.$200>;
     };
     ["/tracks/audio/{filename}"]: {
         /**

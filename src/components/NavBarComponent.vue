@@ -2,15 +2,33 @@
 import router from "@/router";
 import { getProfile } from "@/services/app.service";
 import { getLabelAssigned } from "@/services/label.service";
+import { selectedRole } from "@/stores/activeRoleStore";
 import { checkMode, darkmode, toggleMode } from "@/stores/darkmodeStore";
 import type { Components } from "@/types/openapi";
+import type { roles } from "@/utils/authorisationhelper";
 import { getRoles } from "@/utils/authorisationhelper";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 const userInfo = ref<Components.Schemas.GetUserWithNotificationsDto>();
 const labelInfo = ref<Array<Components.Schemas.GetLabelDto>>();
 const currentLabel = ref<Components.Schemas.GetLabelDto>();
 const dropdownUser = ref<boolean>(false);
+
+type roleObjectEntry = { visualName: string; value: roles };
+
+const roleObject: Array<roleObjectEntry> = [
+    { visualName: "Artist", value: "MUZIEKPRODUCER" },
+    { visualName: "Reviewer", value: "FEEDBACKGEVER" },
+    { visualName: "Admin", value: "ADMIN" }
+];
+
+const userRolesObject = roleObject.filter((r) => getRoles().includes(r.value));
+
+const role = ref<roleObjectEntry>(roleObject[0]);
+
+watch(role, () => {
+    selectedRole.value = role.value.value;
+});
 
 const logout = () => {
     localStorage.removeItem("access_token");
@@ -112,7 +130,7 @@ onMounted(() => {
                             <span class="ml-3">Dashboard</span>
                         </router-link>
                     </li>
-                    <li v-if="getRoles()?.includes('MUZIEKPRODUCER')">
+                    <li v-if="selectedRole === 'MUZIEKPRODUCER'">
                         <router-link
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                             to="/upload"
@@ -134,7 +152,7 @@ onMounted(() => {
                             <span class="flex-1 ml-3 whitespace-nowrap">Upload Track</span>
                         </router-link>
                     </li>
-                    <li v-if="getRoles()?.includes('ADMIN')">
+                    <li v-if="selectedRole === 'ADMIN'">
                         <router-link
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                             to="/manage-users"
@@ -157,7 +175,7 @@ onMounted(() => {
                 <ul
                     class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700 cursor-pointer"
                 >
-                    <li v-if="getRoles()?.includes('ADMIN') || getRoles()?.includes('FEEDBACKGEVER')" class="relative">
+                    <li v-if="selectedRole === 'ADMIN' || selectedRole === 'FEEDBACKGEVER'" class="relative">
                         <button
                             class="text-white w-full bg-blue-700 justify-between hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                             type="button"
@@ -217,6 +235,22 @@ onMounted(() => {
                             </ul>
                         </div>
                     </li>
+
+                    <li v-if="getRoles().length > 1" class="relative"></li>
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="countries"
+                            >Select role</label
+                        >
+                        <select
+                            id="role"
+                            v-model="role"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
+                            <option v-for="(role, i) in userRolesObject" :key="i" :value="role">
+                                {{ role.visualName }}
+                            </option>
+                        </select>
+                    </div>
                     <li @click="toggleMode()">
                         <a
                             v-if="darkmode"
@@ -261,7 +295,6 @@ onMounted(() => {
                                 <span class="font-medium text-gray-300 dark:text-gray-300"
                                     >{{ userInfo.firstname.slice(0, 1) }}{{ userInfo.lastname.slice(0, 1) }}</span
                                 >
-                                <!--todo set on notification-->
                                 <span
                                     v-if="userInfo.notifications"
                                     class="absolute z-50 top-1 left-7 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"

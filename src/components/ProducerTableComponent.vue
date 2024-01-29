@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { deleteTrack, getTracks } from "@/services/tracks.service";
+import { deleteTrack, getTracksProducer } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
-import { getRoles } from "@/utils/authorisationhelper";
 import type { ToastType } from "@/utils/types";
 import { onMounted, ref } from "vue";
 
@@ -12,11 +11,10 @@ const confirmDeletion = ref<boolean>(false);
 const delTrackId = ref<number>(0);
 
 const getTrack = async () => {
-    const response = await getTracks();
+    const response = await getTracksProducer();
 
     trackData.value = response.data;
 };
-const roles = getRoles();
 
 const delTrack = async (id: number) => {
     const response = await deleteTrack(id.toString());
@@ -43,27 +41,9 @@ onMounted(() => getTrack());
         <table aria-label="Music table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                    <th v-if="roles?.includes('FEEDBACKGEVER')" class="px-6 py-3" scope="col">Title</th>
-                    <th v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-3" scope="col">ID</th>
-                    <th v-if="roles?.includes('FEEDBACKGEVER')" class="px-6 py-3" scope="col">
-                        <div class="flex items-center">
-                            <p>Artist</p>
-                            <a href="#">
-                                <svg
-                                    aria-hidden="true"
-                                    class="w-3 h-3 ml-1.5"
-                                    fill="currentColor"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"
-                                    />
-                                </svg>
-                            </a>
-                        </div>
-                    </th>
-                    <th v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-3" scope="col">
+                    <th class="px-6 py-3" scope="col">ID</th>
+
+                    <th class="px-6 py-3" scope="col">
                         <div class="flex items-center">
                             <p>Title</p>
                             <a href="#">
@@ -84,19 +64,16 @@ onMounted(() => getTrack());
                     <th class="px-6 py-3" scope="col">
                         <div class="flex items-center">Genre</div>
                     </th>
-                    <th v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-3" scope="col">
+                    <th class="px-6 py-3" scope="col">
                         <div class="flex items-center">Label</div>
                     </th>
                     <th class="px-6 py-3" scope="col">
                         <div class="flex items-center">Status</div>
                     </th>
-                    <th v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-3" scope="col">
+                    <th class="px-6 py-3" scope="col">
                         <span class="sr-only">Edit</span>
                     </th>
-                    <th v-if="roles?.includes('FEEDBACKGEVER')" class="px-6 py-3" scope="col">
-                        <span class="sr-only">Review</span>
-                    </th>
-                    <th v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-3" scope="col">
+                    <th class="px-6 py-3" scope="col">
                         <span class="sr-only">Delete Track</span>
                     </th>
                 </tr>
@@ -107,40 +84,24 @@ onMounted(() => getTrack());
                     :key="i"
                     class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                 >
-                    <th
-                        v-if="roles?.includes('FEEDBACKGEVER')"
-                        class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                        scope="row"
-                    >
-                        {{ track.title }}
-                    </th>
-                    <td v-if="roles?.includes('FEEDBACKGEVER')" class="px-6 py-4">@{{ track.author.username }}</td>
-                    <th
-                        v-if="roles?.includes('MUZIEKPRODUCER')"
-                        class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                        scope="row"
-                    >
+                    <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">
                         {{ track.id }}
                     </th>
-                    <td v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-4">
+                    <td class="px-6 py-4">
                         {{ track.title }}
                     </td>
                     <td class="px-6 py-4">
                         {{ track.genre }}
                     </td>
-                    <td
-                        v-if="roles?.includes('MUZIEKPRODUCER') && track.label"
-                        class="px-6 py-4 flex flex-row gap-2 items-center"
-                    >
-                        <img :src="track.label.profilePicture" class="h-8 w-auto rounded-full" />
+                    <td v-if="track.label" class="px-6 py-4 flex flex-row gap-2 items-center">
+                        <img
+                            :src="track.label.profilePicture"
+                            alt="label profile picture"
+                            class="h-8 w-auto rounded-full"
+                        />
                         {{ track.label.name }}
                     </td>
-                    <td
-                        v-if="roles?.includes('MUZIEKPRODUCER') && !track.label"
-                        class="px-6 py-4 flex flex-row gap-2 items-center"
-                    >
-                        None
-                    </td>
+                    <td v-if="!track.label" class="px-6 py-4 flex flex-row gap-2 items-center">None</td>
                     <td class="px-6 py-4">
                         <span
                             v-if="track.status[0] == 'READY_TO_REVIEW'"
@@ -158,7 +119,7 @@ onMounted(() => getTrack());
                             >Reviewed</span
                         >
                     </td>
-                    <td v-if="roles?.includes('MUZIEKPRODUCER')" class="px-6 py-4 text-right">
+                    <td class="px-6 py-4 text-right">
                         <router-link
                             :to="`/track/${track.id}`"
                             class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
@@ -166,23 +127,6 @@ onMounted(() => getTrack());
                         </router-link>
                     </td>
                     <td
-                        v-if="roles?.includes('FEEDBACKGEVER') && track.status[0] == 'REVIEWED'"
-                        class="px-6 py-4 text-right"
-                    >
-                        <p class="font-medium text-gray-600 dark:text-gray-500">You have already reviewed this track</p>
-                    </td>
-                    <td
-                        v-if="roles?.includes('FEEDBACKGEVER') && !(track.status[0] == 'REVIEWED')"
-                        class="px-6 py-4 text-right"
-                    >
-                        <router-link
-                            :to="`/feedback/${track.id}`"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            >Start review
-                        </router-link>
-                    </td>
-                    <td
-                        v-if="roles?.includes('MUZIEKPRODUCER')"
                         class="px-6 py-4 text-right font-medium cursor-pointer text-red-600 dark:text-red-500 hover:underline ms-3"
                         @click="
                             confirmDeletion = !confirmDeletion;
