@@ -4,14 +4,12 @@ import { getProfile } from "@/services/app.service";
 import { acceptInvite, declineInvite, getLabelInvites } from "@/services/label.service";
 import { updateUser } from "@/services/users.service";
 import type { Components } from "@/types/openapi";
-import { getRoles } from "@/utils/authorisationhelper";
 import type { ToastType } from "@/utils/types";
 import { initFlowbite } from "flowbite";
 import { onMounted, ref } from "vue";
 
 const userinfo = ref<Components.Schemas.GetUserDto>({ id: 0, username: "", firstname: "", lastname: "", roles: [] });
 const confirmDeletion = ref<boolean>();
-const username = ref<string>();
 const firstname = ref<string>();
 const lastname = ref<string>();
 const password = ref<string>();
@@ -22,13 +20,10 @@ const labelmemberid = ref<number>(0);
 const toasttype = ref<ToastType>();
 const toastmessage = ref<string | null>();
 
-const roles = getRoles();
-
 const getUserInfo = async () => {
     const response = await getProfile();
 
     userinfo.value = response.data;
-    username.value = response.data.username;
     firstname.value = response.data.firstname;
     lastname.value = response.data.lastname;
     initFlowbite();
@@ -232,48 +227,6 @@ onMounted(async () => {
                                 type="text"
                             />
                         </div>
-                        <div>
-                            <label
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white inline-flex items-center"
-                                for="username"
-                            >
-                                Username
-                                <button class="bg-transparent ml-2" data-tooltip-target="tooltip-default" type="button">
-                                    <svg
-                                        aria-hidden="true"
-                                        class="w-4 h-4 text-gray-500 dark:text-white"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm0 16a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm1-5.034V12a1 1 0 0 1-2 0v-1.418a1 1 0 0 1 1.038-.999 1.436 1.436 0 0 0 1.488-1.441 1.501 1.501 0 1 0-3-.116.986.986 0 0 1-1.037.961 1 1 0 0 1-.96-1.037A3.5 3.5 0 1 1 11 11.466Z"
-                                        />
-                                    </svg>
-                                </button>
-                                <div
-                                    id="tooltip-default"
-                                    class="absolute z-100 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-                                    role="tooltip"
-                                >
-                                    Your username is public.
-                                    <div class="tooltip-arrow" data-popper-arrow></div>
-                                </div>
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                                    <span class="text-base text-gray-500 dark:text-gray-400">@</span>
-                                </div>
-                                <input
-                                    id="username"
-                                    v-model="username"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    placeholder="username"
-                                    type="text"
-                                />
-                            </div>
-                        </div>
-                        <div></div>
                         <div>
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="password"
                                 >Update password</label
