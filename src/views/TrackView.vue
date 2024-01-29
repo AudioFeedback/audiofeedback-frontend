@@ -5,8 +5,8 @@ import { getProfile } from "@/services/app.service";
 import { deleteFeedback } from "@/services/feedback.service";
 import { getAssignedReviewers } from "@/services/label.service";
 import { addReviewers, getTrack, removeReviewers } from "@/services/tracks.service";
+import { selectedRole } from "@/stores/activeRoleStore";
 import type { Components } from "@/types/openapi";
-import { getRoles } from "@/utils/authorisationhelper";
 import type { ToastType } from "@/utils/types";
 import { initFlowbite } from "flowbite";
 import { onBeforeMount, ref } from "vue";
@@ -377,7 +377,7 @@ const getUserInfo = async () => {
                         Version History
                     </button>
                 </li>
-                <li v-if="getRoles()?.includes('ADMIN')" class="me-2">
+                <li v-if="selectedRole === 'ADMIN'" class="me-2">
                     <button
                         :class="{
                             'text-blue-600 border-blue-600 dark:border-blue-500': activeTab === 3,
@@ -427,7 +427,7 @@ const getUserInfo = async () => {
                                 <div class="flex items-center">Attachments</div>
                             </th>
                             <th
-                                v-if="getRoles()?.includes('FEEDBACKGEVER') || getRoles()?.includes('ADMIN')"
+                                v-if="selectedRole === 'FEEDBACKGEVER' || selectedRole === 'ADMIN'"
                                 class="px-6 py-3"
                                 scope="col"
                             >
@@ -463,7 +463,7 @@ const getUserInfo = async () => {
                             </td>
                             <td class="px-6 py-4">file attachment</td>
                             <td
-                                v-if="getRoles()?.includes('FEEDBACKGEVER') || getRoles()?.includes('ADMIN')"
+                                v-if="selectedRole === 'FEEDBACKGEVER' || selectedRole === 'ADMIN'"
                                 class="flex items-center px-6 py-4"
                             >
                                 <button
@@ -609,11 +609,10 @@ const getUserInfo = async () => {
                 </ol>
             </div>
             <button
-                v-if="getRoles()?.includes('MUZIEKPRODUCER')"
+                v-if="selectedRole === 'MUZIEKPRODUCER'"
                 class="text-white w-full bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 ml-auto font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
                 @click="showModal = !showModal"
             >
-                <!--@click="$router.push(`/track/${trackinfo?.id}/new`)"-->
                 New Version
             </button>
             <div
@@ -749,7 +748,7 @@ const getUserInfo = async () => {
                 </div>
             </div>
         </div>
-        <div v-if="activeTab === 3 && getRoles()?.includes('ADMIN')">
+        <div v-if="activeTab === 3 && selectedRole === 'ADMIN'">
             <div class="relative shadow-sm sm:rounded-lg">
                 <table
                     v-if="trackInfo && trackInfo.reviewers && trackInfo.reviewers.length > 0"

@@ -1,47 +1,20 @@
 <script lang="ts" setup>
 import AdminTableComponent from "@/components/AdminTableComponent.vue";
-import TableComponent from "@/components/TableComponent.vue";
-import { getRoles } from "@/utils/authorisationhelper";
-import { onMounted, ref } from "vue";
-
-const showMessage = ref(false);
-
-const showMessageFor5Seconds = () => {
-    showMessage.value = true;
-    setTimeout(() => {
-        showMessage.value = false;
-    }, 5000);
-};
-
-const shouldShowMessage = () => {
-    return Math.random() < 0.001;
-};
-
-onMounted(() => {
-    if (shouldShowMessage()) {
-        showMessageFor5Seconds();
-    }
-});
+import ProducerTableComponent from "@/components/ProducerTableComponent.vue";
+import ReviewerTableComponent from "@/components/ReviewerTableComponent.vue";
+import { selectedRole } from "@/stores/activeRoleStore";
 </script>
 
 <template>
-    <template v-if="showMessage">
-        <iframe
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen
-            frameborder="0"
-            src="https://www.youtube.com/embed/QwLvrnlfdNo?si=tY0Aw1u44AMml6PN&amp;controls=0&autoplay=1&mute=1"
-            style="width: 100%; height: 100%; z-index: 100000; position: fixed; left: 0; top: 0"
-            title="YouTube video player"
-        ></iframe>
-    </template>
     <main class="p-4 sm:ml-64 width-custom pt-10 h-full antialiased bg-gray-50 dark:bg-gray-900 overflow-hidden">
-        <LoadingView></LoadingView>
         <h2 class="text-4xl mb-4 font-bold dark:text-white">Manage tracks</h2>
-        <div v-if="getRoles()?.includes('MUZIEKPRODUCER') || getRoles()?.includes('FEEDBACKGEVER')">
-            <TableComponent></TableComponent>
+        <div v-if="selectedRole === 'MUZIEKPRODUCER'">
+            <ProducerTableComponent />
         </div>
-        <div v-if="getRoles()?.includes('ADMIN')">
+        <div v-if="selectedRole === 'FEEDBACKGEVER'">
+            <ReviewerTableComponent />
+        </div>
+        <div v-if="selectedRole === 'ADMIN'">
             <AdminTableComponent />
         </div>
     </main>

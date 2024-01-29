@@ -20,15 +20,19 @@ const confirmPassword = ref<string>("");
 const firstName = ref<string>("");
 const lastName = ref<string>("");
 
-type roleObjectEntry = { visualName: string; value: roles };
+const artistRole = ref<boolean>(false);
+const reviewerRole = ref<boolean>(false);
 
-const roleObject: Array<roleObjectEntry> = [
-    { visualName: "Artist", value: "MUZIEKPRODUCER" },
-    { visualName: "Reviewer", value: "FEEDBACKGEVER" },
-    { visualName: "Admin", value: "ADMIN" }
-];
-
-const role = ref<roleObjectEntry>(roleObject[0]);
+const selectedRoles = computed(() => {
+    const roleArray: Array<roles> = [];
+    if (artistRole.value) {
+        roleArray.push("MUZIEKPRODUCER");
+    }
+    if (reviewerRole.value) {
+        roleArray.push("FEEDBACKGEVER");
+    }
+    return roleArray;
+});
 
 const incorrect = ref<boolean>(false);
 
@@ -83,7 +87,7 @@ const userSignIn = async () => {
 
 const userSignUp = async () => {
     try {
-        if (usernameInUse.value && !validatedPasswords.value) {
+        if (usernameInUse.value && !validatedPasswords.value && selectedRoles.value.length === 0) {
             return;
         }
 
@@ -94,7 +98,7 @@ const userSignUp = async () => {
             lastname: lastName.value,
             username: username.value.toLowerCase(),
             sub: createdUser.user.uid,
-            roles: [role.value.value]
+            roles: selectedRoles.value
         });
 
         if (!postResponse) {
@@ -371,15 +375,33 @@ onMounted(() => checkMode());
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="countries"
                                 >Select a role</label
                             >
-                            <select
-                                id="role"
-                                v-model="role"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            >
-                                <option v-for="(role, i) in roleObject" :key="i" :value="role">
-                                    {{ role.visualName }}
-                                </option>
-                            </select>
+                            <div class="flex items-center mb-4">
+                                <input
+                                    id="default-checkbox"
+                                    v-model="artistRole"
+                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    type="checkbox"
+                                />
+                                <label
+                                    class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                    for="default-checkbox"
+                                    >Artist</label
+                                >
+                            </div>
+                            <div class="flex items-center">
+                                <input
+                                    id="checked-checkbox"
+                                    v-model="reviewerRole"
+                                    checked
+                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    type="checkbox"
+                                />
+                                <label
+                                    class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                    for="checked-checkbox"
+                                    >Reviewer</label
+                                >
+                            </div>
                         </div>
 
                         <p

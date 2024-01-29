@@ -7,6 +7,18 @@ export async function getTracks() {
     return client.TracksController_findAll();
 }
 
+export async function getTracksReviewer() {
+    const client = await APIClient();
+
+    return client.TracksController_findAllForReviewer();
+}
+
+export async function getTracksProducer() {
+    const client = await APIClient();
+
+    return client.TracksController_findAllForProducer();
+}
+
 export async function getTrack(id: Paths.TracksControllerFindOne.Parameters.Id) {
     const client = await APIClient();
 
@@ -25,16 +37,22 @@ export async function publishFeedback(id: Paths.TracksControllerPublishFeedback.
     return client.TracksController_publishFeedback(id);
 }
 
-export async function addReviewers(id: Paths.TracksControllerUpdateReviewers.Parameters.Id, reviewerIds: Paths.TracksControllerUpdateReviewers.RequestBody) {
+export async function addReviewers(
+    id: Paths.TracksControllerUpdateReviewers.Parameters.Id,
+    reviewerIds: Paths.TracksControllerUpdateReviewers.RequestBody
+) {
     const client = await APIClient();
 
     return client.TracksController_updateReviewers(id, reviewerIds);
 }
 
-export async function removeReviewers(id: Paths.TracksControllerRemoveReviewers.Parameters.Id, reviewerId: Paths.TracksControllerRemoveReviewers.Parameters.ReviewerId) {
+export async function removeReviewers(
+    id: Paths.TracksControllerRemoveReviewers.Parameters.Id,
+    reviewerId: Paths.TracksControllerRemoveReviewers.Parameters.ReviewerId
+) {
     const client = await APIClient();
 
-    return client.TracksController_removeReviewers({id: id, reviewerId: reviewerId});
+    return client.TracksController_removeReviewers({ id: id, reviewerId: reviewerId });
 }
 
 export async function deleteTrack(id: Paths.TracksControllerRemove.Parameters.Id) {
