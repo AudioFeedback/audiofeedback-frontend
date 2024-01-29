@@ -295,7 +295,6 @@ onMounted(() => {
                                 <span class="font-medium text-gray-300 dark:text-gray-300"
                                     >{{ userInfo.firstname.slice(0, 1) }}{{ userInfo.lastname.slice(0, 1) }}</span
                                 >
-                                <!--todo set on notification-->
                                 <span
                                     v-if="userInfo.notifications"
                                     class="absolute z-50 top-1 left-7 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"

@@ -94,7 +94,11 @@ onMounted(() => getTrack());
                         {{ track.genre }}
                     </td>
                     <td v-if="track.label" class="px-6 py-4 flex flex-row gap-2 items-center">
-                        <img :src="track.label.profilePicture" class="h-8 w-auto rounded-full" />
+                        <img
+                            :src="track.label.profilePicture"
+                            alt="label profile picture"
+                            class="h-8 w-auto rounded-full"
+                        />
                         {{ track.label.name }}
                     </td>
                     <td v-if="!track.label" class="px-6 py-4 flex flex-row gap-2 items-center">None</td>
