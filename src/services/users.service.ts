@@ -30,3 +30,9 @@ export async function getReviewers() {
 
     return client.UsersController_getReviewers();
 }
+
+export async function getNameExists(username: Paths.UsersControllerGetNameExists.Parameters.Username) {
+    const client = await APIClient();
+
+    return client.UsersController_getNameExists(username);
+}

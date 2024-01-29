@@ -20,6 +20,7 @@
     "1llest-waveform-vue": "^1.2.0",
     "@vueuse/core": "^10.5.0",
     "axios": "^1.6.2",
+    "firebase": "^10.7.2",
     "flowbite": "^2.1.1",
     "jose": "^5.1.1",
     "openapi-client-axios": "^7.4.0",
