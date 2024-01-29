@@ -21,8 +21,8 @@ declare namespace Components {
         export interface CreateUserDto {
             username: string;
             firstname: string;
-            password: string;
             lastname: string;
+            sub: string;
             roles: Array<roles>;
         }
 
@@ -275,11 +275,7 @@ declare namespace Paths {
         }
     }
     namespace AppControllerLogin {
-        export interface RequestBody {
-            username?: string;
-            password?: string;
-        }
-
+        export type RequestBody = Components.Schemas.LoginDto;
         namespace Responses {
             export type $201 = Components.Schemas.LoginDto;
         }
@@ -650,6 +646,19 @@ declare namespace Paths {
             export type $200 = Components.Schemas.GetUserWithTrackDto[];
         }
     }
+    namespace UsersControllerGetNameExists {
+        namespace Parameters {
+            export type Username = string;
+        }
+
+        export interface PathParameters {
+            username: Parameters.Username;
+        }
+
+        namespace Responses {
+            export type $200 = boolean;
+        }
+    }
     namespace UsersControllerGetReviewers {
         namespace Responses {
             export type $200 = Components.Schemas.GetUserDto[];
@@ -858,6 +867,15 @@ export interface OperationMethods {
         data?: any,
         config?: AxiosRequestConfig
     ): OperationResponse<Paths.UsersControllerGetReviewers.Responses.$200>;
+
+    /**
+     * UsersController_getNameExists
+     */
+    "UsersController_getNameExists"(
+        parameters?: Parameters<Paths.UsersControllerGetNameExists.PathParameters> | null,
+        data?: any,
+        config?: AxiosRequestConfig
+    ): OperationResponse<Paths.UsersControllerGetNameExists.Responses.$200>;
 
     /**
      * FeedbackController_create
@@ -1206,6 +1224,16 @@ export interface PathsDictionary {
             data?: any,
             config?: AxiosRequestConfig
         ): OperationResponse<Paths.UsersControllerGetReviewers.Responses.$200>;
+    };
+    ["/users/name-exists/{username}"]: {
+        /**
+         * UsersController_getNameExists
+         */
+        "get"(
+            parameters?: Parameters<Paths.UsersControllerGetNameExists.PathParameters> | null,
+            data?: any,
+            config?: AxiosRequestConfig
+        ): OperationResponse<Paths.UsersControllerGetNameExists.Responses.$200>;
     };
     ["/feedback"]: {
         /**
