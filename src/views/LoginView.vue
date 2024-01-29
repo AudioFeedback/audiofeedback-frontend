@@ -92,7 +92,7 @@ const userSignUp = async () => {
         const postResponse = await createUser({
             firstname: firstName.value,
             lastname: lastName.value,
-            username: username.value,
+            username: username.value.toLowerCase(),
             sub: createdUser.user.uid,
             roles: [role.value.value]
         });
