@@ -19,6 +19,12 @@ export async function updateUser(body: Paths.UsersControllerUpdate.RequestBody) 
     return client.UsersController_update(null, body);
 }
 
+export async function updateUserRoles(body: Paths.UsersControllerUpdateUserRoles.RequestBody) {
+    const client = await APIClient();
+
+    return client.UsersController_updateUserRoles(null, body);
+}
+
 // export async function deleteUser(id: number) {
 //     const client = await APIClient();
 
