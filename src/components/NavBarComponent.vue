@@ -2,7 +2,7 @@
 import router from "@/router";
 import { getProfile } from "@/services/app.service";
 import { getLabelAssigned } from "@/services/label.service";
-import { selectedRole } from "@/stores/activeRoleStore";
+import { checkRole, selectedRole, setRole } from "@/stores/activeRoleStore";
 import { checkMode, darkmode, toggleMode } from "@/stores/darkmodeStore";
 import type { Components } from "@/types/openapi";
 import type { roles } from "@/utils/authorisationhelper";
@@ -24,10 +24,12 @@ const roleObject: Array<roleObjectEntry> = [
 
 const userRolesObject = roleObject.filter((r) => getRoles().includes(r.value));
 
-const role = ref<roleObjectEntry>(roleObject[0]);
+const userRole = checkRole();
+
+const role = ref<roleObjectEntry>(roleObject[roleObject.findIndex((r) => r.value === userRole)]);
 
 watch(role, () => {
-    selectedRole.value = role.value.value;
+    setRole(role.value.value);
 });
 
 const logout = () => {
