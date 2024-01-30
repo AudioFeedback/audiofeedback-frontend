@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { roles } from "@/utils/authorisationhelper";
 import type {
     AxiosRequestConfig,
     OpenAPIClient,
@@ -19,11 +18,11 @@ declare namespace Components {
         }
 
         export interface CreateUserDto {
+            roles: ("MUZIEKPRODUCER" | "FEEDBACKGEVER" | "ADMIN")[];
             username: string;
             firstname: string;
             lastname: string;
             sub: string;
-            roles: Array<roles>;
         }
 
         export interface GetFeedbackDto {
@@ -57,13 +56,13 @@ declare namespace Components {
         }
 
         export interface GetLabelMemberDto {
-            id: number;
             status: "INVITED" | "ACCEPTED" | "DECLINED";
+            id: number;
         }
 
         export interface GetLabelMemberWithLabelDto {
-            id: number;
             status: "INVITED" | "ACCEPTED" | "DECLINED";
+            id: number;
             label: GetLabelDto;
         }
 
@@ -89,13 +88,11 @@ declare namespace Components {
         }
 
         export interface GetReviewerDto {
+            roles: ("MUZIEKPRODUCER" | "FEEDBACKGEVER" | "ADMIN")[];
             id: number;
             username: string;
             firstname: string;
             lastname: string;
-            roles: {
-                [key: string]: any;
-            }[];
             isReviewed: boolean;
         }
 
@@ -184,44 +181,36 @@ declare namespace Components {
         }
 
         export interface GetUserDto {
+            roles: ("MUZIEKPRODUCER" | "FEEDBACKGEVER" | "ADMIN")[];
             id: number;
             username: string;
             firstname: string;
             lastname: string;
-            roles: {
-                [key: string]: any;
-            }[];
         }
 
         export interface GetUserWithLabelMemberDto {
+            roles: ("MUZIEKPRODUCER" | "FEEDBACKGEVER" | "ADMIN")[];
             id: number;
             firstname: string;
             lastname: string;
             username: string;
-            roles: {
-                [key: string]: any;
-            }[];
             labelMember: GetLabelMemberDto[];
         }
 
         export interface GetUserWithNotificationsDto {
+            roles: ("MUZIEKPRODUCER" | "FEEDBACKGEVER" | "ADMIN")[];
             id: number;
             username: string;
             firstname: string;
             lastname: string;
-            roles: {
-                [key: string]: any;
-            }[];
             notifications: number;
         }
 
         export interface GetUserWithTrackDto {
+            roles: ("MUZIEKPRODUCER" | "FEEDBACKGEVER" | "ADMIN")[];
             id: number;
             firstname: string;
             lastname: string;
-            roles: {
-                [key: string]: any;
-            }[];
             tracks?: GetTrackDto[];
             feedback?: GetFeedbackDto[];
         }
@@ -258,8 +247,8 @@ declare namespace Components {
             lastname: string;
         }
 
-        export interface UpdateUserPasswordDto {
-            password: string;
+        export interface UpdateUserRolesDto {
+            roles: ("MUZIEKPRODUCER" | "FEEDBACKGEVER" | "ADMIN")[];
         }
     }
 }
@@ -680,8 +669,8 @@ declare namespace Paths {
             export interface $200 {}
         }
     }
-    namespace UsersControllerUpdatePassword {
-        export type RequestBody = Components.Schemas.UpdateUserPasswordDto;
+    namespace UsersControllerUpdateUserRoles {
+        export type RequestBody = Components.Schemas.UpdateUserRolesDto;
         namespace Responses {
             export interface $200 {}
         }
@@ -879,13 +868,13 @@ export interface OperationMethods {
     ): OperationResponse<Paths.UsersControllerUpdate.Responses.$200>;
 
     /**
-     * UsersController_updatePassword
+     * UsersController_updateUserRoles
      */
-    "UsersController_updatePassword"(
+    "UsersController_updateUserRoles"(
         parameters?: Parameters<UnknownParamsObject> | null,
-        data?: Paths.UsersControllerUpdatePassword.RequestBody,
+        data?: Paths.UsersControllerUpdateUserRoles.RequestBody,
         config?: AxiosRequestConfig
-    ): OperationResponse<Paths.UsersControllerUpdatePassword.Responses.$200>;
+    ): OperationResponse<Paths.UsersControllerUpdateUserRoles.Responses.$200>;
 
     /**
      * UsersController_getReviewers
@@ -1253,15 +1242,15 @@ export interface PathsDictionary {
             config?: AxiosRequestConfig
         ): OperationResponse<Paths.UsersControllerUpdate.Responses.$200>;
     };
-    ["/users/Password"]: {
+    ["/users/roles"]: {
         /**
-         * UsersController_updatePassword
+         * UsersController_updateUserRoles
          */
         "patch"(
             parameters?: Parameters<UnknownParamsObject> | null,
-            data?: Paths.UsersControllerUpdatePassword.RequestBody,
+            data?: Paths.UsersControllerUpdateUserRoles.RequestBody,
             config?: AxiosRequestConfig
-        ): OperationResponse<Paths.UsersControllerUpdatePassword.Responses.$200>;
+        ): OperationResponse<Paths.UsersControllerUpdateUserRoles.Responses.$200>;
     };
     ["/users/reviewers"]: {
         /**

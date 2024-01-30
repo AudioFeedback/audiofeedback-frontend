@@ -2,11 +2,12 @@
 import Toasts from "@/components/Toasts-Popup.vue";
 import { getProfile } from "@/services/app.service";
 import { acceptInvite, declineInvite, getLabelInvites } from "@/services/label.service";
-import { updateUser } from "@/services/users.service";
+import { updateUser, updateUserRoles } from "@/services/users.service";
 import type { Components } from "@/types/openapi";
+import type { roles } from "@/utils/authorisationhelper";
 import type { ToastType } from "@/utils/types";
 import { initFlowbite } from "flowbite";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const userinfo = ref<Components.Schemas.GetUserDto>({ id: 0, username: "", firstname: "", lastname: "", roles: [] });
 const confirmDeletion = ref<boolean>();
@@ -14,16 +15,37 @@ const firstname = ref<string>();
 const lastname = ref<string>();
 const password = ref<string>();
 const confirm_password = ref<string>();
-const password_match = ref<boolean>(true);
 const invites = ref<Components.Schemas.GetLabelMemberWithLabelDto[] | null>();
 const labelmemberid = ref<number>(0);
 const toasttype = ref<ToastType>();
 const toastmessage = ref<string | null>();
 
+const artistRole = ref<boolean>(false);
+const reviewerRole = ref<boolean>(false);
+
+const selectedRoles = computed(() => {
+    const roleArray: Array<roles> = [];
+    if (artistRole.value) {
+        roleArray.push("MUZIEKPRODUCER");
+    }
+    if (reviewerRole.value) {
+        roleArray.push("FEEDBACKGEVER");
+    }
+    return roleArray;
+});
+
+const updateRoles = async () => {
+    await updateUserRoles({ roles: selectedRoles.value });
+};
+
 const getUserInfo = async () => {
     const response = await getProfile();
 
     userinfo.value = response.data;
+
+    artistRole.value = response.data.roles.includes("MUZIEKPRODUCER");
+    reviewerRole.value = response.data.roles.includes("FEEDBACKGEVER");
+
     firstname.value = response.data.firstname;
     lastname.value = response.data.lastname;
     initFlowbite();
@@ -42,23 +64,23 @@ const deleteAccount = async () => {
     //     }
 };
 
-const validatePassword = async () => {
-    if (password.value !== confirm_password.value) {
-        password_match.value = false;
-        return;
-    } else {
-        password_match.value = true;
-    }
-};
+const validatedPasswords = computed(() => {
+    return password.value === confirm_password.value;
+});
 
 const checkFormValid = async () => {
     try {
-        if (password_match.value) {
-            // editUser();
+        if (validatedPasswords.value) {
+            editUser();
             return;
         }
     } catch (error) {
-        alert("Something went wrong, please try again");
+        toasttype.value = "error";
+        toastmessage.value = "Something went wrong, please try again";
+        setTimeout(() => {
+            toasttype.value = null;
+            toastmessage.value = null;
+        }, 5000);
         return;
     }
 };
@@ -106,6 +128,8 @@ const editUser = async () => {
             firstname: firstname.value ?? userinfo.value.firstname,
             lastname: lastname.value ?? userinfo.value.lastname
         });
+
+        await updateRoles();
 
         if (!response) {
             return;
@@ -250,25 +274,60 @@ onMounted(async () => {
                                 v-model="confirm_password"
                                 :class="{
                                     'bg-red-50 border-red-500 text-red-900 ocus:ring-red-500 dark:bg-gray-700 focus:border-red-500 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500':
-                                        !password_match,
+                                        !validatedPasswords,
                                     'bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500':
-                                        password_match
+                                        validatedPasswords
                                 }"
                                 class="border text-sm rounded-lg block w-full p-2.5"
                                 placeholder="•••••••••"
                                 type="password"
-                                @blur="validatePassword()"
                             />
-                            <p v-if="!password_match" class="mt-2 text-sm text-red-600 dark:text-red-500 font-medium">
+                            <p
+                                v-if="!validatedPasswords"
+                                class="absolute mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
+                            >
                                 Password are not the same
                             </p>
                         </div>
+
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="countries"
+                                >Select a role</label
+                            >
+                            <div class="flex items-center mb-4">
+                                <input
+                                    id="default-checkbox"
+                                    v-model="artistRole"
+                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    type="checkbox"
+                                />
+                                <label
+                                    class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                    for="default-checkbox"
+                                    >Artist</label
+                                >
+                            </div>
+                            <div class="flex items-center">
+                                <input
+                                    id="checked-checkbox"
+                                    v-model="reviewerRole"
+                                    checked
+                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    type="checkbox"
+                                />
+                                <label
+                                    class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                    for="checked-checkbox"
+                                    >Reviewer</label
+                                >
+                            </div>
+                        </div>
                     </div>
+
                     <div class="flex items-center space-x-4">
                         <button
                             class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                             type="submit"
-                            @click="editUser()"
                         >
                             Update account
                         </button>

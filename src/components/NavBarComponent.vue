@@ -2,7 +2,7 @@
 import router from "@/router";
 import { getProfile } from "@/services/app.service";
 import { getLabelAssigned } from "@/services/label.service";
-import { selectedRole } from "@/stores/activeRoleStore";
+import { checkRole, selectedRole, setRole } from "@/stores/activeRoleStore";
 import { checkMode, darkmode, toggleMode } from "@/stores/darkmodeStore";
 import type { Components } from "@/types/openapi";
 import type { roles } from "@/utils/authorisationhelper";
@@ -24,10 +24,12 @@ const roleObject: Array<roleObjectEntry> = [
 
 const userRolesObject = roleObject.filter((r) => getRoles().includes(r.value));
 
-const role = ref<roleObjectEntry>(roleObject[0]);
+const userRole = checkRole();
+
+const role = ref<roleObjectEntry>(roleObject[roleObject.findIndex((r) => r.value === userRole)]);
 
 watch(role, () => {
-    selectedRole.value = role.value.value;
+    setRole(role.value.value);
 });
 
 const logout = () => {
@@ -50,11 +52,27 @@ const getUserInfo = async () => {
 const getLabel = async () => {
     const response = await getLabelAssigned();
     labelInfo.value = response.data;
+    return response.data;
 };
 
 const loadLabel = async () => {
-    localStorage.getItem("currentLabel");
-    currentLabel.value = JSON.parse(localStorage.getItem("currentLabel") || "{}");
+    const userLabels = await getLabel();
+
+    const currentLabelFromStorage = localStorage.getItem("currentLabel");
+
+    if (currentLabelFromStorage) {
+        const parsedCurrentLabelFromStorage = JSON.parse(currentLabelFromStorage);
+
+        const labelIsTrue = userLabels.find((l) => l.id === parsedCurrentLabelFromStorage.id);
+
+        if (!labelIsTrue) {
+            return setSelectedLabel((await getLabel())[0]);
+        }
+
+        return (currentLabel.value = JSON.parse(currentLabelFromStorage));
+    }
+
+    currentLabel.value = (await getLabel())[0];
 };
 
 const setSelectedLabel = (label: Components.Schemas.GetLabelDto) => {
@@ -65,8 +83,8 @@ const setSelectedLabel = (label: Components.Schemas.GetLabelDto) => {
 };
 
 onMounted(() => {
-    getUserInfo();
     checkMode();
+    getUserInfo();
     getLabel();
     loadLabel();
 });
@@ -175,7 +193,14 @@ onMounted(() => {
                 <ul
                     class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700 cursor-pointer"
                 >
-                    <li v-if="selectedRole === 'ADMIN' || selectedRole === 'FEEDBACKGEVER'" class="relative">
+                    <li
+                        v-if="
+                            (selectedRole === 'ADMIN' || selectedRole === 'FEEDBACKGEVER') &&
+                            labelInfo &&
+                            labelInfo.length > 1
+                        "
+                        class="relative"
+                    >
                         <button
                             class="text-white w-full bg-blue-700 justify-between hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                             type="button"
@@ -236,21 +261,23 @@ onMounted(() => {
                         </div>
                     </li>
 
-                    <li v-if="getRoles().length > 1" class="relative"></li>
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="countries"
-                            >Select role</label
-                        >
-                        <select
-                            id="role"
-                            v-model="role"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        >
-                            <option v-for="(role, i) in userRolesObject" :key="i" :value="role">
-                                {{ role.visualName }}
-                            </option>
-                        </select>
-                    </div>
+                    <li v-if="getRoles().length > 1" class="relative">
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="countries"
+                                >Select role</label
+                            >
+                            <select
+                                id="role"
+                                v-model="role"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            >
+                                <option v-for="(role, i) in userRolesObject" :key="i" :value="role">
+                                    {{ role.visualName }}
+                                </option>
+                            </select>
+                        </div>
+                    </li>
+
                     <li @click="toggleMode()">
                         <a
                             v-if="darkmode"

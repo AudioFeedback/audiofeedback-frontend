@@ -366,7 +366,7 @@ onMounted(() => checkMode());
                             />
                             <p
                                 v-if="!validatedPasswords"
-                                class="mt-2 text-sm text-red-600 dark:text-red-500 font-medium"
+                                class="absolute mt-1 text-sm text-red-600 dark:text-red-500 font-medium"
                             >
                                 Passwords are not the same
                             </p>
