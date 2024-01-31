@@ -273,14 +273,18 @@ onMounted(() => {
                                         >Select a reviewer</label
                                     >
                                     <select
-                                        v-for="(newreviewer, i) in availableReviewers"
                                         id="coureviewersntries"
-                                        :key="i"
                                         v-model="selectedReviewer"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     >
                                         <option :value="-1" selected>Choose a reviewer</option>
-                                        <option :value="newreviewer.id">{{ newreviewer.username }}</option>
+                                        <option
+                                            v-for="(newreviewer, i) in availableReviewers"
+                                            :key="i"
+                                            :value="newreviewer.id"
+                                        >
+                                            {{ newreviewer.username }}
+                                        </option>
                                     </select>
                                 </div>
                                 <button

@@ -56,11 +56,14 @@ const getLabel = async () => {
 };
 
 const loadLabel = async () => {
+    if (selectedRole.value === "MUZIEKPRODUCER") {
+        return;
+    }
     const userLabels = await getLabel();
 
     const currentLabelFromStorage = localStorage.getItem("currentLabel");
 
-    if (currentLabelFromStorage) {
+    if (currentLabelFromStorage && currentLabelFromStorage !== "undefined") {
         const parsedCurrentLabelFromStorage = JSON.parse(currentLabelFromStorage);
 
         const labelIsTrue = userLabels.find((l) => l.id === parsedCurrentLabelFromStorage.id);
@@ -72,7 +75,9 @@ const loadLabel = async () => {
         return (currentLabel.value = JSON.parse(currentLabelFromStorage));
     }
 
-    currentLabel.value = (await getLabel())[0];
+    if ((await getLabel())[0]) {
+        setSelectedLabel((await getLabel())[0]);
+    }
 };
 
 const setSelectedLabel = (label: Components.Schemas.GetLabelDto) => {
