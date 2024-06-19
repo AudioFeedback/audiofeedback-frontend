@@ -59,7 +59,9 @@ const getTrackInfo = async () => {
     trackInfo.value = data;
 
     trackVersion.value = data.trackversions.length - 1;
-    uploadedFileUrl.value = `https://${data.trackversions[0].fullUrl}`;
+    uploadedFileUrl.value = uploadedFileUrl.value = `${import.meta.env.VITE_API_URL}/tracks/audio/${
+        data.trackversions[trackVersion.value].guid
+    }.${data.trackversions[trackVersion.value].filetype}`;
     forceRerender();
 };
 
@@ -80,7 +82,7 @@ const submitData = async () => {
         return;
     }
 
-    const apiUrl = `https://${import.meta.env.VITE_API_URL}/tracks/${trackInfo?.value?.id}`;
+    const apiUrl = `${import.meta.env.VITE_API_URL}/tracks/${trackInfo?.value?.id}`;
     try {
         const body = new FormData();
         body.set("file", audioFile.value!);
@@ -546,7 +548,8 @@ const getUserInfo = async () => {
                             >
                                 <div>
                                     <div class="text-base font-normal">
-                                        {{ userinfo?.firstname }} {{ userinfo?.lastname }} uploaded track version
+                                        {{ trackInfo?.author.firstname }} {{ trackInfo?.author.lastname }} uploaded
+                                        track version
                                         {{ track.versionNumber }}
                                     </div>
                                     <div class="text-sm font-normal">{{ track.description }}</div>

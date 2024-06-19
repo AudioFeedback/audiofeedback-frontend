@@ -40,7 +40,9 @@ const getTrackData = async () => {
     const data = response.data;
     trackinfo.value = data;
     trackversion.value = data.trackversions[0];
-    uploadedfileUrl.value = `https://${data.trackversions[0].fullUrl}`;
+    uploadedfileUrl.value = `${import.meta.env.VITE_API_URL}/tracks/audio/${
+        data.trackversions[trackversion.value.versionNumber - 1].guid
+    }.${data.trackversions[trackversion.value.versionNumber - 1].filetype}`;
     forceRerender();
 };
 

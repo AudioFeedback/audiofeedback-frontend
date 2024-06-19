@@ -5,7 +5,7 @@ import type { Components } from "@/types/openapi";
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-const apiUrl = `https://${import.meta.env.VITE_API_URL}/tracks`;
+const apiUrl = `${import.meta.env.VITE_API_URL}/tracks`;
 let uploadedFileUrl = ref<string>("");
 let uploadedFileTitle = ref<string>("");
 let uploadedFileGenre = ref<string>("");
@@ -136,7 +136,7 @@ const submitData = async () => {
         uploadedFileTitle.value = data.title;
         uploadedFileGenre.value = data.genre;
         uploadedTrackId.value = data.id;
-        uploadedFileUrl.value = `https://${data.full_url}`;
+        uploadedFileUrl.value = `${data.full_url}`;
         sendSuccess.value = true;
         forceRerender();
         await router.push("/track/" + uploadedTrackId.value);

@@ -5,7 +5,7 @@ import { createFeedback, publishFeedback } from "@/services/feedback.service";
 import { getTrack, getTrackReviewer } from "@/services/tracks.service";
 import type { Components } from "@/types/openapi";
 import { onKeyStroke } from "@vueuse/core";
-import { onBeforeMount, onMounted, reactive, ref, watchEffect } from "vue";
+import { onBeforeMount, onMounted, reactive, ref, watch, watchEffect } from "vue";
 import { IllestWaveform, type IllestWaveformProps } from "../utils/1llest-waveform";
 
 interface Props {
@@ -38,6 +38,10 @@ const showSubmitButton = ref<boolean>(false);
 const trackDuration = ref<number>(-1);
 
 const keyPressesDisabled = ref<boolean>(false);
+
+watch(uploadedFileUrl, () => {
+    console.log(uploadedFileUrl.value);
+});
 
 const waveOptions = reactive<IllestWaveformProps>({
     url: uploadedFileUrl.value,
@@ -124,10 +128,12 @@ const getTrackInfo = async () => {
         trackData.value = data;
 
         trackVersion.value = props.version + 1;
-        uploadedFileUrl.value = `https://${data.trackversions[props.version].fullUrl}`;
+        uploadedFileUrl.value = `${import.meta.env.VITE_API_URL}/tracks/audio/${
+            data.trackversions[props.version].guid
+        }.${data.trackversions[props.version].filetype}`;
         waveOptions.url = uploadedFileUrl.value;
         trackDuration.value = track.value.duration;
-        
+
         forceRerender();
     }
 
@@ -141,7 +147,10 @@ const getTrackInfo = async () => {
 
         track.value = data.trackversions[0];
 
-        uploadedFileUrl.value = `https://${data.trackversions[0].fullUrl}`;
+        uploadedFileUrl.value = `${import.meta.env.VITE_API_URL}/tracks/audio/${data.trackversions[0].guid}.${
+            data.trackversions[0].filetype
+        }`;
+
         waveOptions.url = uploadedFileUrl.value;
         trackDuration.value = track.value.duration;
 
@@ -269,6 +278,10 @@ const seek = (to: number) => {
 };
 
 defineExpose({ seek, toggleKeyPresses });
+
+watch(submitted, () => {
+    CloseFeedback();
+});
 </script>
 
 <template>
@@ -394,7 +407,7 @@ defineExpose({ seek, toggleKeyPresses });
                 </div>
             </div>
 
-            <div v-if="feedback" class="relative -top-5">
+            <div v-if="feedback && !submitted" class="relative -top-5">
                 <div
                     v-if="selectedPercentageLeft"
                     :style="{ left: `${selectedPercentageLeft - 1.5}%` }"

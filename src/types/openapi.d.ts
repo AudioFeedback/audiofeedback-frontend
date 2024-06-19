@@ -100,6 +100,7 @@ declare namespace Components {
             id: number;
             title: string;
             genre: string;
+            author: GetUserDto;
             trackversions: GetTrackVersionDeepDto[];
             reviewers: GetUserDto[];
         }
